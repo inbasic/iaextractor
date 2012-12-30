@@ -76,7 +76,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       let rect = doc.createElementNS(NS_SVG, "rect");
       rect.setAttribute("x", 1);
       rect.setAttribute("y", 2);
-      rect.setAttribute("width", 14);
+      rect.setAttribute("width", 14 * (options.progress ? options.progress : 0));
       rect.setAttribute("height", 3);
       rect.setAttribute("fill", options.progressColor ? options.progressColor : "yellow");
       svg.appendChild(rect);

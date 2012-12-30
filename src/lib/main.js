@@ -1,41 +1,43 @@
 /** Require **/
-var tabs             = require("tabs"),
-    self             = require("self"),
-    timer            = require("timers"),
-    sp               = require("simple-prefs"),
-    prefs            = sp.prefs,
-    pageMod          = require("page-mod"),
-    windowutils      = require("window-utils"),
-    window           = windowutils.activeBrowserWindow,
-    toolbarbutton    = require("toolbarbutton"),
-    _                = require("l10n").get,
-    data             = self.data,
-    {Cc, Ci, Cu}     = require('chrome'),
-    youtube          = require("youtube"),
-    downloader       = require("downloader"),
-    extract          = require("extract");
+var tabs          = require("tabs"),
+    self          = require("self"),
+    timer         = require("timers"),
+    sp            = require("simple-prefs"),
+    prefs         = sp.prefs,
+    pageMod       = require("page-mod"),
+    windowutils   = require("window-utils"),
+    window        = windowutils.activeBrowserWindow,
+    toolbarbutton = require("toolbarbutton"),
+    _             = require("l10n").get,
+    data          = self.data,
+    {Cc, Ci, Cu}  = require('chrome'),
+    youtube       = require("youtube"),
+    downloader    = require("downloader"),
+    extract       = require("extract");
     
 /** Internal configurations **/
 var config = {
+  //Youtube
   youtube: "https://www.youtube.com/",
+  yRegExp: /http.*:.*youtube.com\/watch\?v\=([^\=\&]*)/,
+  //toolbar
   image: {
-    data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TA" +
-      "AAAwFBMVEX///////+/AADdRjPOJBoiHx/VMyXHEg3rZkrPJRvSLCDYOirLHRXgTTjhTznnXEP" +
-      "eSTTQKB3WNifKGhPBBQPaPi30fFroX0XoYEXrmpPFDwvDCQfvcVLdRTLbQS/fgIDhUTvkVj/OI" +
-      "xnxdFTjiIXcRDHqZUn1hGTUMCPTLyLzeVfIFQ/ECwjmW0LAAgHcbWvEDAnRKR7vcFHaQC7iUjz" +
-      "MHxfhTjnraEvkWEDHEw7XOSnXOirPJxzsaEzZPSzlWUD0fBD5AAAAAXRSTlMAQObYZgAAAJhJR" +
-      "EFUeF6Fi9Wuw1AMBL0+EGYoMzP3Ivz/XzVppd6XSJ21HzzWEpEq8k+lUOqxz4cq54V41irJ8+X" +
-      "RDM7hr45co0U0A/BTH3j4XMikmTKN2jBr776APlxW6y3T2xQBfGQAkjHAtPlDHx3EsPCBUly94" +
-      "nRgw8UezEziBKcBDIFd2gNaJEIx6WZf8dz+llJaTKS1tiNpGHyHbrwiCguwrSsJAAAAAElFTkS" +
-      "uQmCC",
-    progressColor: "rgba(255, 255, 0, 0.8)"
+    data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9T" +
+      "AAAAwFBMVEX///////+/AADdRjPOJBoiHx/VMyXHEg3rZkrPJRvSLCDYOirLHRXgTTjhTz" +
+      "nnXEPeSTTQKB3WNifKGhPBBQPaPi30fFroX0XoYEXrmpPFDwvDCQfvcVLdRTLbQS/fgIDh" +
+      "UTvkVj/OIxnxdFTjiIXcRDHqZUn1hGTUMCPTLyLzeVfIFQ/ECwjmW0LAAgHcbWvEDAnRKR" +
+      "7vcFHaQC7iUjzMHxfhTjnraEvkWEDHEw7XOSnXOirPJxzsaEzZPSzlWUD0fBD5AAAAAXRS" +
+      "TlMAQObYZgAAAJhJREFUeF6Fi9Wuw1AMBL0+EGYoMzP3Ivz/XzVppd6XSJ21HzzWEpEq8k" +
+      "+lUOqxz4cq54V41irJ8+XRDM7hr45co0U0A/BTH3j4XMikmTKN2jBr776APlxW6y3T2xQB" +
+      "fGQAkjHAtPlDHx3EsPCBUly94nRgw8UezEziBKcBDIFd2gNaJEIx6WZf8dz+llJaTKS1ti" +
+      "NpGHyHbrwiCguwrSsJAAAAAElFTkSuQmCC",
+    get progressColor() {return prefs.progressColor}
   },
-
   move: {toolbarID: "nav-bar", forceMove: false},
-  
+  //Timing
   desktopNotification: 3, //seconds
-  
-  tooltip: "Left click: Open Youtube/Download video & audio\nRight click: Show progress panel"
+  //Tooltip
+  tooltip: _("tooltip1") + "\n" + _("tooltip2") + "\n" + _("tooltip3")
 }
 
 /** Panel **/
@@ -51,7 +53,7 @@ panel.port.on("click-link", function(url) {
 });
 
 /** Initialize **/
-var yButton, url;
+var yButton;
 exports.main = function(options, callbacks) {
   //Toolbar
   yButton = toolbarbutton.ToolbarButton({
@@ -61,7 +63,8 @@ exports.main = function(options, callbacks) {
     progressColor: config.image.progressColor,
     image: config.image.data,
     onCommand: function (e) {
-      if (!url) {
+      let url = tabs.activeTab.url;
+      if (!config.yRegExp.test(url)) {
         notify(_('name'), _('msg1'));
         tabs.open(config.youtube);
         return;
@@ -77,29 +80,25 @@ exports.main = function(options, callbacks) {
       }
     }
   });
-  //Monitor
+  if (options.loadReason == "install") {
+    yButton.moveTo(config.move);
+  }
+  //Monitor tab changes
   function monitor (tab) {
-    if (/http.*:.*youtube.com\/watch\?v\=/.test(tab.url)) {
+    if (config.yRegExp.test(tab.url)) {
       yButton.saturate = 1;
       yButton.hueRotate = 0;
-      
-      url = tab.url;
     }
     else {
       yButton.saturate = 0;
-      url = null;
     }
   }
   monitor(tabs.activeTab);
   tabs.on('activate', monitor);
   tabs.on('ready', monitor);
-  //Install
-  if (options.loadReason == "install") {
-    yButton.moveTo(config.move);
-  }
 }
 
-/** Detect a Youtube link and download it and extract audio**/
+/** Detect a Youtube download link, download it and extract the audio**/
 var listener = (function () {
   var objs = [];
   var detects = 0, downloads = 0, extracts = 0;
@@ -149,21 +148,18 @@ var listener = (function () {
       });
       yButton.progress = ttSize/tSize;
       yButton.tooltiptext = 
-        _("size").replace("%1", (tSize/1024/1024).toFixed(1)) +
+        _("tooltip4").replace("%1", (tSize/1024/1024).toFixed(1)) +
         "\n" +
-        _("progress").replace("%1", (ttSize/tSize*100).toFixed(1));
+        _("tooltip5").replace("%1", (ttSize/tSize*100).toFixed(1));
     },
-    onError: function (dl) {
-      remove(dl);
-    }
+    onError: remove
   }
 })();
 
 var get = function (url, listener) {
   //Detect
   listener.onDetectStart();
-  var videoID = /\?v\=([^\=\&]*)/.exec(url)[1];
-  //vInfo: url, quality, fallback_host, type, itag, container, resolution, encoding, profile, bitrate, audioEncoding, audioBitrate
+  var videoID = config.yRegExp.exec(url)[1];
   youtube.detect(videoID, parseInt(prefs.quality), function (vInfo, e) { 
     listener.onDetectDone();
     if (e) {
@@ -210,7 +206,8 @@ var get = function (url, listener) {
 }
 
 /** Notifier **/
-var notify = (function () { // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
+// https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
+var notify = (function () {
   return function (title, text) {
     try {
       let alertServ = Cc["@mozilla.org/alerts-service;1"].
@@ -222,8 +219,12 @@ var notify = (function () { // https://github.com/fwenzel/copy-shorturl/blob/mas
       let browser = windowutils.activeBrowserWindow.gBrowser,
           notificationBox = browser.getNotificationBox();
 
-      notification = notificationBox.appendNotification(text, 'jetpack-notification-box',
-          data.url("notification.png"), notificationBox.PRIORITY_INFO_MEDIUM, []
+      notification = notificationBox.appendNotification(
+        text, 
+        'jetpack-notification-box',
+        data.url("notification.png"), 
+        notificationBox.PRIORITY_INFO_MEDIUM, 
+        []
       );
       timer.setTimeout(function() {
           notification.close();
