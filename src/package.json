@@ -1,0 +1,30 @@
+{
+  "fullName": "Youtube Audio Converter",
+  "name": "youtube-audio-converter",
+  
+  "description": "A pure JavaScript AAC extractor for FLV format.",
+
+  "license": "mozilla public license 1.1",
+
+  "author": "InBasic",
+  "contributors": [],
+  
+  "url": "",
+  "version": "0.1.0",
+  "lib": "lib",
+  "main": "main",
+  
+  "id": "feca4b87-3be4-43da-a1b1-137c24220968",
+  
+  "preferences": [{
+    "name": "quality",
+    "title": "Select video quality:",
+    "type": "menulist",
+    "value": 1,
+    "options": [
+      {"value": "0", "label": "Low"},
+      {"value": "1", "label": "Medium"},
+      {"value": "2", "label": "High"}
+    ]
+  }]
+}
