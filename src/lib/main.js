@@ -3,8 +3,6 @@ var tabs          = require("tabs"),
     self          = require("self"),
     timer         = require("timers"),
     prefs         = require("simple-prefs").prefs,
-    pageMod       = require("page-mod"),
-    pageWorker    = require("page-worker")
     windowutils   = require("window-utils"),
     window        = windowutils.activeBrowserWindow,
     panel         = require("panel"),
@@ -48,17 +46,19 @@ var config = {
       height: 150
     },
     iPanel: {
-      width: 500,
-      height: 600
+      width: 520,
+      height: 520
     }
-  }
+  },
+  //Homepage
+  homepage: "http://iaextractor1.notlong.com/"
 }
 
 /** Panel (report) **/
 var rPanel = panel.Panel({
   width: config.panels.rPanel.width,
   height: config.panels.rPanel.height,
-  contentURL: data.url('report.html'),
+  contentURL: data.url('report/report.html'),
   contentScriptFile: data.url('report.js'),
   contentScriptWhen: "ready"
 });
@@ -69,7 +69,7 @@ var iPanel = panel.Panel({
   width: config.panels.iPanel.width,
   height: config.panels.iPanel.height,
   contentURL: data.url('info.html'),
-  contentScriptFile: data.url('info.js'),
+  contentScriptFile: [data.url('info/jsoneditor/jsoneditor.js'), data.url('info/info.js')],
   contentScriptWhen: "ready"
 });
 
@@ -85,7 +85,12 @@ function urlExtractor (url, callback, pointer) {
   //User page
   if (/http.*:.*youtube.com\/user/.test(url)) {
     var worker = tabs.activeTab.attach({
-      contentScript: "self.port.emit('response', (function (){var divs = document.getElementsByClassName('channels-video-player');return divs.length ? divs[0].getAttribute('data-video-id') : null})());"
+      contentScript: "self.port.emit('response', " + 
+        "(function (){" +
+          "var divs = document.getElementsByClassName('channels-video-player');" +
+          "return divs.length ? divs[0].getAttribute('data-video-id') : null" +
+        "})()" +
+      ");"
     });
     worker.port.on("response", function (id) {
       if (callback) {
@@ -96,6 +101,13 @@ function urlExtractor (url, callback, pointer) {
   else {
     callback.apply(pointer, []);
   }
+}
+
+/** Welcome page **/
+var welcome = function () {
+  timer.setTimeout(function () {
+    tabs.open({url: config.homepage, inBackground : false});
+  }, 3000);
 }
 
 /** Initialize **/
@@ -130,10 +142,9 @@ exports.main = function(options, callbacks) {
         let url = tabs.activeTab.url;
         urlExtractor(url, function (videoID) {
           if (!videoID) return;
-
+          iPanel.show();
           youtube.getInfo(videoID, function (vInfo, e) {
-            iPanel.port.emit('info', JSON.stringify(vInfo, null, " "));
-            iPanel.show();
+            iPanel.port.emit('info', vInfo);
           });
         });
       }
@@ -157,6 +168,10 @@ exports.main = function(options, callbacks) {
   monitor(tabs.activeTab);
   tabs.on('activate', monitor);
   tabs.on('ready', monitor);
+  //Welcome page
+  if (options.loadReason == "upgrade" || options.loadReason == "install") {
+    welcome();
+  }
 }
 
 /** Detect a Youtube download link, download it and extract the audio**/

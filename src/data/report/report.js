@@ -1,11 +1,11 @@
 self.port.on("detect", function(str) {
-  document.getElementById("detect").innerHTML = str;
+  document.getElementById("detect").firstChild.nodeValue = str;
 });
 self.port.on("download", function(str) {
-  document.getElementById("download").innerHTML = str;
+  document.getElementById("download").firstChild.nodeValue = str;
 });
 self.port.on("extract", function(str) {
-  document.getElementById("extract").innerHTML = str;
+  document.getElementById("extract").firstChild.nodeValue = str;
 });
 
 document.getElementById("cancel").addEventListener("click", function () {

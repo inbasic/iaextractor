@@ -22,3 +22,8 @@ Folders description:
 2. Browse the src directory
 3. Download the raw *.xpi file
 4. Drag and drop it into Firefox
+
+###iaextractor contains codes from the follwing projects
+1. http://www.moitah.net/
+2. https://github.com/fent/node-ytdl
+3. https://github.com/josdejong/jsoneditoronline
