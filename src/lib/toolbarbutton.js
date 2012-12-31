@@ -58,7 +58,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
-      
+
       let svg = doc.createElementNS(NS_SVG, "svg");
       svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
       svg.setAttribute("viewBox", "0 0 16 16");

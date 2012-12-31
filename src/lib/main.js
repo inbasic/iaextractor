@@ -2,24 +2,26 @@
 var tabs          = require("tabs"),
     self          = require("self"),
     timer         = require("timers"),
-    sp            = require("simple-prefs"),
-    prefs         = sp.prefs,
+    prefs         = require("simple-prefs").prefs,
     pageMod       = require("page-mod"),
+    pageWorker    = require("page-worker")
     windowutils   = require("window-utils"),
     window        = windowutils.activeBrowserWindow,
+    panel         = require("panel"),
     toolbarbutton = require("toolbarbutton"),
     _             = require("l10n").get,
     data          = self.data,
     {Cc, Ci, Cu}  = require('chrome'),
     youtube       = require("youtube"),
-    downloader    = require("downloader"),
+    download    = require("download"),
     extract       = require("extract");
+    
+Cu.import("resource://gre/modules/FileUtils.jsm");
     
 /** Internal configurations **/
 var config = {
   //Youtube
   youtube: "https://www.youtube.com/",
-  yRegExp: /http.*:.*youtube.com\/watch\?v\=([^\=\&]*)/,
   //toolbar
   image: {
     data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9T" +
@@ -37,20 +39,50 @@ var config = {
   //Timing
   desktopNotification: 3, //seconds
   //Tooltip
-  tooltip: _("tooltip1") + "\n" + _("tooltip2") + "\n" + _("tooltip3")
+  tooltip: _("tooltip1") + "\n" + _("tooltip2") + "\n" + _("tooltip3") + "\n" +
+    _("tooltip6"),
+  //Panels
+  panels: {
+    rPanel: {
+      width: 320,
+      height: 150
+    },
+    iPanel: {
+      width: 500,
+      height: 600
+    }
+  }
 }
 
-/** Panel **/
-var panel = require("panel").Panel({
-  width: 320,
-  height: 200,
+/** Panel (report) **/
+var rPanel = panel.Panel({
+  width: config.panels.rPanel.width,
+  height: config.panels.rPanel.height,
   contentURL: data.url('report.html'),
   contentScriptFile: data.url('report.js'),
   contentScriptWhen: "ready"
 });
-panel.port.on("click-link", function(url) {
-  console.log(url);
+rPanel.port.on("cancelAll", function () {
+  listener.cancel();
 });
+var iPanel = panel.Panel({
+  width: config.panels.iPanel.width,
+  height: config.panels.iPanel.height,
+  contentURL: data.url('info.html'),
+  contentScriptFile: data.url('info.js'),
+  contentScriptWhen: "ready"
+});
+
+/** Get video id from URL **/
+function urlExtractor (url, callback, pointer) {
+  var id;
+  var temp = /http.*:.*youtube.com\/watch\?.*v\=([^\=\&]*)/.exec(url);
+  id = temp ? temp[1]: null;
+
+  if (callback) {
+    return callback.apply(pointer, [id]);
+  }
+}
 
 /** Initialize **/
 var yButton;
@@ -64,19 +96,32 @@ exports.main = function(options, callbacks) {
     image: config.image.data,
     onCommand: function (e) {
       let url = tabs.activeTab.url;
-      if (!config.yRegExp.test(url)) {
-        notify(_('name'), _('msg1'));
-        tabs.open(config.youtube);
-        return;
-      };
-      panel.show();
-      get(url, listener);
+      urlExtractor(url, function (videoID) {
+        if (!videoID) {
+          notify(_('name'), _('msg1'));
+          tabs.open(config.youtube);
+          return;
+        };
+        rPanel.show();
+        get(videoID, listener);
+      });
     },
     onClick: function (e) { //Linux problem for onClick
       if (e.button == 2) {
         e.preventDefault();
         e.stopPropagation();
-        panel.show();
+        rPanel.show();
+      }
+      if (e.button == 1) {
+        let url = tabs.activeTab.url;
+        urlExtractor(url, function (videoID) {
+          if (!videoID) return;
+
+          youtube.getInfo(videoID, function (vInfo, e) {
+            iPanel.port.emit('info', JSON.stringify(vInfo, null, " "));
+            iPanel.show();
+          });
+        });
       }
     }
   });
@@ -85,13 +130,15 @@ exports.main = function(options, callbacks) {
   }
   //Monitor tab changes
   function monitor (tab) {
-    if (config.yRegExp.test(tab.url)) {
-      yButton.saturate = 1;
-      yButton.hueRotate = 0;
-    }
-    else {
-      yButton.saturate = 0;
-    }
+    urlExtractor(tab.url, function (videoID) {
+      if (videoID) {
+        yButton.saturate = 1;
+        yButton.hueRotate = 0;
+      }
+      else {
+        yButton.saturate = 0;
+      }
+    });
   }
   monitor(tabs.activeTab);
   tabs.on('activate', monitor);
@@ -118,23 +165,23 @@ var listener = (function () {
   
   return {
     onDetectStart: function () {
-      panel.port.emit('detect', ++detects);
+      rPanel.port.emit('detect', ++detects);
     },
     onDetectDone: function () {
-      panel.port.emit('detect', --detects);
+      rPanel.port.emit('detect', --detects);
     },
     onDownloadStart: function () {
-      panel.port.emit('download', ++downloads);
+      rPanel.port.emit('download', ++downloads);
     },
     onDownloadDone: function (dl) {
       remove(dl);
-      panel.port.emit('download', --downloads);
+      rPanel.port.emit('download', --downloads);
     },
     onExtractStart: function () {
-      panel.port.emit('extract', ++extracts);
+      rPanel.port.emit('extract', ++extracts);
     },
     onExtractDone: function () {
-      panel.port.emit('extract', --extracts);
+      rPanel.port.emit('extract', --extracts);
     },
     onProgress: function (dl) {
       var exist = false;
@@ -152,15 +199,30 @@ var listener = (function () {
         "\n" +
         _("tooltip5").replace("%1", (ttSize/tSize*100).toFixed(1));
     },
-    onError: remove
+    onError: remove,
+    cancel: function () {
+      var dm = Cc["@mozilla.org/download-manager;1"]
+        .getService(Ci.nsIDownloadManager);
+      objs.forEach(function (dl) {
+        dm.cancelDownload(dl.id);
+      });
+    }
   }
 })();
 
-var get = function (url, listener) {
+var getFormat = function(value) {
+  switch (value) {
+    case 0: return "flv";
+    case 1: return "3gp";
+    case 2: return "mp4";
+    case 3: return "webm";
+  }
+}
+
+var get = function (videoID, listener) {
   //Detect
   listener.onDetectStart();
-  var videoID = config.yRegExp.exec(url)[1];
-  youtube.detect(videoID, parseInt(prefs.quality), function (vInfo, e) { 
+  youtube.getLink(videoID, function (vInfo, e) {
     listener.onDetectDone();
     if (e) {
       notify(_('name'), e);
@@ -168,11 +230,12 @@ var get = function (url, listener) {
     }
     //Creating temporary files
     var folder = Math.random().toString(36).substr(2,16);
-    Cu.import("resource://gre/modules/FileUtils.jsm");
-    var iFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "video.flv"]);
+    var iFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "video." + getFormat(prefs.extension)]);
     iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
-    var oFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "audio.aac"]);
-    oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+    if (prefs.doExtract) {
+      var oFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "audio.aac"]);
+      oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+    }
     //Download
     listener.onDownloadStart();
     notify(
@@ -185,15 +248,21 @@ var get = function (url, listener) {
         .replace("%6", vInfo.audioEncoding)
         .replace("%7", vInfo.audioBitrate)
     );
-    var dr = new downloader.get({
+    var dr = new download.get({
       progress: listener.onProgress,
       done: function (dl) {
         listener.onDownloadDone(dl);
+        function afterExtract (e) {
+          iFile.reveal();
+          if (e) notify(_('name'), e);
+        }
+        if (!prefs.doExtract) {
+          return afterExtract();
+        }
         listener.onExtractStart();
         extract.perform(iFile, oFile, function (e) {
           listener.onExtractDone();
-          iFile.reveal();
-          if (e) notify(_('name'), e);
+          afterExtract(e);
         });
       },
       error: function (dl) {

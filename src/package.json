@@ -1,8 +1,8 @@
 {
-  "fullName": "Youtube Audio Converter",
-  "name": "youtube-audio-converter",
+  "fullName": "Youtube Video and Audio Downloader",
+  "name": "iaextractor",
   
-  "description": "A pure JavaScript AAC extractor for FLV format.",
+  "description": "An extension to downnload Youtube video in various formats and extract the audio file.",
 
   "license": "mozilla public license 1.1",
 
@@ -10,22 +10,43 @@
   "contributors": [],
   
   "url": "",
-  "version": "0.1.0",
+  "version": "0.1.0b2",
   "lib": "lib",
   "main": "main",
   
   "id": "feca4b87-3be4-43da-a1b1-137c24220968",
   
   "preferences": [{
+    "name": "extension",
+    "title": "Prefered file format:",
+    "description": "Only audio extraction from FLV format is supported.",
+    "type": "menulist",
+    "value": 0,
+    "options": [
+      {"value": "0", "label": "FLV"},
+      {"value": "1", "label": "3GP"},
+      {"value": "2", "label": "MP4"},
+      {"value": "3", "label": "WebM"}
+    ]
+  },
+  {
     "name": "quality",
     "title": "Select video quality:",
     "type": "menulist",
-    "value": 1,
+    "value": 2,
     "options": [
-      {"value": "0", "label": "Low"},
-      {"value": "1", "label": "Medium"},
-      {"value": "2", "label": "High"}
+      {"value": "4", "label": "Small"},
+      {"value": "3", "label": "Medium"},
+      {"value": "2", "label": "High"},
+      {"value": "1", "label": "hd720"},
+      {"value": "0", "label": "hd1080"}
     ]
+  },
+  {
+    "name": "doExtract",
+    "title": "Extract audio from video file:",
+    "type": "bool",
+    "value": true
   },
   {
     "name": "progressColor",

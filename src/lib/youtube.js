@@ -1,9 +1,10 @@
-var {Cc, Ci, Cu} = require('chrome');
-
+var prefs       = require("simple-prefs").prefs,
+   {Cc, Ci, Cu} = require('chrome');
 // https://github.com/fent/node-ytdl
-function getInfo (videoID, callback, pointer) {
+function _getInfo (videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
   const KEYS_TO_SPLIT = ['keywords', 'fmt_list', 'fexp', 'watermark', 'ad_channel_code_overlay'];
+  //http://en.wikipedia.org/wiki/YouTube
   const FORMATS = {
     '5': {container: 'flv', resolution: '240p', encoding: 'Sorenson H.283', profile: null, bitrate: '0.25', audioEncoding: 'mp3', audioBitrate: 64}, 
     '6': {container: 'flv', resolution: '270p', encoding: 'Sorenson H.263', profile: null, bitrate: '0.8', audioEncoding: 'mp3', audioBitrate: 64}, 
@@ -104,15 +105,46 @@ function getInfo (videoID, callback, pointer) {
   req.send();
 }
 
-var detect = function (videoID, quality, callback, pointer) {
+var getFormat = function (value) {
+  switch (value) {
+    case 0: return "flv";
+    case 1: return "3gp";
+    case 2: return "mp4";
+    case 3: return "webm";
+  }
+}
+var getQuality = function (value) {
+  switch (value) {
+    case 4: return "small";
+    case 3: return "medium";
+    case 2: return "high";
+    case 1: return "hd720";
+    case 0: return "hd1080";
+  }
+}
+
+var getLink = function (videoID, callback, pointer) {
   try {
-    getInfo(videoID, function (info) {
-      var tmp = info.formats.filter(function(a){return a.container == "flv"})
-        .sort(function (a,b){return parseInt(a.audioBitrate)<parseInt(b.audioBitrate)});
+    _getInfo(videoID, function (info) {
+      var quality = prefs.quality;
+    
+      //format is already sorted high to low
+      var tmp = info.formats.filter(function(a){return a.container == getFormat(prefs.extension)});
       
       var detected;
-      if (tmp[quality]) detected = tmp[quality];
-      else detected = tmp[tmp.length - 1];
+      var qualityValue = prefs.quality;
+      while (tmp.length && !detected && qualityValue > -1) {
+        var b = tmp.filter(function (a) {
+          if (a.quality == getQuality(qualityValue))
+            return true;
+          else
+            return false
+        });
+        if (b.length) detected = b[0];
+        qualityValue -= 1;
+      }
+      if (!detected && tmp.length) detected = tmp[0]
+      if (!detected) detected = info.formats[0];  //Get highest quality
       
       if (callback) callback.apply(pointer, [detected, null]);
     });
@@ -121,4 +153,16 @@ var detect = function (videoID, quality, callback, pointer) {
     if (callback) callback.apply(pointer, [null, e]);
   }
 }
-exports.detect = detect;
+exports.getLink = getLink;
+
+var getInfo = function (videoID, callback, pointer) {
+  try {
+    _getInfo(videoID, function (info) {
+      if (callback) callback.apply(pointer, [info, null]);
+    });
+  }
+  catch(e) {
+    if (callback) callback.apply(pointer, [null, e]);
+  }
+}
+exports.getInfo = getInfo;

@@ -1,4 +1,5 @@
-var {Cc, Ci, Cu}     = require('chrome');
+var _             = require("l10n").get,
+   {Cc, Ci, Cu}     = require('chrome');
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
@@ -35,23 +36,12 @@ function write (oFile, data) {
   }
 }
 
-var config = {
-  error: [
-    "The file is not a FLV format.",
-    "No Audio Stream detected.",
-    "Unsupported AAC profile.",
-    "Invalid AAC sample rate index.",
-    "Invalid AAC channel configuration.",
-    "Audio format in FLV file is not supported yet."
-  ]
-}
-
 /** Extract Audio **/
 function extract(stream, callback, pointer) {
   var pointer = 0, audio = "";
 
   if (stream.slice(0,3) != "FLV") {
-     throw new Error(config.error[0]);
+     throw Error(_("err1"));
   }
   
   var readInt =    function () {return stream[++pointer].charCodeAt(0)}
@@ -63,7 +53,7 @@ function extract(stream, callback, pointer) {
   var exists = readByte();
   
   if (exists != 5 && exists != 4) {
-    throw new Error(config.error[1]);
+    throw Error(_("err2"));
   }
   
   pointer = 8
@@ -107,13 +97,13 @@ function extract(stream, callback, pointer) {
         _channelConfig = (byte2 & 0x78) >> 3;     //01111000
 
         if ((_aacProfile < 0) || (_aacProfile > 3)) {
-          throw new Error(config.error[2]);
+          throw Error(_("err3"));
         }
         if (_sampleRateIndex > 12) {
-          throw new Error(config.error[3]);
+          throw Error(_("err4"));
         }
         if (_channelConfig > 6) {
-          throw new Error(config.error[4]);
+          throw Error(_("err5"));
         }
       }
       else { //Audio data
@@ -132,7 +122,7 @@ function extract(stream, callback, pointer) {
       pointer += dataSize;
     }
     else {
-      throw new Error(config.error[5]);
+      throw Error(_("err6"));
     }
     oneChunk();
   }
@@ -148,6 +138,8 @@ exports.perform = function (iFile, oFile, callback, pointer) {
         });
     }
     catch(e) {
+      write(oFile, e.toString());
+      oFile.moveTo(null, "error.log");
       callback.apply(pointer, [e]);
     }
   });
