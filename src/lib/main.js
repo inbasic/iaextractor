@@ -79,8 +79,22 @@ function urlExtractor (url, callback, pointer) {
   var temp = /http.*:.*youtube.com\/watch\?.*v\=([^\=\&]*)/.exec(url);
   id = temp ? temp[1]: null;
 
-  if (callback) {
+  if (callback && id) {
     return callback.apply(pointer, [id]);
+  }
+  //User page
+  if (/http.*:.*youtube.com\/user/.test(url)) {
+    var worker = tabs.activeTab.attach({
+      contentScript: "self.port.emit('response', (function (){var divs = document.getElementsByClassName('channels-video-player');return divs.length ? divs[0].getAttribute('data-video-id') : null})());"
+    });
+    worker.port.on("response", function (id) {
+      if (callback) {
+        return callback.apply(pointer, [id]);
+      }
+    });
+  }
+  else {
+    callback.apply(pointer, []);
   }
 }
 

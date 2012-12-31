@@ -93,7 +93,7 @@ function _getInfo (videoID, callback, pointer) {
       return tmp
     })();
     delete info.url_encoded_fmt_stream_map;
-    info.video_verticals = info.video_verticals
+    info.video_verticals = (info.video_verticals ? info.video_verticals : "")
       .slice(1, -1)
       .split(',')
       .filter(function(val) { return val !== ''; });
