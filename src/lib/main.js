@@ -58,8 +58,8 @@ var config = {
 var rPanel = panel.Panel({
   width: config.panels.rPanel.width,
   height: config.panels.rPanel.height,
-  contentURL: data.url('report/report.html'),
-  contentScriptFile: data.url('report.js'),
+  contentURL: data.url('report.html'),
+  contentScriptFile: data.url('report/report.js'),
   contentScriptWhen: "ready"
 });
 rPanel.port.on("cancelAll", function () {

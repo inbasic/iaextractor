@@ -30,32 +30,6 @@
  * @date    2012-12-08
  */
 
-
-// Internet Explorer 8 and older does not support Array.indexOf,
-// so we define it here in that case
-// http://soledadpenades.com/2007/05/17/arrayindexof-in-internet-explorer/
-if(!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function(obj){
-        for(var i = 0; i < this.length; i++){
-            if(this[i] == obj){
-                return i;
-            }
-        }
-        return -1;
-    }
-}
-
-// Internet Explorer 8 and older does not support Array.forEach,
-// so we define it here in that case
-// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/forEach
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(fn, scope) {
-        for(var i = 0, len = this.length; i < len; ++i) {
-            fn.call(scope || this, this[i], i, this);
-        }
-    }
-}
-
 // define variable JSON, needed for correct error handling on IE7 and older
 var JSON;
 
@@ -389,7 +363,7 @@ JSONEditor.prototype.scrollTo = function (top) {
             var diff = (finalScrollTop - scrollTop);
             if (Math.abs(diff) > 3) {
                 content.scrollTop += diff / 3;
-                editor.animateTimeout = setTimeout(animate, 50);
+                editor.animateTimeout = setTimeout(function (){animate()}, 50);
             }
         };
         animate();
@@ -1659,14 +1633,14 @@ JSONEditor.Node.prototype._onDragStart = function (event) {
 
     var node = this;
     if (!this.mousemove) {
-        this.mousemove = JSONEditor.Events.addEventListener(document, 'mousemove',
+        this.mousemove = JSONEditor.Events._addEventListener(document, 'mousemove',
             function (event) {
                 node._onDrag(event);
             });
     }
 
     if (!this.mouseup) {
-        this.mouseup = JSONEditor.Events.addEventListener(document, 'mouseup',
+        this.mouseup = JSONEditor.Events._addEventListener(document, 'mouseup',
             function (event ) {
                 node._onDragEnd(event);
             });
@@ -1905,7 +1879,7 @@ JSONEditor.Node.prototype.updateDom = function (options) {
         else {
             field = 'field';
         }
-        domField.innerHTML = this._escapeHTML(field);
+        domField.textContent = this._escapeHTML(field);
     }
 
     // update value
@@ -1913,15 +1887,15 @@ JSONEditor.Node.prototype.updateDom = function (options) {
     if (domValue) {
         var count = this.childs ? this.childs.length : 0;
         if (this.type == 'array') {
-            domValue.innerHTML = '[' + count + ']';
+            domValue.textContent = '[' + count + ']';
             domValue.title = this.type + ' containing ' + count + ' items';
         }
         else if (this.type == 'object') {
-            domValue.innerHTML = '{' + count + '}';
+            domValue.textContent = '{' + count + '}';
             domValue.title = this.type + ' containing ' + count + ' items';
         }
         else {
-            domValue.innerHTML = this._escapeHTML(this.value);
+            domValue.textContent = this._escapeHTML(this.value);
             delete domValue.title;
         }
     }
@@ -1966,7 +1940,7 @@ JSONEditor.Node.prototype._updateDomIndexes = function () {
                 child.index = index;
                 var childField = child.dom.field;
                 if (childField) {
-                    childField.innerHTML = index;
+                    childField.textContent = index;
                 }
             });
         }
@@ -1994,26 +1968,26 @@ JSONEditor.Node.prototype._createDomValue = function () {
     if (this.type == 'array') {
         domValue = document.createElement('div');
         domValue.className = 'jsoneditor-readonly';
-        domValue.innerHTML = '[...]';
+        domValue.textContent = '[...]';
     }
     else if (this.type == 'object') {
         domValue = document.createElement('div');
         domValue.className = 'jsoneditor-readonly';
-        domValue.innerHTML = '{...}';
+        domValue.textContent = '{...}';
     }
     else if (this.type == 'string') {
         domValue = document.createElement('div');
         domValue.contentEditable = this.editor.editable;
         domValue.spellcheck = false;
         domValue.className = 'jsoneditor-value';
-        domValue.innerHTML = this._escapeHTML(this.value);
+        domValue.textContent = this._escapeHTML(this.value);
     }
     else {
         domValue = document.createElement('div');
         domValue.contentEditable = this.editor.editable;
         domValue.spellcheck = false;
         domValue.className = 'jsoneditor-value';
-        domValue.innerHTML = this._escapeHTML(this.value);
+        domValue.textContent = this._escapeHTML(this.value);
     }
 
     // TODO: in FF spel/check of editable divs is done via the body. quite ugly
@@ -2121,7 +2095,7 @@ JSONEditor.Node.prototype.onEvent = function (event) {
                 this._getDomValue(true);
                 this._updateDomValue();
                 if (this.value) {
-                    domValue.innerHTML = this._escapeHTML(this.value);
+                    domValue.textContent = this._escapeHTML(this.value);
                 }
                 break;
 
@@ -2153,7 +2127,7 @@ JSONEditor.Node.prototype.onEvent = function (event) {
                 this._getDomField(true);
                 this._updateDomField();
                 if (this.field) {
-                    domField.innerHTML = this._escapeHTML(this.field);
+                    domField.textContent = this._escapeHTML(this.field);
                 }
                 break;
 
@@ -2458,7 +2432,7 @@ JSONEditor.showDropDownList = function (params) {
 
         var divText = document.createElement('div');
         divText.className = 'jsoneditor-option-text';
-        divText.innerHTML = '<div>' + text + '</div>';
+        divText.textContent = '<div>' + text + '</div>';
         option.appendChild(divText);
 
         option.onmousedown = (function (value) {
@@ -2474,7 +2448,7 @@ JSONEditor.showDropDownList = function (params) {
     JSONEditor.freezeHighlight = true;
 
     // TODO: change to onclick? -> but be sure to remove existing dropdown first
-    var onmousedown = JSONEditor.Events.addEventListener(document, 'mousedown', function () {
+    var onmousedown = JSONEditor.Events._addEventListener(document, 'mousedown', function () {
         JSONEditor.freezeHighlight = false;
         params.node.setHighlight(false);
         if (select && select.parentNode) {
@@ -2482,7 +2456,7 @@ JSONEditor.showDropDownList = function (params) {
         }
         JSONEditor.Events.removeEventListener(document, 'mousedown', onmousedown);
     });
-    var onmousewheel = JSONEditor.Events.addEventListener(document, 'mousewheel', function () {
+    var onmousewheel = JSONEditor.Events._addEventListener(document, 'mousewheel', function () {
         JSONEditor.freezeHighlight = false;
         params.node.setHighlight(false);
         if (select && select.parentNode) {
@@ -2800,7 +2774,7 @@ JSONEditor.AppendNode.prototype._onAppend = function () {
  */
 JSONEditor.prototype._createFrame = function () {
     // create the frame
-    this.container.innerHTML = '';
+    this.container.textContent = '';
     this.frame = document.createElement('div');
     this.frame.className = 'jsoneditor-frame';
     this.container.appendChild(this.frame);
@@ -2869,8 +2843,8 @@ JSONEditor.prototype._createFrame = function () {
     // Note: focus and blur events do not propagate, therefore they defined
     // using an eventListener with useCapture=true
     // see http://www.quirksmode.org/blog/archives/2008/04/delegating_the.html
-    JSONEditor.Events.addEventListener(this.frame, 'focus', onEvent, true);
-    JSONEditor.Events.addEventListener(this.frame, 'blur', onEvent, true);
+    JSONEditor.Events._addEventListener(this.frame, 'focus', onEvent, true);
+    JSONEditor.Events._addEventListener(this.frame, 'blur', onEvent, true);
     this.frame.onfocusin = onEvent;  // for IE
     this.frame.onfocusout = onEvent; // for IE
 
@@ -2901,7 +2875,7 @@ JSONEditor.prototype._createFrame = function () {
     if (this.history) {
         // create separator
         var separator = document.createElement('span');
-        separator.innerHTML = '&nbsp;';
+        separator.textContent = '&nbsp;';
         this.menu.appendChild(separator);
 
         // create undo button
@@ -3056,7 +3030,7 @@ JSONFormatter = function (container, options, json) {
 
     // create format button
     var buttonFormat = document.createElement('button');
-    //buttonFormat.innerHTML = 'Format';
+    //buttonFormat.textContent = 'Format';
     buttonFormat.className = 'jsoneditor-menu jsoneditor-format';
     buttonFormat.title = 'Format JSON data, with proper indentation and line feeds';
     //buttonFormat.className = 'jsoneditor-button';
@@ -3064,7 +3038,7 @@ JSONFormatter = function (container, options, json) {
 
     // create compact button
     var buttonCompact = document.createElement('button');
-    //buttonCompact.innerHTML = 'Compact';
+    //buttonCompact.textContent = 'Compact';
     buttonCompact.className = 'jsoneditor-menu jsoneditor-compact';
     buttonCompact.title = 'Compact JSON data, remove all whitespaces';
     //buttonCompact.className = 'jsoneditor-button';
@@ -3411,13 +3385,13 @@ JSONEditor.SearchBox.prototype.onSearch = function (event, forceSearch) {
         if (text != undefined) {
             var resultCount = this.results.length;
             switch (resultCount) {
-                case 0: this.dom.results.innerHTML = 'no&nbsp;results'; break;
-                case 1: this.dom.results.innerHTML = '1&nbsp;result'; break;
-                default: this.dom.results.innerHTML = resultCount + '&nbsp;results'; break;
+                case 0: this.dom.results.textContent = 'no&nbsp;results'; break;
+                case 1: this.dom.results.textContent = '1&nbsp;result'; break;
+                default: this.dom.results.textContent = resultCount + '&nbsp;results'; break;
             }
         }
         else {
-            this.dom.results.innerHTML = '';
+            this.dom.results.textContent = '';
         }
     }
 };
@@ -3477,7 +3451,7 @@ JSONEditor.Events = {};
  * @param {boolean}     useCapture
  * @return {function}   the created event listener
  */
-JSONEditor.Events.addEventListener = function (element, action, listener, useCapture) {
+JSONEditor.Events._addEventListener = function (element, action, listener, useCapture) {
     if (element.addEventListener) {
         if (useCapture === undefined)
             useCapture = false;
