@@ -100,6 +100,7 @@ function _getInfo (videoID, callback, pointer) {
     for (var i in info.video_verticals) {
       info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
     }
+    
     if (callback) callback.apply(pointer, [info]);
   }
   req.send();

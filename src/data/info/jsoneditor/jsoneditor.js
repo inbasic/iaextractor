@@ -130,7 +130,7 @@ JSONEditor.focusNode = undefined;
  * @param {String}             [name]    Optional field name for the root node.
  *                                       Can also be set using setName(name).
  */
-JSONEditor.prototype.set = function (json, name) {
+JSONEditor.prototype.set = function (json, name) { 
     // adjust field name for root node
     if (name) {
         this.options.name = name;
@@ -565,7 +565,7 @@ JSONEditor.History.prototype.redo = function () {
 JSONEditor.Node = function (editor, params) {
     this.editor = editor;
     this.dom = {};
-    this.expanded = false;
+    this.expanded = params ? (params.field == "formats") : false;
 
     if(params && (params instanceof Object)) {
         this.setField(params.field, params.fieldEditable);
@@ -761,6 +761,7 @@ JSONEditor.Node.prototype.clone = function() {
  *                            true, all childs will be expanded recursively
  */
 JSONEditor.Node.prototype.expand = function(recurse) {
+
     if (!this.childs) {
         return;
     }
@@ -1964,7 +1965,6 @@ JSONEditor.Node.prototype._updateDomIndexes = function () {
  */
 JSONEditor.Node.prototype._createDomValue = function () {
     var domValue;
-
     if (this.type == 'array') {
         domValue = document.createElement('div');
         domValue.className = 'jsoneditor-readonly';
@@ -2524,10 +2524,11 @@ JSONEditor.Node.prototype._createDomDuplicateButton = function () {
  * @private
  */
 JSONEditor.Node.prototype._getType = function(value) {
+
     if (value instanceof Array) {
         return 'array';
     }
-    if (value instanceof Object) {
+    if (value instanceof Object || typeof(value) == "object") {
         return 'object';
     }
     if (typeof(value) == 'string' && typeof(this._stringCast(value)) != 'string') {

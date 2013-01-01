@@ -76,27 +76,43 @@ var iPanel = panel.Panel({
 /** Get video id from URL **/
 function urlExtractor (url, callback, pointer) {
   var id;
+  //Watch
   var temp = /http.*:.*youtube.com\/watch\?.*v\=([^\=\&]*)/.exec(url);
   id = temp ? temp[1]: null;
-
   if (callback && id) {
     return callback.apply(pointer, [id]);
   }
-  //User page
-  if (/http.*:.*youtube.com\/user/.test(url)) {
+  //Rest
+  function fetchId (script) {
     var worker = tabs.activeTab.attach({
-      contentScript: "self.port.emit('response', " + 
-        "(function (){" +
-          "var divs = document.getElementsByClassName('channels-video-player');" +
-          "return divs.length ? divs[0].getAttribute('data-video-id') : null" +
-        "})()" +
-      ");"
+      contentScript: "self.port.emit('response', %s)".replace("%s", script)
     });
     worker.port.on("response", function (id) {
+      console.log(id)
       if (callback) {
         return callback.apply(pointer, [id]);
       }
     });
+  }
+  //User page
+  if (/http.*:.*youtube.com\/user/.test(url)) {
+    fetchId("(function (){" +
+      "try{ " + 
+        "var divs = document.getElementsByClassName('channels-video-player');" +
+        "return divs.length ? divs[0].getAttribute('data-video-id') : null" + 
+      "}" + 
+      "catch(e){return null}" +
+      "})()");
+  }
+  //movie
+  else if (/http.*:.*youtube.com\/movie/.test(url)) {
+    fetchId("(function (){" +
+      "try {" + 
+        "var divs = document.getElementsByClassName('ux-thumb-wrap');" +
+        "return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null" +
+      "}" +
+      "catch(e){return null}" +
+    "})()");
   }
   else {
     callback.apply(pointer, []);
@@ -124,7 +140,6 @@ exports.main = function(options, callbacks) {
       let url = tabs.activeTab.url;
       urlExtractor(url, function (videoID) {
         if (!videoID) {
-          notify(_('name'), _('msg1'));
           tabs.open(config.youtube);
           return;
         };
