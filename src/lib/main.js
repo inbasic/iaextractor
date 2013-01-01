@@ -85,7 +85,7 @@ function urlExtractor (url, callback, pointer) {
   //Rest
   function fetchId (script) {
     var worker = tabs.activeTab.attach({
-      contentScript: "self.port.emit('response', %s)".replace("%s", script)
+      contentScript: "self.port.emit('response', (%s)())".replace("%s", script)
     });
     worker.port.on("response", function (id) {
       console.log(id)
@@ -106,13 +106,16 @@ function urlExtractor (url, callback, pointer) {
   }
   //movie
   else if (/http.*:.*youtube.com\/movie/.test(url)) {
-    fetchId("(function (){" +
-      "try {" + 
-        "var divs = document.getElementsByClassName('ux-thumb-wrap');" +
-        "return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null" +
-      "}" +
-      "catch(e){return null}" +
-    "})()");
+    var tmp = function () {
+      try {
+        var divs = document.getElementsByClassName('ux-thumb-wrap');
+        return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null
+      }
+      catch(e){
+        return null
+      }
+    }
+    fetchId(tmp + "");
   }
   else {
     callback.apply(pointer, []);
