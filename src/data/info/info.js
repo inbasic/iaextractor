@@ -1,7 +1,7 @@
 var container = document.getElementById("jsoneditor");
 var editor = new JSONEditor(container, {
   mode: "viewer",
-  name: "Youtube",
+  name: "Video info",
   history: false
 });
 

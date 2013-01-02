@@ -38,7 +38,7 @@ var config = {
   desktopNotification: 3, //seconds
   //Tooltip
   tooltip: _("tooltip1") + "\n" + _("tooltip2") + "\n" + _("tooltip3") + "\n" +
-    _("tooltip6"),
+    _("tooltip6") + "\n" + _("tooltip7"),
   //Panels
   panels: {
     rPanel: {
@@ -88,7 +88,6 @@ function urlExtractor (url, callback, pointer) {
       contentScript: "self.port.emit('response', (%s)())".replace("%s", script)
     });
     worker.port.on("response", function (id) {
-      console.log(id)
       if (callback) {
         return callback.apply(pointer, [id]);
       }
@@ -96,13 +95,16 @@ function urlExtractor (url, callback, pointer) {
   }
   //User page
   if (/http.*:.*youtube.com\/user/.test(url)) {
-    fetchId("(function (){" +
-      "try{ " + 
-        "var divs = document.getElementsByClassName('channels-video-player');" +
-        "return divs.length ? divs[0].getAttribute('data-video-id') : null" + 
-      "}" + 
-      "catch(e){return null}" +
-      "})()");
+    var tmp = function () {
+      try {
+        var divs = document.getElementsByClassName('channels-video-player');
+        return divs.length ? divs[0].getAttribute('data-video-id') : null
+      }
+      catch(e){
+        return null
+      }
+    }
+    fetchId(tmp + "");
   }
   //movie
   else if (/http.*:.*youtube.com\/movie/.test(url)) {
@@ -164,6 +166,41 @@ exports.main = function(options, callbacks) {
           youtube.getInfo(videoID, function (vInfo, e) {
             iPanel.port.emit('info', vInfo);
           });
+        });
+      }
+      if (e.button == 0 && e.ctrlKey) {
+        e.preventDefault();
+        e.stopPropagation();
+      
+        var script = function () {
+          var reg = /embed\/([^\/\&\"\'\?\\\/]*)/g, arr = [], test;
+          while ((test = reg.exec(document.body.innerHTML)) !== null) {
+            arr.push(test[1]);
+          }
+          reg = /watch\?.*v\=([^\=\&\'\"\\\/]*)/g;
+          while ((test = reg.exec(document.body.innerHTML)) !== null) {
+            arr.push(test[1]);
+          }
+          return arr
+        }
+        let worker = tabs.activeTab.attach({
+          contentScript: "self.port.emit('response', (%s)())".replace("%s", script + "")
+        });
+        worker.port.on("response", function (arr) {
+          if (arr) {
+            if (arr && arr.length) {
+              arr = arr.filter(function(elem, pos) {
+                  return arr.indexOf(elem) == pos;
+              });
+              var obj = prompts(_("prompt1"), _("prompt2"), arr);
+              if (obj[0] && obj[1] != -1) {
+                tabs.open(config.youtube + "watch?v=" + arr[obj[1]]);
+              }
+            }
+            else {
+              notify(_("name"), _("msg4"));
+            }
+          }
         });
       }
     }
@@ -346,5 +383,15 @@ var notify = (function () {
           notification.close();
       }, config.desktopNotification * 1000);
     }
+  }
+})();
+
+/** Prompt **/
+var prompts = (function () {
+  let prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
+  return function (title, content, items) {
+    var selected = {};
+    var result = prompts.select(null, title, content, items.length, items, selected);
+    return [result, selected.value];
   }
 })();
