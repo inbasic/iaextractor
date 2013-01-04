@@ -59,7 +59,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
       tbb.setAttribute("context", "");  //No context menu, right click is reserved for Progress panel
-
+      
       let svg = doc.createElementNS(NS_SVG, "svg");
       svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
       svg.setAttribute("viewBox", "0 0 16 16");
@@ -101,14 +101,15 @@ exports.ToolbarButton = function ToolbarButton(options) {
       tbb.setAttribute('tooltiptext', options.tooltiptext);
       tbb.addEventListener("command", function(e) {
         if (options.onCommand)
-          options.onCommand(e); // TODO: provide something?
-
-        if (options.panel) {
-          options.panel.show(tbb);
-        }
+          options.onCommand(e, tbb); // TODO: provide something?
       }, true);
       if (options.onClick) {
-          tbb.addEventListener("click", options.onClick, true); 
+          tbb.addEventListener("click", function (e) {
+            options.onClick(e, tbb);
+            if (options.panel && e.button == 2) {
+                options.panel.show(tbb);
+            }
+          }, true);
       }
 
       // add toolbarbutton to palette

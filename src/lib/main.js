@@ -141,28 +141,24 @@ exports.main = function(options, callbacks) {
     tooltiptext: config.tooltip,
     progressColor: config.image.progressColor,
     image: config.image.data,
-    onCommand: function (e) {
+    panel: rPanel,
+    onCommand: function (e, tbb) {
       let url = tabs.activeTab.url;
       urlExtractor(url, function (videoID) {
         if (!videoID) {
           tabs.open(config.youtube);
           return;
         };
-        rPanel.show();
+        rPanel.show(tbb);
         get(videoID, listener);
       });
     },
-    onClick: function (e) { //Linux problem for onClick
-      if (e.button == 2) {
-        e.preventDefault();
-        e.stopPropagation();
-        rPanel.show();
-      }
+    onClick: function (e, tbb) { //Linux problem for onClick
       if (e.button == 1) {
         let url = tabs.activeTab.url;
         urlExtractor(url, function (videoID) {
           if (!videoID) return;
-          iPanel.show();
+          iPanel.show(tbb);
           youtube.getInfo(videoID, function (vInfo, e) {
             iPanel.port.emit('info', vInfo);
           });
