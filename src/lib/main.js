@@ -337,7 +337,12 @@ var get = function (videoID, listener) {
       done: function (dl) {
         listener.onDownloadDone(dl);
         function afterExtract (e) {
-          iFile.reveal();
+          try {
+            iFile.reveal();
+          }
+          catch(_e) {
+            tabs.open(iFile.parent.path);
+          }
           if (e) notify(_('name'), e);
         }
         if (!prefs.doExtract) {
