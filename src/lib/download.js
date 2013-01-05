@@ -44,12 +44,12 @@ var get = function (callback, pointer) {
     // Create URI
     var urlURI = ioService.newURI(url, null, null),
         fileURI = ioService.newFileURI(file);   
-    // Start download             
+    // Start download
     dl = dm.addDownload(dm.DOWNLOAD_TYPE_DOWNLOAD, urlURI, fileURI, null, null, null, null, persist, false);
     listener = new mListener(dl);
     dm.addListener(listener);
     persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
-    persist.saveURI(dl.source, null, null, null, null, file);
+    persist.saveURI(dl.source, null, null, null, null, file, null);
   }
 };
 exports.get = get;
