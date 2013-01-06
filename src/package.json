@@ -49,6 +49,24 @@
     "value": true
   },
   {
+    "name": "dFolder",
+    "title": "Select download folder:",
+    "type": "menulist",
+    "value": 2,
+    "options": [
+      {"value": "0", "label": "Default Downloads directory"},
+      {"value": "1", "label": "Home directory"},
+      {"value": "2", "label": "OS temporary directory"},
+      {"value": "3", "label": "Desktop directory"}
+    ]
+  },
+  {
+    "name": "open",
+    "title": "Open download folder on completion:",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "progressColor",
     "title": "Progressbar color:",
     "type": "color",

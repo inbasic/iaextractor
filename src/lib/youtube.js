@@ -147,11 +147,11 @@ var getLink = function (videoID, callback, pointer) {
       if (!detected && tmp.length) detected = tmp[0]
       if (!detected) detected = info.formats[0];  //Get highest quality
       
-      if (callback) callback.apply(pointer, [detected, null]);
+      if (callback) callback.apply(pointer, [detected, info.title, null]);
     });
   }
   catch(e) {
-    if (callback) callback.apply(pointer, [null, e]);
+    if (callback) callback.apply(pointer, [null, null, e]);
   }
 }
 exports.getLink = getLink;

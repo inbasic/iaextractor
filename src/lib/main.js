@@ -290,30 +290,53 @@ var listener = (function () {
   }
 })();
 
-var getFormat = function(value) {
-  switch (value) {
-    case 0: return "flv";
-    case 1: return "3gp";
-    case 2: return "mp4";
-    case 3: return "webm";
-  }
-}
-
 var get = function (videoID, listener) {
   //Detect
   listener.onDetectStart();
-  youtube.getLink(videoID, function (vInfo, e) {
+  youtube.getLink(videoID, function (vInfo, title, e) {
     listener.onDetectDone();
     if (e) {
       notify(_('name'), e);
       return;
     }
     //Creating temporary files
-    var folder = Math.random().toString(36).substr(2,16);
-    var iFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "video." + getFormat(prefs.extension)]);
+    var videoName = "video", audioName = "audio";
+    try {
+      FileUtils.getFile("TmpD", [title]);
+      videoName = audioName = title;
+    }
+    catch (e) {}
+    var root, audioPath = [], videoPath = [];
+    switch(prefs.dFolder) {
+      case 0:
+        root = "DfltDwnld"
+        videoPath = [];
+        audioPath = [];
+        break;
+      case 1:
+        root = "Home";
+        videoPath = [];
+        audioPath = [];
+        break;
+      case 2:
+        root = "TmpD";
+        let folder = Math.random().toString(36).substr(2,16);
+        videoPath = ["iaextractor", folder];
+        audioPath = ["iaextractor", folder];
+        break;
+      case 3:
+        root = "Desk";
+        videoPath = [];
+        audioPath = [];
+        break;
+    }
+    videoPath.push(videoName + "." + vInfo.container);
+    audioPath.push(audioName + ".aac");
+    
+    var iFile = FileUtils.getFile(root, videoPath);
     iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
     if (prefs.doExtract) {
-      var oFile = FileUtils.getFile("TmpD", ["iaextractor", folder, "audio.aac"]);
+      var oFile = FileUtils.getFile(root, audioPath);
       oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
     }
     //Download
@@ -333,11 +356,13 @@ var get = function (videoID, listener) {
       done: function (dl) {
         listener.onDownloadDone(dl);
         function afterExtract (e) {
-          try {
-            iFile.reveal();
-          }
-          catch(_e) {
-            tabs.open(iFile.parent.path);
+          if (prefs.open) {
+            try {
+              iFile.reveal();
+            }
+            catch(_e) {
+              tabs.open(iFile.parent.path);
+            }
           }
           if (e) notify(_('name'), e);
         }
