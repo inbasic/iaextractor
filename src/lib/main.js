@@ -11,7 +11,7 @@ var tabs          = require("tabs"),
     data          = self.data,
     {Cc, Ci, Cu}  = require('chrome'),
     youtube       = require("youtube"),
-    download    = require("download"),
+    download      = require("download"),
     extract       = require("extract");
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -300,12 +300,8 @@ var get = function (videoID, listener) {
       return;
     }
     //Creating temporary files
-    var videoName = "video", audioName = "audio";
-    try {
-      FileUtils.getFile("TmpD", [title]);
-      videoName = audioName = title;
-    }
-    catch (e) {}
+    var videoName = title.replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
+    var audioName = videoName;
     var root, audioPath = [], videoPath = [];
     switch(prefs.dFolder) {
       case 0:

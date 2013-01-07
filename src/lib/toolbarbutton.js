@@ -59,6 +59,9 @@ exports.ToolbarButton = function ToolbarButton(options) {
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
       tbb.setAttribute("context", "");  //No context menu, right click is reserved for Progress panel
+      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+      tbb.setAttribute("label", options.label);
+      tbb.setAttribute('tooltiptext', options.tooltiptext);
       
       let svg = doc.createElementNS(NS_SVG, "svg");
       svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
@@ -95,10 +98,13 @@ exports.ToolbarButton = function ToolbarButton(options) {
       svg.appendChild(filter);
       
       tbb.appendChild(svg);
+      //Temporary solution for hover problem in windows
+      let img = doc.createElementNS(NS_XUL, "imgage");
+      img.setAttribute("class", "toolbarbutton-icon");
+      img.setAttribute("style", "position:fixed; width: 30px; height:24px; margin: -12px 0 0 -7px;");
+      tbb.appendChild(img);
       
-      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
-      tbb.setAttribute("label", options.label);
-      tbb.setAttribute('tooltiptext', options.tooltiptext);
+
       tbb.addEventListener("command", function(e) {
         if (options.onCommand)
           options.onCommand(e, tbb); // TODO: provide something?
