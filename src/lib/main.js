@@ -165,8 +165,8 @@ exports.main = function(options, callbacks) {
         });
       }
       if (e.button == 0 && e.ctrlKey) {
-        e.preventDefault();
         e.stopPropagation();
+        e.preventDefault();
       
         var script = function () {
           var reg = /embed\/([^\/\&\"\'\?\\\/]*)/g, arr = [], test;

@@ -16,7 +16,7 @@
 }
 
 .jsoneditor-value {
-    word-break: break-word;
+    word-break: normal;
 }
 
 .jsoneditor-empty {
@@ -193,7 +193,6 @@ div.jsoneditor-option-array {
 div.jsoneditor-frame {
     color: #1A1A1A;
     border: 1px solid #97B0F8;
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     overflow: auto;
@@ -216,7 +215,6 @@ div.jsoneditor-content-outer, div.jsonformatter-content {
 
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-    box-sizing: border-box;
 
     overflow: hidden;
 }
@@ -235,7 +233,6 @@ textarea.jsonformatter-textarea {
 
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-    box-sizing: border-box;
 
     border: none;
     background-color: white;
@@ -268,7 +265,6 @@ div.jsoneditor-menu {
     overflow: hidden;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-    box-sizing: border-box;
 
     color: #1A1A1A;
     background-color: #D5DDF6;

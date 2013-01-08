@@ -55,14 +55,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
       options.tooltiptext = options.tooltiptext || '';
 
       // create toolbar button
-      let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
-      tbb.setAttribute("id", options.id);
-      tbb.setAttribute("type", "button");
-      tbb.setAttribute("context", "");  //No context menu, right click is reserved for Progress panel
-      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
-      tbb.setAttribute("label", options.label);
-      tbb.setAttribute('tooltiptext', options.tooltiptext);
-      
       let svg = doc.createElementNS(NS_SVG, "svg");
       svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
       svg.setAttribute("viewBox", "0 0 16 16");
@@ -97,13 +89,17 @@ exports.ToolbarButton = function ToolbarButton(options) {
       filter.appendChild(feColorMatrix2);
       svg.appendChild(filter);
       
-      tbb.appendChild(svg);
-      //Temporary solution for hover problem in windows
-      let img = doc.createElementNS(NS_XUL, "imgage");
-      img.setAttribute("class", "toolbarbutton-icon");
-      img.setAttribute("style", "position:fixed; width: 30px; height:24px; margin: -12px 0 0 -7px;");
-      tbb.appendChild(img);
+      let stack = doc.createElementNS(NS_XUL, "stack");
+      stack.setAttribute("class", "toolbarbutton-icon");
+      stack.appendChild(svg);
       
+      let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
+      tbb.setAttribute("id", options.id);
+      tbb.setAttribute("type", "button");
+      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+      tbb.setAttribute("label", options.label);
+      tbb.setAttribute('tooltiptext', options.tooltiptext);
+      tbb.appendChild(stack);
 
       tbb.addEventListener("command", function(e) {
         if (options.onCommand)
@@ -112,12 +108,15 @@ exports.ToolbarButton = function ToolbarButton(options) {
       if (options.onClick) {
           tbb.addEventListener("click", function (e) {
             options.onClick(e, tbb);
-            if (options.panel && e.button == 2) {
-                options.panel.show(tbb);
-            }
           }, true);
       }
-
+      if (options.panel) {
+          tbb.addEventListener("contextmenu", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            options.panel.show(tbb);
+          }, true);
+      }
       // add toolbarbutton to palette
       ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(tbb);
 
@@ -181,25 +180,25 @@ exports.ToolbarButton = function ToolbarButton(options) {
   function setIcon(aOptions) {
     options.image = aOptions.image || aOptions.url;
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[0].setAttributeNS(NS_XLINK, "href", options.image);
+      tbb.childNodes[0].childNodes[0].childNodes[0].setAttributeNS(NS_XLINK, "href", options.image);
     }, options.id);
     return options.image;
   }
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[1].setAttribute("width", 14*aOptions.progress);
+      tbb.childNodes[0].childNodes[0].childNodes[1].setAttribute("width", 14*aOptions.progress);
     }, options.id);
     return aOptions.progress;
   }
   function setHueRotate(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[2].childNodes[0].setAttribute("values", aOptions.value);
+      tbb.childNodes[0].childNodes[0].childNodes[2].childNodes[0].setAttribute("values", aOptions.value);
     }, options.id);
     return aOptions.value;
   }
   function setSaturate(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[2].childNodes[1].setAttribute("values", aOptions.value);
+      tbb.childNodes[0].childNodes[0].childNodes[2].childNodes[1].setAttribute("values", aOptions.value);
     }, options.id);
     return aOptions.value;
   }
