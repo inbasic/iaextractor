@@ -150,7 +150,7 @@ exports.main = function(options, callbacks) {
           return;
         };
         rPanel.show(tbb);
-        get(videoID, listener);
+        get(videoID, listener, tbb);
       });
     },
     onClick: function (e, tbb) { //Linux problem for onClick
@@ -303,37 +303,57 @@ var get = function (videoID, listener) {
     var videoName = title.replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
     var audioName = videoName;
     var root, audioPath = [], videoPath = [];
-    switch(prefs.dFolder) {
-      case 0:
-        root = "DfltDwnld"
-        videoPath = [];
-        audioPath = [];
-        break;
-      case 1:
-        root = "Home";
-        videoPath = [];
-        audioPath = [];
-        break;
-      case 2:
-        root = "TmpD";
-        let folder = Math.random().toString(36).substr(2,16);
-        videoPath = ["iaextractor", folder];
-        audioPath = ["iaextractor", folder];
-        break;
-      case 3:
-        root = "Desk";
-        videoPath = [];
-        audioPath = [];
-        break;
+    var iFile, oFile;
+    if (prefs.dFolder == 4) { //Select folder by user
+      let nsIFilePicker = Ci.nsIFilePicker;
+      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
+      fp.appendFilter("Video File", "*." + vInfo.container);
+      fp.defaultString = videoName + "." + vInfo.container;
+      let res = fp.show();
+      if (res == nsIFilePicker.returnCancel) return;
+      iFile = fp.file;
+      if (prefs.doExtract) {
+        audioName = iFile.leafName.replace(/\.+[^\.]*$/, ".aac");
+        audioName += /\./.test(audioName) ? "" : ".aac";
+        oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        oFile.initWithPath(iFile.parent.path);
+        oFile.append(audioName);
+      }
     }
-    videoPath.push(videoName + "." + vInfo.container);
-    audioPath.push(audioName + ".aac");
-    
-    var iFile = FileUtils.getFile(root, videoPath);
-    iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
-    if (prefs.doExtract) {
-      var oFile = FileUtils.getFile(root, audioPath);
-      oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+    else {
+      switch(prefs.dFolder) {
+        case 0:
+          root = "DfltDwnld"
+          videoPath = [];
+          audioPath = [];
+          break;
+        case 1:
+          root = "Home";
+          videoPath = [];
+          audioPath = [];
+          break;
+        case 2:
+          root = "TmpD";
+          let folder = Math.random().toString(36).substr(2,16);
+          videoPath = ["iaextractor", folder];
+          audioPath = ["iaextractor", folder];
+          break;
+        case 3:
+          root = "Desk";
+          videoPath = [];
+          audioPath = [];
+          break;
+      }
+      videoPath.push(videoName + "." + vInfo.container);
+      audioPath.push(audioName + ".aac");
+      
+      iFile = FileUtils.getFile(root, videoPath);
+      iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+      if (prefs.doExtract) {
+        oFile = FileUtils.getFile(root, audioPath);
+        oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+      }
     }
     //Download
     listener.onDownloadStart();

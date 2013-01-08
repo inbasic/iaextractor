@@ -57,7 +57,8 @@
       {"value": "0", "label": "Default Downloads directory"},
       {"value": "1", "label": "Home directory"},
       {"value": "2", "label": "OS temporary directory"},
-      {"value": "3", "label": "Desktop directory"}
+      {"value": "3", "label": "Desktop directory"},
+      {"value": "4", "label": "Select folder each time"}
     ]
   },
   {
