@@ -35,7 +35,12 @@ function _getInfo (videoID, callback, pointer) {
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      temp[pair[0]] = unescape(pair[1]);
+      if (pair[0] == "title") { //Issue #4, title problem
+        temp[pair[0]] = decodeURI(pair[1]).replace(/\+/g, " ");
+      }
+      else {
+        temp[pair[0]] = unescape(pair[1]);
+      }
     }
     return temp;
   }
