@@ -20,38 +20,63 @@ var mDrag = function (elem) {
     being = true;
     element.style.cursor = 'move';
     offX = e.pageX - parseInt(element.style.left ? element.style.left : 40);
-    offY = e.pageY - parseInt(element.style.top ? element.style.top : 600);
+    offY = e.pageY - parseInt(element.style.top ? element.style.top : 300);
   }
 }
 
 var mMake = function () {
   var css = ' \
    .div-formats { \
-      position: fixed; top: 600px; left: 40px; min-width: 250px;  \
-      background-color: white; margin: 0; padding-left: 0; padding-right: 0; \
-      font-family: arial,?sans-serif; font-size: 15px; \
-      border: 1px solid #D4D4D4; z-index: 2147483647; \
+      position: fixed; \
+      top: 300px; \
+      left: 40px; \
+      min-width: 250px; \
+      background-color: white; \
+      margin: 0; \
+      padding-left: 0; \
+      padding-right: 0; \
+      font-family: arial, sans-serif; \
+      font-size: 15px; \
+      border: 1px solid #D4D4D4; \
+      z-index: 2147483647; \
     } \
     .div-formats .title { \
-      color: #555555; background-color: #DCDCDC; \
+      color: #555555; \
+      background-color: #DCDCDC; \
       background-image: linear-gradient(to bottom, #F0F0F0 0px, #DCDCDC 100%); \
-      height: 24px; line-height: 24px; padding-left: 10px; \
+      height: 26px; \
+      line-height: 26px; \
+      padding-left: 10px; \
+      font-size: 14px; \
     } \
     .div-formats .close { \
-      cursor: pointer; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHhJREFUSEvtlcsKQCEIRP1m/x+6uQjExoGL0AMS3IhxBp1KVFUqKdWowO1sOZ4AMIHWa5bRG7AOVtB6zTIGrhOQFzHgkzAC8iIGfBaWeMADUzgxoQfmcFNPTBhFwF5yC6II3HqqgK0rQDtfasLt1/DX3/Ce4usn8AFPKaXAhWH6vwAAAABJRU5ErkJggg==); \
-      display:block; width: 16px; height: 16px; background-position: 0 0;  \
+      cursor: pointer; \
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHhJREFUSEvtlcsKQCEIRP1m/x+6uQjExoGL0AMS3IhxBp1KVFUqKdWowO1sOZ4AMIHWa5bRG7AOVtB6zTIGrhOQFzHgkzAC8iIGfBaWeMADUzgxoQfmcFNPTBhFwF5yC6II3HqqgK0rQDtfasLt1/DX3/Ce4usn8AFPKaXAhWH6vwAAAABJRU5ErkJggg==); \
+      display:block; \
+      width: 16px; \
+      height: 16px; \
+      background-position: 0 0;  \
       margin-right: 2px; margin-top: 4px; \
     } \
     .div-formats .close:hover { \
       background-position: 16px 0; \
     } \
     .div-formats ul { \
-      box-shadow: none; overflow: auto; padding: 2px; list-style-type: none; \
+      box-shadow: none; \
+      overflow: auto; \
+      padding: 2px; \
+      list-style-type: none; \
       margin: 0 0 2px 0px; \
     } \
     .div-formats span { \
-      float: left; cursor: pointer; border: solid 1px transparent; \
-      margin: 0; padding-left: 5px; width: 97% \
+      float: left; \
+      cursor: pointer; \
+      border: solid 1px transparent; \
+      margin: 0; \
+      padding-left: 5px; \
+      width: 97% \
+      height: 24px; \
+      line-height: 24px; \
     } \
     .div-formats span:hover { \
       background: yellow; \
@@ -87,10 +112,11 @@ var mMake = function () {
   document.body.appendChild(parent);
 
   return function (vInfo) {
-    function item (txt, url) {
+    function item (txt, url, name) {
       var li = document.createElement("li");
       var a = document.createElement("a");
-      a.setAttribute("href", url);
+      a.setAttribute("href", url + "&keepalive=yes&title=" + encodeURI(name));
+      a.setAttribute("download", name);
       var span = document.createElement("span");
       text = document.createTextNode(txt);
       span.appendChild(text);
@@ -100,7 +126,7 @@ var mMake = function () {
     }
     vInfo.formats.forEach(function (format) {
       item(format.container + " [" + format.quality + "] ... " 
-        + format.audioEncoding + " [" + format.audioBitrate + "K]", format.url);
+        + format.audioEncoding + " [" + format.audioBitrate + "K]", format.url, vInfo.title);
     })
   }
 }
