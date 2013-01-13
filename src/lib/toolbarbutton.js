@@ -26,7 +26,6 @@
  *   Greg Parris <greg.parris@gmail.com>
  *
  * ***** END LICENSE BLOCK ***** */
-
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const NS_SVG = "http://www.w3.org/2000/svg";
 const NS_XLINK = "http://www.w3.org/1999/xlink";
@@ -34,7 +33,6 @@ const NS_XLINK = "http://www.w3.org/1999/xlink";
 const {unload} = require("unload+");
 const {listen} = require("listen");
 const winUtils = require("window-utils");
-
 const browserURL = "chrome://browser/content/browser.xul";
 
 exports.ToolbarButton = function ToolbarButton(options) {
@@ -43,7 +41,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       insertbefore = "",
       destroyed = false,
       destoryFuncs = [];
-
+      
   var delegate = {
     onTrack: function (window) {
       if ("chrome://browser/content/browser.xul" != window.location || destroyed)

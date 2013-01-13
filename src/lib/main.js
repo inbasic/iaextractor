@@ -38,7 +38,7 @@ var config = {
   desktopNotification: 3, //seconds
   //Tooltip
   tooltip: _("tooltip1") + "\n" + _("tooltip2") + "\n" + _("tooltip3") + "\n" +
-    _("tooltip6") + "\n" + _("tooltip7"),
+    _("tooltip6") + "\n" + _("tooltip7") + "\n" + _("tooltip8"),
   //Panels
   panels: {
     rPanel: {
@@ -150,7 +150,7 @@ exports.main = function(options, callbacks) {
           return;
         };
         rPanel.show(tbb);
-        get(videoID, listener, tbb);
+        get(videoID, listener);
       });
     },
     onClick: function (e, tbb) { //Linux problem for onClick
@@ -197,6 +197,22 @@ exports.main = function(options, callbacks) {
               notify(_("name"), _("msg4"));
             }
           }
+        });
+      }
+      if (e.button == 0 && e.shiftKey) {
+        e.stopPropagation();
+        e.preventDefault();
+      
+        var worker = tabs.activeTab.attach({
+          contentScriptFile: data.url("formats.js")
+        });
+      
+        let url = tabs.activeTab.url;
+        urlExtractor(url, function (videoID) {
+          if (!videoID) return;
+          youtube.getInfo(videoID, function (vInfo, e) {
+            worker.port.emit('info', vInfo);
+          });
         });
       }
     }
@@ -316,7 +332,7 @@ var get = function (videoID, listener) {
       if (prefs.doExtract) {
         audioName = iFile.leafName.replace(/\.+[^\.]*$/, ".aac");
         audioName += /\./.test(audioName) ? "" : ".aac";
-        oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         oFile.initWithPath(iFile.parent.path);
         oFile.append(audioName);
       }
