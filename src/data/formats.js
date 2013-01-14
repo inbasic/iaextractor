@@ -74,22 +74,35 @@ var mMake = function () {
       border: solid 1px transparent; \
       margin: 0; \
       padding-left: 5px; \
-      width: 97% \
       height: 24px; \
       line-height: 24px; \
+      width: 97% \
     } \
     .div-formats span:hover { \
       background: yellow; \
     } \
     .div-formats a { \
       color: #555555; \
+    } \
+    .div-formats .number { \
+      color: black; \
     }'
   var head = document.getElementsByTagName('head')[0];
-  var style = document.createElement('style');
-  style.type = 'text/css';
-  style.appendChild(document.createTextNode(css));
-  head.appendChild(style);
-
+  var styles = head.getElementsByTagName("style");
+  var injected = false;
+  for (var i = 0; i < styles.length; i++) {
+    if (styles[i].getAttribute("inject") == "iaextractor") {
+      injected = true;
+      break;
+    }
+  }
+  if (!injected) {
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.setAttribute("inject", "iaextractor");
+    style.appendChild(document.createTextNode(css));
+    head.appendChild(style);
+  }
   var parent = document.createElement("div");
   parent.setAttribute("class", "div-formats");
   var drag = new mDrag (parent);
@@ -112,27 +125,31 @@ var mMake = function () {
   document.body.appendChild(parent);
 
   return function (vInfo) {
-    function item (txt, url, name) {
+    function item (txt, url, name, index) {
       var li = document.createElement("li");
       var a = document.createElement("a");
       a.setAttribute("href", url + "&keepalive=yes&title=" + encodeURI(name));
       a.setAttribute("download", name);
       var span = document.createElement("span");
+      var font = document.createElement("font");
+      font.setAttribute("class", "number");
+      text = document.createTextNode(index + ". ");
+      font.appendChild(text);
+      span.appendChild(font);
       text = document.createTextNode(txt);
       span.appendChild(text);
       a.appendChild(span);
       li.appendChild(a);
       ul.appendChild(li);
     }
-    vInfo.formats.forEach(function (format) {
+    vInfo.formats.forEach(function (format, index) {
       item(format.container + " [" + format.quality + "] ... " 
-        + format.audioEncoding + " [" + format.audioBitrate + "K]", format.url, vInfo.title);
+        + format.audioEncoding + " [" + format.audioBitrate + "K]", format.url, vInfo.title, index+1);
     })
   }
 }
 
 var make = new mMake();
-
 self.port.on("info", function(vInfo) {
   make(vInfo);
 });
