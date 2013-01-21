@@ -63,7 +63,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       let image = doc.createElementNS(NS_SVG, "image");
       image.setAttribute("width", 16);
       image.setAttribute("height", 16);
-      image.setAttribute("filter", 'url(#fil)');
+      image.setAttribute("filter", 'url(#iaextractor_filter)');
       if (options.image) image.setAttributeNS (NS_XLINK, "href", options.image);
       svg.appendChild(image);
       
@@ -76,7 +76,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       svg.appendChild(rect);
       
       let filter = doc.createElementNS(NS_SVG, "filter");
-      filter.setAttribute("id", "fil");
+      filter.setAttribute("id", "iaextractor_filter");
       let feColorMatrix1 = doc.createElementNS(NS_SVG, "feColorMatrix");
       feColorMatrix1.setAttribute("type", "hueRotate");
       feColorMatrix1.setAttribute("values", "0");

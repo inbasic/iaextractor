@@ -43,7 +43,7 @@ var config = {
   panels: {
     rPanel: {
       width: 320,
-      height: 150
+      height: 200
     },
     iPanel: {
       width: 520,
@@ -64,6 +64,12 @@ var rPanel = panel.Panel({
 });
 rPanel.port.on("cancelAll", function () {
   listener.cancel();
+});
+rPanel.port.on("formats", function () {
+  cmds.onShiftClick();
+});
+rPanel.port.on("embed", function () {
+  cmds.onCtrlClick();
 });
 var iPanel = panel.Panel({
   width: config.panels.iPanel.width,
@@ -133,6 +139,74 @@ var welcome = function () {
 
 /** Initialize **/
 var yButton;
+var cmds = {
+  onCommand: function (e, tbb) {
+    let url = tabs.activeTab.url;
+    urlExtractor(url, function (videoID) {
+      if (!videoID) {
+        tabs.open(config.youtube);
+        return;
+      };
+      rPanel.show(tbb);
+      get(videoID, listener);
+    });
+  },
+  onMiddleClick: function (e, tbb) {
+    let url = tabs.activeTab.url;
+    urlExtractor(url, function (videoID) {
+      if (!videoID) return;
+      iPanel.show(tbb);
+      youtube.getInfo(videoID, function (vInfo, e) {
+        iPanel.port.emit('info', vInfo);
+      });
+    });
+  },
+  onCtrlClick: function () {
+    var script = function () {
+      var reg = /embed\/([^\/\&\"\'\?\\\/]*)/g, arr = [], test;
+      while ((test = reg.exec(document.body.innerHTML)) !== null) {
+        arr.push(test[1]);
+      }
+      reg = /watch\?.*v\=([^\=\&\'\"\\\/]*)/g;
+      while ((test = reg.exec(document.body.innerHTML)) !== null) {
+        arr.push(test[1]);
+      }
+      return arr
+    }
+    let worker = tabs.activeTab.attach({
+      contentScript: "self.port.emit('response', (%s)())".replace("%s", script + "")
+    });
+    worker.port.on("response", function (arr) {
+      if (arr) {
+        if (arr && arr.length) {
+          arr = arr.filter(function(elem, pos) {
+              return arr.indexOf(elem) == pos;
+          });
+          var obj = prompts(_("prompt1"), _("prompt2"), arr);
+          if (obj[0] && obj[1] != -1) {
+            tabs.open(config.youtube + "watch?v=" + arr[obj[1]]);
+          }
+        }
+        else {
+          notify(_("name"), _("msg4"));
+        }
+      }
+    });
+  },
+  onShiftClick: function () {
+    var worker = tabs.activeTab.attach({
+      contentScriptFile: data.url("formats.js")
+    });
+  
+    let url = tabs.activeTab.url;
+    urlExtractor(url, function (videoID) {
+      if (!videoID) return;
+      youtube.getInfo(videoID, function (vInfo) {
+        worker.port.emit('info', vInfo);
+      });
+    });
+  }
+}
 exports.main = function(options, callbacks) {
   //Toolbar
   yButton = toolbarbutton.ToolbarButton({
@@ -142,78 +216,20 @@ exports.main = function(options, callbacks) {
     progressColor: config.image.progressColor,
     image: config.image.data,
     panel: rPanel,
-    onCommand: function (e, tbb) {
-      let url = tabs.activeTab.url;
-      urlExtractor(url, function (videoID) {
-        if (!videoID) {
-          tabs.open(config.youtube);
-          return;
-        };
-        rPanel.show(tbb);
-        get(videoID, listener);
-      });
-    },
+    onCommand: cmds.onCommand,
     onClick: function (e, tbb) { //Linux problem for onClick
       if (e.button == 1) {
-        let url = tabs.activeTab.url;
-        urlExtractor(url, function (videoID) {
-          if (!videoID) return;
-          iPanel.show(tbb);
-          youtube.getInfo(videoID, function (vInfo, e) {
-            iPanel.port.emit('info', vInfo);
-          });
-        });
+        cmds.onMiddleClick (e, tbb);
       }
       if (e.button == 0 && e.ctrlKey) {
         e.stopPropagation();
         e.preventDefault();
-      
-        var script = function () {
-          var reg = /embed\/([^\/\&\"\'\?\\\/]*)/g, arr = [], test;
-          while ((test = reg.exec(document.body.innerHTML)) !== null) {
-            arr.push(test[1]);
-          }
-          reg = /watch\?.*v\=([^\=\&\'\"\\\/]*)/g;
-          while ((test = reg.exec(document.body.innerHTML)) !== null) {
-            arr.push(test[1]);
-          }
-          return arr
-        }
-        let worker = tabs.activeTab.attach({
-          contentScript: "self.port.emit('response', (%s)())".replace("%s", script + "")
-        });
-        worker.port.on("response", function (arr) {
-          if (arr) {
-            if (arr && arr.length) {
-              arr = arr.filter(function(elem, pos) {
-                  return arr.indexOf(elem) == pos;
-              });
-              var obj = prompts(_("prompt1"), _("prompt2"), arr);
-              if (obj[0] && obj[1] != -1) {
-                tabs.open(config.youtube + "watch?v=" + arr[obj[1]]);
-              }
-            }
-            else {
-              notify(_("name"), _("msg4"));
-            }
-          }
-        });
+        cmds.onCtrlClick();
       }
       if (e.button == 0 && e.shiftKey) {
         e.stopPropagation();
         e.preventDefault();
-      
-        var worker = tabs.activeTab.attach({
-          contentScriptFile: data.url("formats.js")
-        });
-      
-        let url = tabs.activeTab.url;
-        urlExtractor(url, function (videoID) {
-          if (!videoID) return;
-          youtube.getInfo(videoID, function (vInfo, e) {
-            worker.port.emit('info', vInfo);
-          });
-        });
+        cmds.onShiftClick(e);
       }
     }
   });
