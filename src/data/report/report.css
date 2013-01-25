@@ -1,0 +1,63 @@
+body {
+  font-family: arial,sans-serif;
+}
+fieldset {
+  border-width: 1px 0 0 0;
+  border-color: ThreeDFace;
+}
+table {
+  font-size: 13px;
+}
+.caption {
+  background: none repeat scroll 0 0;
+  border: 1px solid ThreeDFace;
+  color: #555555;
+  font-size: 15px;
+}
+.box {
+  text-align: center;
+  min-height: 18px;
+  min-width: 18px;
+}
+.img {
+  display: block;
+}
+.img:before {
+  display: block;
+  content:"";
+  position:absolute;
+  width:16px;
+  height:16px;
+  background-image: url(images.png);
+  background-repeat: no-repeat;
+}
+.button {
+  min-height: 20px;
+  min-width: 20px;
+  border: 1px solid rgba(140,183,234,.5);
+  background-image: linear-gradient(rgba(244,248,253,.5), rgba(244,248,253,.3));
+}
+.button:before {
+  margin: 2px;
+}
+.button:hover {
+  background-image: linear-gradient(rgba(190,215,243,.5), rgba(190,215,243,.3));
+}
+.button:active {
+  background-image: linear-gradient(rgba(140,183,234,.5), rgba(140,183,234,.3));
+}
+#cancel:before {
+  background-position: 0 center;
+}
+#embed:before {
+  background-position: -16px center;
+}
+#formats:before {
+  background-position: -32px center;
+}
+#download-button:before {
+  background-position: -64px center;
+}
+#download-button[type="active"]:before {
+  background-position: -48px center;
+}

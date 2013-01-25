@@ -43,7 +43,7 @@ var config = {
   panels: {
     rPanel: {
       width: 320,
-      height: 200
+      height: 250
     },
     iPanel: {
       width: 520,
@@ -62,6 +62,9 @@ var rPanel = panel.Panel({
   contentScriptFile: data.url('report/report.js'),
   contentScriptWhen: "ready"
 });
+rPanel.port.on("download", function () {
+  cmds.onCommand();
+});
 rPanel.port.on("cancelAll", function () {
   listener.cancel();
 });
@@ -71,6 +74,14 @@ rPanel.port.on("formats", function () {
 rPanel.port.on("embed", function () {
   cmds.onCtrlClick();
 });
+rPanel.port.on("destination", function (value) {
+  prefs.dFolder = parseInt(value);
+  rPanel.hide();
+});
+rPanel.on("show", function() {
+  rPanel.port.emit("update", prefs.dFolder, yButton.saturate);
+});
+
 var iPanel = panel.Panel({
   width: config.panels.iPanel.width,
   height: config.panels.iPanel.height,
@@ -163,11 +174,11 @@ var cmds = {
   },
   onCtrlClick: function () {
     var script = function () {
-      var reg = /embed\/([^\/\&\"\'\?\\\/]*)/g, arr = [], test;
+      var reg = /embed\/([^\=\&\'\"\\\/\_\-\<\>]{5,})/g, arr = [], test;
       while ((test = reg.exec(document.body.innerHTML)) !== null) {
         arr.push(test[1]);
       }
-      reg = /watch\?.*v\=([^\=\&\'\"\\\/]*)/g;
+      reg = /watch\?.*v\=([^\=\&\'\"\\\/\_\-\<\>]{5,})/g;
       while ((test = reg.exec(document.body.innerHTML)) !== null) {
         arr.push(test[1]);
       }

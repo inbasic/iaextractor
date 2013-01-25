@@ -55,10 +55,8 @@ exports.ToolbarButton = function ToolbarButton(options) {
       // create toolbar button
       let svg = doc.createElementNS(NS_SVG, "svg");
       svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
-      svg.setAttribute("viewBox", "0 0 16 16");
       svg.setAttribute("width", 16);
       svg.setAttribute("height", 16);
-      svg.style.display = "block";
       
       let image = doc.createElementNS(NS_SVG, "image");
       image.setAttribute("width", 16);
@@ -198,6 +196,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
     getToolbarButtons(function(tbb) {
       tbb.childNodes[0].childNodes[0].childNodes[2].childNodes[1].setAttribute("values", aOptions.value);
     }, options.id);
+    options.saturate = aOptions.value;
     return aOptions.value;
   }
   
@@ -256,6 +255,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
     set progress(value) setProgress({progress: value}),
     set hueRotate(value) setHueRotate({value: value}),
     set saturate(value) setSaturate({value: value}),
+    get saturate() options.saturate,
     get tooltiptext() options.tooltiptext,
     set tooltiptext(value) {
       options.tooltiptext = value;

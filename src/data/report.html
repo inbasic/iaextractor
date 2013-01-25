@@ -1,130 +1,57 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <style type="text/css">
-      .img {
-        display: block;
-        min-height: 16px;
-        min-width: 16px;
-        margin: 2px 0;
-      }
-      .img:before {
-        display: block;
-        content:"";
-        position:absolute;
-        width:16px;
-        height:16px;
-        background-image: url(report/images.png);
-        background-repeat: no-repeat;
-      }
-      .column1 {
-        width: 100%;
-      }
-      .columnB {
-        text-align: center;
-        padding-bottom: 10px;
-        padding-top: 10px;
-      }
-      .column2 {
-        text-align: center;
-        min-height: 16px;
-        min-width: 16px;
-      }
-      .info {
-        padding-left: 5px;
-        padding-right: 5px;
-        border: solid 1px #FFBF00;
-        background-color: #F2F5A9;
-      }
-      hr {
-        width: 80%;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-      .button {
-        display: block;
-        min-height: 20px;
-        min-width: 20px;
-        border: 1px solid rgba(140,183,234,.5);
-        box-shadow: 0 0 0 1px hsla(0,0%,100%,.5) inset,
-                    0 1px 0 hsla(0,0%,100%,.3) inset;
-        background-image: linear-gradient(rgba(244,248,253,.5), rgba(244,248,253,.5));
-      }
-      .button:before {
-        margin: 2px;
-      }
-      .button:hover {
-        background-image: linear-gradient(rgba(190,215,243,.5), rgba(190,215,243,.5));
-      }
-      .button:active {
-        background-image: linear-gradient(rgba(140,183,234,.5), rgba(140,183,234,.5));
-      }
-      .tooltip {
-        width: 100%;
-        height: 16px;
-        text-align: right;
-        color: InfoText;
-        font-size: 13px;
-      }
-      #formats:before {
-        background-position: -80px center;
-      }
-      #embed:before {
-        background-position: 0 center;
-      }
-      #cancel:before {
-        background-position: -16px center;
-      }
-      #number:before {
-        background-position: -96px center;
-      }
-      #detect-img:before {
-        background-position: -32px center;
-      }
-      #extract-img:before {
-        background-position: -64px center;
-      }
-      #download-img:before {
-        background-position: -48px center;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="report/report.css">
   </head>
   <body>
+
+  <fieldset>
+  <legend align="left" class="caption">Progress panel</legend>
     <table id="progress" border="0">
       <tr>
-        <td></td>
-        <td class="columnB"><b>Progress Panel</b></td>
-        <td id="number" class="column2 img"></td>
-        <td class="column3"></td>
+        <td style="width: 100%;">Detecting download link:</td>
+        <td id="detect" class="box">-</td>
+        <td  id="download-button" class="box img button"></td>
       </tr>
       <tr>
-        <td id="detect-img" class="img"></td>
-        <td class="column1">Detecting download link:</td>
-        <td id="detect" class="column2">0</td>
-        <td class="column3"></td>
-      </tr>
-      <tr>
-        <td id="download-img" class="img"> </td>
         <td>Downloading Youtube video:</td>
-        <td id="download" class="column2">0</td>
-        <td  id="cancel" class="button img"></td>
+        <td id="download" class="box">-</td>
+        <td  id="cancel" class="box img button"></td>
       </tr>
       <tr>
-        <td id="extract-img" class="img"></td>
         <td>Extracting audio file (AAC):</td>
-        <td id="extract" class="column2">0</td>
+        <td id="extract" class="box">-</td>
         <td class="column3"></td>
       </tr>
     </table>
-    <!--<p class="info"><b>Tip:</b> Open Youtube video, hit the toolbat button to download the video and extract the audio</p>-->
-    <hr>
+  </fieldset>
+
+  <fieldset>
+  <legend align="left" class="caption">Video settings</legend>
     <table border="0">
       <tr>
-        <td id="formats" class="button img"></td>
-        <td> </td>
-        <td id="embed" class="button img"></td>
-        <td id="tooltiptext" class="tooltip"></td>
+        <td style="width: 100%;">Display all available formats:</td>
+        <td id="formats" class="box img button"></td>
+      </tr>
+      <tr>
+        <td>Extract all embed videos:</td>
+        <td id="embed" class="box img button"></td>
       </tr>
     </table>
+    <table>
+      <tr>
+        <td style="width: 100%;">Download folder:</td>
+        <td>
+          <select id="destination" style="width: 150px">
+            <option value="0">Default Downloads directory</option>
+            <option value="1">Home directory</option>
+            <option value="2">OS temporary directory</option>
+            <option value="3">Desktop directory</option>
+            <option value="4">Select another folder</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
   </body>
 </html>

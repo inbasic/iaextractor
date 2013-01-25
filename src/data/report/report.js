@@ -1,30 +1,16 @@
-var addTooltip = (function () {
-  var count = 0;
-  var tooltip = document.getElementById("tooltiptext");
-  function clear () {
-    while(tooltip.firstChild) tooltip.removeChild(tooltip.firstChild);
-  }
-  
-  return function (id, txt) {
-    var elem = document.getElementById(id);
-    elem.addEventListener("mouseover", function () {
-      clear();
-      tooltip.appendChild(document.createTextNode(txt));
-      count += 1;
-    }, true);
-    elem.addEventListener("mouseout", function () {
-      window.setTimeout(function () {
-        count -= 1;
-        if (!count) clear();
-      }, 1000);
-    }, true)
-  }
-})();
+var destination = document.getElementById("destination");
+var downloadButton = document.getElementById("download-button");
 
-addTooltip("formats", "Display all available formats.");
-addTooltip("embed", "Extract all embed videos.");
-addTooltip("cancel", "Cancel all active video downloads.");
-
+self.port.on("update", function(index, isRed) {
+  destination.selectedIndex = index;
+  if (isRed) {
+    downloadButton.setAttribute("type", "active");
+  }
+  else {
+    downloadButton.removeAttribute("type");
+  }
+  downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
+});
 self.port.on("detect", function(str) {
   document.getElementById("detect").firstChild.nodeValue = str;
 });
@@ -35,12 +21,18 @@ self.port.on("extract", function(str) {
   document.getElementById("extract").firstChild.nodeValue = str;
 });
 
+downloadButton.addEventListener("click", function () {
+  self.port.emit("download");
+}, true);
 document.getElementById("cancel").addEventListener("click", function () {
-  self.port.emit("cancelAll", null);
+  self.port.emit("cancelAll");
 }, true);
 document.getElementById("formats").addEventListener("click", function () {
-  self.port.emit("formats", null);
+  self.port.emit("formats");
 }, true);
 document.getElementById("embed").addEventListener("click", function () {
-  self.port.emit("embed", null);
+  self.port.emit("embed");
+}, true);
+destination.addEventListener("change", function () {
+  self.port.emit("destination", destination.value);
 }, true);
