@@ -25,6 +25,11 @@ var mDrag = function (elem) {
 }
 
 var mMake = function () {
+  //Remove old childs
+  var old = document.getElementsByClassName("div-formats");
+  for (var i = 0; i < old.length; i++) {
+    document.body.removeChild(old[i]);
+  }
   var css = ' \
    .div-formats { \
       position: fixed; \
@@ -123,7 +128,14 @@ var mMake = function () {
   var ul = document.createElement("ul");
   parent.appendChild(ul);
   document.body.appendChild(parent);
-
+  
+  if (self.options.left) {
+    parent.style.left = self.options.left;
+  }
+  if (self.options.top) {
+    parent.style.top = self.options.top;
+  }
+  
   return function (vInfo) {
     function item (txt, url, name, index) {
       var li = document.createElement("li");

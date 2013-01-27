@@ -42,8 +42,8 @@ var config = {
   //Panels
   panels: {
     rPanel: {
-      width: 320,
-      height: 250
+      width: 380,
+      height: 270
     },
     iPanel: {
       width: 520,
@@ -76,10 +76,12 @@ rPanel.port.on("embed", function () {
 });
 rPanel.port.on("destination", function (value) {
   prefs.dFolder = parseInt(value);
-  rPanel.hide();
+});
+rPanel.port.on("quality", function (value) {
+  prefs.quality = parseInt(value);
 });
 rPanel.on("show", function() {
-  rPanel.port.emit("update", prefs.dFolder, yButton.saturate);
+  rPanel.port.emit("update", prefs.dFolder, prefs.quality, yButton.saturate);
 });
 
 var iPanel = panel.Panel({
@@ -206,6 +208,7 @@ var cmds = {
   },
   onShiftClick: function () {
     var worker = tabs.activeTab.attach({
+      contentScriptOptions: {  },
       contentScriptFile: data.url("formats.js")
     });
   
@@ -364,8 +367,32 @@ var get = function (videoID, listener) {
         oFile.append(audioName);
       }
     }
+    else if (prefs.dFolder == 5) { //Select folder by user
+      if (prefs.userFolder) {
+        iFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+        iFile.initWithPath(prefs.userFolder);
+        iFile.append(videoName + "." + vInfo.container);
+        iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+        if (prefs.doExtract) {
+          oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+          oFile.initWithPath(prefs.userFolder);
+          oFile.append(audioName + ".aac");
+          oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+        }
+      }
+      else {
+        notify(_("name"), _("err7"));
+        return;
+      }
+    }
     else {
       switch(prefs.dFolder) {
+        case 2:
+          root = "TmpD";
+          let folder = Math.random().toString(36).substr(2,16);
+          videoPath = ["iaextractor", folder];
+          audioPath = ["iaextractor", folder];
+          break;
         case 0:
           root = "DfltDwnld"
           videoPath = [];
@@ -375,12 +402,6 @@ var get = function (videoID, listener) {
           root = "Home";
           videoPath = [];
           audioPath = [];
-          break;
-        case 2:
-          root = "TmpD";
-          let folder = Math.random().toString(36).substr(2,16);
-          videoPath = ["iaextractor", folder];
-          audioPath = ["iaextractor", folder];
           break;
         case 3:
           root = "Desk";

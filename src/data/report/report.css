@@ -5,8 +5,13 @@ fieldset {
   border-width: 1px 0 0 0;
   border-color: ThreeDFace;
 }
+body,
 table {
   font-size: 13px;
+}
+label {
+  display: inline-block;
+  width: 100%;
 }
 .caption {
   background: none repeat scroll 0 0;
@@ -31,7 +36,9 @@ table {
   background-image: url(images.png);
   background-repeat: no-repeat;
 }
+.list,
 .button {
+  cursor: pointer;
   min-height: 20px;
   min-width: 20px;
   border: 1px solid rgba(140,183,234,.5);
@@ -60,4 +67,18 @@ table {
 }
 #download-button[type="active"]:before {
   background-position: -48px center;
+}
+
+.list {
+  width: 185px;
+  padding: 2px 13px 1px 3px;
+}
+#video-list,
+#download-list {
+  background: url(dropdown.png) right center;
+  background-repeat: no-repeat;
+}
+#video-addition,
+#download-addition {
+  display: none;
 }

@@ -58,8 +58,14 @@
       {"value": "1", "label": "Home directory"},
       {"value": "2", "label": "OS temporary directory"},
       {"value": "3", "label": "Desktop directory"},
-      {"value": "4", "label": "Select folder each time"}
+      {"value": "4", "label": "Select folder each time"},
+      {"value": "5", "label": "User folder"}
     ]
+  },
+  {
+    "name": "userFolder",
+    "type": "directory",
+    "title": "User folder:"
   },
   {
     "name": "open",
