@@ -70,15 +70,17 @@ label {
 }
 
 .list {
-  width: 185px;
+  display: inline-block;
   padding: 2px 13px 1px 3px;
 }
 #video-list,
+#format-list,
 #download-list {
   background: url(dropdown.png) right center;
   background-repeat: no-repeat;
 }
 #video-addition,
+#format-addition,
 #download-addition {
   display: none;
 }

@@ -80,8 +80,11 @@ rPanel.port.on("destination", function (value) {
 rPanel.port.on("quality", function (value) {
   prefs.quality = parseInt(value);
 });
+rPanel.port.on("format", function (value) {
+  prefs.extension = parseInt(value);
+});
 rPanel.on("show", function() {
-  rPanel.port.emit("update", prefs.dFolder, prefs.quality, yButton.saturate);
+  rPanel.port.emit("update", prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
 });
 
 var iPanel = panel.Panel({
@@ -451,8 +454,11 @@ var get = function (videoID, listener) {
         }
         listener.onExtractStart();
         extract.perform(iFile, oFile, function (e) {
+          if (prefs.extension != "0") { //
+            notify(_("name"), _("msg5"));
+          }
           listener.onExtractDone();
-          afterExtract(e);
+          afterExtract(prefs.extension == "0" ? e : null);
         });
       },
       error: function (dl) {

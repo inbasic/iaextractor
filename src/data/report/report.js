@@ -79,10 +79,29 @@ var quality = new mList (
     self.port.emit("quality", value);
   }
 );
+var format = new mList (
+  "finput", 
+  $('format-list'), 
+  $('format-addition'),
+  0,
+  function (value) {
+    switch (value + "") {
+      case "0": return "FLV";
+      case "1": return "3GP";
+      case "2": return "Mp4";
+      case "3": return "WebM";
+    }
+  },
+  function (value) {
+    self.port.emit("format", value);
+  }
+);
 
-self.port.on("update", function(dIndex, vIndex, isRed) {
+
+self.port.on("update", function(dIndex, vIndex, fIndex, isRed) {
   download.value = dIndex;
   quality.value = vIndex;
+  format.value = fIndex;
   if (isRed) {
     downloadButton.setAttribute("type", "active");
   }
