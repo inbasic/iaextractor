@@ -13,6 +13,9 @@ label {
   display: inline-block;
   width: 100%;
 }
+span {
+  text-align: left;
+}
 .caption {
   background: none repeat scroll 0 0;
   border: 1px solid ThreeDFace;

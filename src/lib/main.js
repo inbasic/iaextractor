@@ -22,15 +22,6 @@ var config = {
   youtube: "https://www.youtube.com/",
   //toolbar
   image: {
-    data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9T" +
-      "AAAAwFBMVEX///////+/AADdRjPOJBoiHx/VMyXHEg3rZkrPJRvSLCDYOirLHRXgTTjhTz" +
-      "nnXEPeSTTQKB3WNifKGhPBBQPaPi30fFroX0XoYEXrmpPFDwvDCQfvcVLdRTLbQS/fgIDh" +
-      "UTvkVj/OIxnxdFTjiIXcRDHqZUn1hGTUMCPTLyLzeVfIFQ/ECwjmW0LAAgHcbWvEDAnRKR" +
-      "7vcFHaQC7iUjzMHxfhTjnraEvkWEDHEw7XOSnXOirPJxzsaEzZPSzlWUD0fBD5AAAAAXRS" +
-      "TlMAQObYZgAAAJhJREFUeF6Fi9Wuw1AMBL0+EGYoMzP3Ivz/XzVppd6XSJ21HzzWEpEq8k" +
-      "+lUOqxz4cq54V41irJ8+XRDM7hr45co0U0A/BTH3j4XMikmTKN2jBr776APlxW6y3T2xQB" +
-      "fGQAkjHAtPlDHx3EsPCBUly94nRgw8UezEziBKcBDIFd2gNaJEIx6WZf8dz+llJaTKS1ti" +
-      "NpGHyHbrwiCguwrSsJAAAAAElFTkSuQmCC",
     get progressColor() {return prefs.progressColor}
   },
   move: {toolbarID: "nav-bar", forceMove: false},
@@ -43,7 +34,7 @@ var config = {
   panels: {
     rPanel: {
       width: 380,
-      height: 270
+      height: 275 // Set this on Ubuntu
     },
     iPanel: {
       width: 520,
@@ -231,7 +222,7 @@ exports.main = function(options, callbacks) {
     label: _("toolbar"),
     tooltiptext: config.tooltip,
     progressColor: config.image.progressColor,
-    image: config.image.data,
+    image: data.url("notification.png"),
     panel: rPanel,
     onCommand: cmds.onCommand,
     onClick: function (e, tbb) { //Linux problem for onClick
