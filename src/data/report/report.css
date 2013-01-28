@@ -27,6 +27,7 @@ span {
   min-height: 18px;
   min-width: 18px;
 }
+.checkbox span,
 .img {
   display: block;
 }
@@ -39,6 +40,7 @@ span {
   background-image: url(images.png);
   background-repeat: no-repeat;
 }
+.checkbox span,
 .list,
 .button {
   cursor: pointer;
@@ -86,4 +88,13 @@ span {
 #format-addition,
 #download-addition {
   display: none;
+}
+
+.checkbox input {
+    display: none;
+}
+.checkbox input:checked + span {
+    background-image: url("checkmark.png");
+    background-position: center center;
+    background-repeat: no-repeat;
 }

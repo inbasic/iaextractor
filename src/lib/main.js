@@ -34,7 +34,7 @@ var config = {
   panels: {
     rPanel: {
       width: 380,
-      height: 275 // Set this on Ubuntu
+      height: 295 // Set this on Ubuntu
     },
     iPanel: {
       width: 520,
@@ -76,8 +76,11 @@ rPanel.port.on("quality", function (value) {
 rPanel.port.on("format", function (value) {
   prefs.extension = parseInt(value);
 });
+rPanel.port.on("extract", function (value) {
+  prefs.doExtract = value;
+});
 rPanel.on("show", function() {
-  rPanel.port.emit("update", prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
+  rPanel.port.emit("update", prefs.doExtract, prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
 });
 
 var iPanel = panel.Panel({

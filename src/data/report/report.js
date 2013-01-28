@@ -40,7 +40,8 @@ var mList = function (name, el1, el2, value, func1, func2) {
   }
 }
 
-var downloadButton = $("download-button");
+var downloadButton = $("download-button"),
+    checkbox = $("checkbox");
 
 var download = new mList (
   "dinput", 
@@ -98,7 +99,8 @@ var format = new mList (
 );
 
 
-self.port.on("update", function(dIndex, vIndex, fIndex, isRed) {
+self.port.on("update", function(doExtract, dIndex, vIndex, fIndex, isRed) {
+  checkbox.checked = doExtract;
   download.value = dIndex;
   quality.value = vIndex;
   format.value = fIndex;
@@ -132,3 +134,6 @@ $("formats").addEventListener("click", function () {
 $("embed").addEventListener("click", function () {
   self.port.emit("embed");
 }, true);
+checkbox.addEventListener("change", function () {
+  self.port.emit("extract", checkbox.checked);
+});
