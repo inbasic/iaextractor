@@ -54,7 +54,7 @@ var download = new mList (
       case "2": return "OS temporary directory";
       case "3": return "Desktop directory";
       case "4": return "Select folder each time";
-      case "5": return "User folder";
+      case "5": return "User defined folder";
     }
   },
   function (value) {

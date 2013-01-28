@@ -41,6 +41,8 @@ var config = {
       height: 520
     }
   },
+  //pref
+  pref: "extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.",
   //Homepage
   homepage: "http://iaextractor1.notlong.com/"
 }
@@ -362,20 +364,21 @@ var get = function (videoID, listener) {
       }
     }
     else if (prefs.dFolder == 5) { //Select folder by user
-      if (prefs.userFolder) {
-        iFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-        iFile.initWithPath(prefs.userFolder);
+      try {
+        //Simple-prefs doesnt support complex type
+        let _prefs = Cc["@mozilla.org/preferences-service;1"].
+          getService(Ci.nsIPrefService).getBranch(config.pref);
+        iFile = _prefs.getComplexValue("userFolder", Ci.nsILocalFile);
         iFile.append(videoName + "." + vInfo.container);
         iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         if (prefs.doExtract) {
-          oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-          oFile.initWithPath(prefs.userFolder);
+          oFile = _prefs.getComplexValue("userFolder", Ci.nsILocalFile);
           oFile.append(audioName + ".aac");
           oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         }
       }
-      else {
-        notify(_("name"), _("err7"));
+      catch (e) {
+        notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
         return;
       }
     }

@@ -65,7 +65,7 @@
   {
     "name": "userFolder",
     "type": "directory",
-    "title": "User folder:"
+    "title": "User defined folder:"
   },
   {
     "name": "open",
