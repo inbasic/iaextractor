@@ -15,6 +15,7 @@ var mList = function (name, el1, el2, value, func1, func2) {
   el1.addEventListener("click", function () {
     el2.style.display = isHidden ? 'block' : 'none';
     isHidden = !isHidden;
+    window.scrollTo(0, document.body.scrollHeight);
   }, false);
   window.addEventListener("click", function (e) {
     if (e.button != 0) return;
