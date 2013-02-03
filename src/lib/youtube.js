@@ -1,4 +1,4 @@
-var prefs       = require("simple-prefs").prefs,
+var prefs       = require("sdk/simple-prefs").prefs,
    {Cc, Ci, Cu} = require('chrome');
 // https://github.com/fent/node-ytdl
 function _getInfo (videoID, callback, pointer) {
@@ -36,7 +36,7 @@ function _getInfo (videoID, callback, pointer) {
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
       if (pair[0] == "title") { //Issue #4, title problem
-        temp[pair[0]] = decodeURI(pair[1]).replace(/\+/g, " ");
+        temp[pair[0]] = decodeURIComponent(pair[1]).replace(/\+/g, " ");
       }
       else {
         temp[pair[0]] = unescape(pair[1]);

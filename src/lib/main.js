@@ -1,15 +1,15 @@
 /** Require **/
-var tabs          = require("tabs"),
-    self          = require("self"),
-    timer         = require("timers"),
-    prefs         = require("simple-prefs").prefs,
+var tabs          = require("sdk/tabs"),
+    self          = require("sdk/self"),
+    timer         = require("sdk/timers"),
+    prefs         = require("sdk/simple-prefs").prefs,
+    panel         = require("sdk/panel"),
+    _             = require("sdk/l10n").get,
     windowutils   = require("window-utils"),
     window        = windowutils.activeBrowserWindow,
-    panel         = require("panel"),
-    toolbarbutton = require("toolbarbutton"),
-    _             = require("l10n").get,
     data          = self.data,
     {Cc, Ci, Cu}  = require('chrome'),
+    toolbarbutton = require("toolbarbutton"),
     youtube       = require("youtube"),
     download      = require("download"),
     extract       = require("extract");
@@ -371,11 +371,11 @@ var get = function (videoID, listener) {
         //Simple-prefs doesnt support complex type
         let _prefs = Cc["@mozilla.org/preferences-service;1"].
           getService(Ci.nsIPrefService).getBranch(config.pref);
-        iFile = _prefs.getComplexValue("userFolder", Ci.nsILocalFile);
+        iFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
         iFile.append(videoName + "." + vInfo.container);
         iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         if (prefs.doExtract) {
-          oFile = _prefs.getComplexValue("userFolder", Ci.nsILocalFile);
+          oFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
           oFile.append(audioName + ".aac");
           oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         }

@@ -1,5 +1,5 @@
-var _             = require("l10n").get,
-   {Cc, Ci, Cu}     = require('chrome');
+var _           = require("sdk/l10n").get,
+   {Cc, Ci, Cu} = require('chrome');
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
