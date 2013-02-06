@@ -210,7 +210,6 @@ var cmds = {
       contentScriptOptions: {  },
       contentScriptFile: data.url("formats.js")
     });
-  
     let url = tabs.activeTab.url;
     urlExtractor(url, function (videoID) {
       if (!videoID) return;

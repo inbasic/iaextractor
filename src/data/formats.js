@@ -1,168 +1,148 @@
-var mDrag = function (elem) {
-  var x, y, offX, offY;
-  var element = elem;
-  var being = false;
-  function mouser(e) {
-    x = e.pageX;
-    y = e.pageY;
-    if (being == true) {
-      element.style.left = (x - offX) +'px';
-      element.style.top  = (y - offY) +'px';
-    }
-  }
-  document.addEventListener("mousemove", mouser, false);
-  document.addEventListener("mouseup", function () {
-    being = false;
-    if (element.style) element.style.cursor = 'auto';
-  }, false);
-  return function (e) {
-    if (!element.style) return;
-    being = true;
-    element.style.cursor = 'move';
-    offX = e.pageX - parseInt(element.style.left ? element.style.left : 40);
-    offY = e.pageY - parseInt(element.style.top ? element.style.top : 300);
-  }
+var $ = function (id) {
+  return document.getElementById(id);
 }
 
 var mMake = function () {
-  //Remove old childs
-  var old = document.getElementsByClassName("div-formats");
-  for (var i = 0; i < old.length; i++) {
-    document.body.removeChild(old[i]);
+  var sets = [], numberOfItems, activeSet = 0, title;
+  //Position
+  var players = document.getElementsByTagName("embed");
+  if (players.length) {
+    var rect = players[0].getBoundingClientRect ();
+    document.body.insertAdjacentHTML("afterbegin", 
+    '<style>' +
+    '  .iaextractor-div {' +
+    '    font-family: "Segoe UI Light", "Open Sans", "Lato", Verdana, Arial, Helvetica, sans-serif;' +
+    '    position: absolute;' +
+    '    background: #31859B;' +
+    '    color: white;' +
+    '    z-index: 2147483647;' +
+    '  }' +
+    '  .iaextractor-item {' +
+    '    background: #17365D url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHZJREFUOE9j+P//PwMlmJBmoNlggFPdqAH/GbCFwX1YyGGhQXIoerAZ4IDHAJAcQQNACvqxGAISw7AQVzQKABUjewXEBokRbQBIIbJXMJwOMwykEF9qAzkbq9ORNeEzAF9KhadxPIFOWArZC4RVY1FBKDMRlAcArg5JwJVkhDYAAAAASUVORK5CYII=") 5px center no-repeat;' +
+    '    padding-left: 28px;' +
+    '    cursor: pointer;' +
+    '    line-height: 28px;' +
+    '    margin: 10px;' +
+    '  }' +
+    '  .iaextractor-link {' +
+    '    color: white !important;' +
+    '    text-decoration:none;' +
+    '  }' +
+    '  #iaextractor-previous {' +
+    '    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwQAADsEBuJFr7QAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAACi0lEQVRIS52WP2xNcRTHXzWh1FDRdH1FIhEdqUSQdLBp0gWLP6tFjMqK3SIRBiYJi1Gl2o6GJrUw2KjQRkiwoAnP53N7bnvve7/b+/Qln9x7f79zvufe8zu/83uNRuLXarUaMAhjMAnTsAi/Au8dc04bbVNS5bEQ3sb1KNyHN/AeZuEh3A68d8w5bbTVR9/qQEz2w3lYgI9wF05BEwagL/DeMee00VYfffs7IhgVdsJN+ARTMApb675bGzgCz8JXDbXWXXnw0y7CEjyGg3XC7fP6hK8aavVlNvH25u9VvLmGvZsI0BtB/Hq11MwCWAEuknkcraiq7cyZ911gSirjqwGmWc1BA1hmVoKL1ZFzxhS/Ag/gDuyBnqoI8QJqqTlmAGvZchsvOvmWsAMuwxf4DDfAStswg2qF5qQibpg5GM69QnyI6y34Cu/gkgG7WRvsmuA+mTaAu9KNM1AIYL4V982/wzXYB65XFbuZyypHrdBc9OEnuEPzSTfTVfgG/rw+hUc1uKjHI4Aaaq6kAlimM/A3AvzmutwFb7E5kwpQShFG1vMJmIc/YJquw1kFgtOJ+wnGsnXkWkpRapENchLsLyvwBA7Alhqy8sWmCWuLXFWmBnHT2GNs089hdXfW/LAplWnlRsOwBw7BS/gBrs1ex7vYaK+xyzZasVUcTjQx07IfjsUXmN+NWoWd1baz1ioMUmx2Izxvttnpa7Nz7dbTyYPt+gLYal3Qkbo8J75UcX3VUGu1Xceq5weOvSY/cPzU/zlwfHN91SgfOIVATuRHpsZ2RStiGNqPTMec00Zb03IOOo/Mti9JHfpzONqv3P7ivWN2YavlHtQf+m2Bin9bXiDwAexb4n1Xf1v+AdF8BEGTkEWjAAAAAElFTkSuQmCC) no-repeat;' +
+    '    cursor: pointer;' +
+    '    width: 24px;' +
+    '    height: 24px;' +
+    '    border: none;' +
+    '  }' +
+    '  #iaextractor-next {' +
+    '    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAChElEQVRIS52WOWgVURRAvwaMMRYJCbZxAUFMaRIIKqRIp2CljUtrI5ZGS5feRhBSaBUwjWUiLiktBG20sNOIC6KgNlFBv+eM9+O8lxlnyMBh5s/d5t13732/06m4ut1uB0ZhBubgPqzC98Bn3ylTR90qV+m7cNzPfRrm4QW8hkdwG64HPvtOmTrqaqNtfSCEg3AKnsJbuAlHYAyGYGvgs++UqaOuNtoOrotgVNgOV+EdLMMUbGlatzowGTba6kNf/0z54dJOw3u4A/ubHOdybcJWH2dcaaETX2/+nsVXqNi3gQB9EcTV60ufRQArwE1yeZN1juNDTMcwuAcDNRVoutwTfY4awDJ7Dm5Wbc6RbYJdcANuwfmqIPoIX1bXjAGsZcvt6P/SEiuwyi7DR/gE52CbsvKlr/A5ZwAbxpoea5P3cHiW+yv4DNdgRzkIzzthRd8GeAM2zlBsurU+Au5NHXuQXYSvsRKDFPbhwz3S56oBfoIdWpQV90PgBi00cBf5F/DyfqHkw4/U51pVgOMIXsKHFvyIAL+5P4SifwxUDpCnyPwdAwPVcQLZJXCjf8ETOAxF/3BPUpRsMkLLcXMD+5Avgul1Bs32nEeAZJNblWnW9fdw6OheAhsr6Xx+J2Vqo9kUbRptN3oP4Bs8hgOuOOuBXqPZvEWj9UaF7T3VMCrMrTPmIOw1jRVDb4L3yagwiEbm0kE1ni+5ZQM67LRNh13ktjyu3bzxNk6z1OhcW8e1o//vuC5tnofEFdjIgePh5Jdrq4/0wCkFcpidjHSp7MZbEZZdfmT6Tpk66tYfmdlKyoe+leCkXQFni+0vPvtOmTrtDv0sUP63xY5fC3y2XBv/tvwBsMQEQXsa/zUAAAAASUVORK5CYII=) no-repeat;' +
+    '    cursor: pointer;' +
+    '    width: 24px;' +
+    '    height: 24px;' +
+    '    border: none;' +
+    '  }' +
+    '  #iaextractor-close {' +
+    '    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvgAADr4B6kKxwAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAACQElEQVRIS53WvYpUQRAF4AVFBTcw2MBsNRM08w/M1ljfwJ/X2FBQ1tRQNDHVF1BYdR9A0EQxUnBFfQRFg/F8w+2hp7fvOM7Agb7VVaeqq6uqZ20ymayNYCPyrWA72A32g18DrMns0aHb5ekJj0b5SvA4+BB8CV4HT4IHA6zJ7NGhy4btHGfr4HgUbgZvg2/Bw+BasBmcCI4NsCazR4cuG7Y4Zry1g/Vs3Au+By+CS8GRNqLON53LwfPBFgeuKXdx4Gi3gx/B0+DsEsTt6dmwxYHLaWcO5O/dEDnFQys4YMPW6XHhnDpQAS5JHqWljezAxVU6hzv6OKQZ5wYyZaYSXFab85OR7QRXO0RnIrsT0KmDwoEL55YNtazcrjeKIkf+J/jUOEH+Ztij054SF85tDjTMXnCqE6XIkft9DM4Hp4NXg+xz47icZDNyfbJLoCs1jtruNR4nyIuTQk7WSx0OXDj3ffwMdOi0rEYg8uKkOLqwQB8Xzt/LOqjTUhxwOhbQnIN/pciF1mmp07VUihZdcqmWOi11utrq6l7yWJlqInWuTNtqKdVl736wsExXbTROkI812vvsTRutHhUXOxe3aFT09kxWY2c2Kjiph925fK867Ngadt6G2bDjQCS3AqP2WUBxrATH5GzY4sA1N64ZeSTuBuXBcdT/eXBEzhbHgQenRGWjPJmUTUWDy5zS/vWTSWaPDl1puRGMPpnFSe/R34uh2aL9wZrMxFQtj4KlHv06v/Xflpch+BqYW2C91N+Wv9jmVRD9tG0nAAAAAElFTkSuQmCC) no-repeat;' +
+    '    cursor: pointer;' +
+    '    width: 24px;' +
+    '    height: 24px;' +
+    '    border: none;' +
+    '  }' +
+    '  #iaextractor-previous:disabled,' +
+    '  #iaextractor-next:disabled {' +
+    '    background: none;' +
+    '    display: none;' +
+    '  }' +
+    '</style>' +
+    '<div id="iaextractor-menu" class="iaextractor-div" style="top:' + (rect.top + window.scrollY) + "px; left:" + (rect.left + rect.width/2) + "px; width:" + (rect.width/2) + "px; height:" + (rect.height) + "px" + '">' +
+    '  <input type="submit" id="iaextractor-previous" disabled="true" style="float:left; margin: 4px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-previous\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
+    '  <input type="submit" id="iaextractor-next" style="float:left; margin: 4px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-next\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
+    '  <input type="submit" id="iaextractor-close" style="float:right; margin: 4px;" name="" value="" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' +
+    '  <center style="font-size: 20px; line-height: 30px;">Download Video</center> ' +
+    '</div>');
+    
+    numberOfItems = Math.floor(rect.height / 40);
   }
-  var css = ' \
-   .div-formats { \
-      position: fixed; \
-      top: 300px; \
-      left: 40px; \
-      min-width: 250px; \
-      background-color: white; \
-      margin: 0; \
-      padding-left: 0; \
-      padding-right: 0; \
-      font-family: arial, sans-serif; \
-      font-size: 15px; \
-      border: 1px solid #D4D4D4; \
-      z-index: 2147483647; \
-    } \
-    .div-formats .title { \
-      color: #555555; \
-      background-color: #DCDCDC; \
-      background-image: linear-gradient(to bottom, #F0F0F0 0px, #DCDCDC 100%); \
-      height: 26px; \
-      line-height: 26px; \
-      padding-left: 10px; \
-      font-size: 14px; \
-    } \
-    .div-formats .close { \
-      cursor: pointer; \
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHhJREFUSEvtlcsKQCEIRP1m/x+6uQjExoGL0AMS3IhxBp1KVFUqKdWowO1sOZ4AMIHWa5bRG7AOVtB6zTIGrhOQFzHgkzAC8iIGfBaWeMADUzgxoQfmcFNPTBhFwF5yC6II3HqqgK0rQDtfasLt1/DX3/Ce4usn8AFPKaXAhWH6vwAAAABJRU5ErkJggg==); \
-      display:block; \
-      width: 16px; \
-      height: 16px; \
-      background-position: 0 0;  \
-      margin-right: 2px; margin-top: 4px; \
-    } \
-    .div-formats .close:hover { \
-      background-position: 16px 0; \
-    } \
-    .div-formats ul { \
-      box-shadow: none; \
-      overflow: auto; \
-      padding: 2px; \
-      list-style-type: none; \
-      margin: 0 0 2px 0px; \
-    } \
-    .div-formats span { \
-      float: left; \
-      cursor: pointer; \
-      border: solid 1px transparent; \
-      margin: 0; \
-      padding-left: 5px; \
-      height: 24px; \
-      line-height: 24px; \
-      width: 97% \
-    } \
-    .div-formats span:hover { \
-      background: yellow; \
-    } \
-    .div-formats a { \
-      color: #555555; \
-    } \
-    .div-formats .number { \
-      color: black; \
-    }'
-  var head = document.getElementsByTagName('head')[0];
-  var styles = head.getElementsByTagName("style");
-  var injected = false;
-  for (var i = 0; i < styles.length; i++) {
-    if (styles[i].getAttribute("inject") == "iaextractor") {
-      injected = true;
-      break;
+
+  return {
+    init: function (vInfo) {
+      function item (txt, url, name) {
+        var a = document.createElement("a");
+        a.setAttribute("class", "iaextractor-link");
+        a.setAttribute("href", url + "&keepalive=yes&title=" + encodeURI(name));
+        var p = document.createElement("p");
+        p.setAttribute("class", "iaextractor-item");
+        p.textContent = txt;
+        a.appendChild(p);
+        $("iaextractor-menu").appendChild(a);
+      }
+      // Split formats into lists
+      if (vInfo) {
+        while (vInfo.formats.length) {
+          sets.push(vInfo.formats.splice(0, numberOfItems - 1));
+        }
+        title = vInfo.title;
+      }
+      // Clear old list
+      while (document.getElementsByClassName("iaextractor-link").length) {
+        var elem = document.getElementsByClassName("iaextractor-link")[0];
+        elem.parentNode.removeChild(elem);
+      }
+      //Add new list
+      sets[activeSet].forEach(function (format, index) {
+        item(format.container.toUpperCase() + " " + format.quality + " - " + 
+          format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", format.url, title)
+      });
+      if (sets.length == 1) {
+        $('iaextractor-next').disabled = true;
+      }
+    },
+    next: function () {
+      activeSet += 1;
+      this.init();
+      $('iaextractor-previous').disabled = false;
+      if (activeSet + 1 == sets.length) {
+        $('iaextractor-next').disabled = true;
+      }
+    },
+    previous: function () {
+      activeSet -= 1;
+      this.init();
+      $('iaextractor-next').disabled = false;
+      if (activeSet == 0) { 
+        $('iaextractor-previous').disabled = true;
+      }
     }
-  }
-  if (!injected) {
-    var style = document.createElement('style');
-    style.type = 'text/css';
-    style.setAttribute("inject", "iaextractor");
-    style.appendChild(document.createTextNode(css));
-    head.appendChild(style);
-  }
-  var parent = document.createElement("div");
-  parent.setAttribute("class", "div-formats");
-  var drag = new mDrag (parent);
-  parent.addEventListener("mousedown", function (e) {drag(e)}, true);
-  var title = document.createElement("div");
-  parent.appendChild(title);
-  title.setAttribute("class", "title");
-  title.setAttribute("align", "center");
-  var text = document.createTextNode("Video formats");
-  title.appendChild(text);
-  var img = document.createElement("img");
-  img.setAttribute("align", "right");
-  img.setAttribute("class", "close");
-  img.addEventListener("click", function () {
-    document.body.removeChild(parent);
-  }, true);
-  title.appendChild(img);
-  var ul = document.createElement("ul");
-  parent.appendChild(ul);
-  document.body.appendChild(parent);
-  
-  if (self.options.left) {
-    parent.style.left = self.options.left;
-  }
-  if (self.options.top) {
-    parent.style.top = self.options.top;
-  }
-  
-  return function (vInfo) {
-    function item (txt, url, name, index) {
-      var li = document.createElement("li");
-      var a = document.createElement("a");
-      a.setAttribute("href", url + "&keepalive=yes&title=" + encodeURI(name));
-      a.setAttribute("download", name);
-      var span = document.createElement("span");
-      var font = document.createElement("font");
-      font.setAttribute("class", "number");
-      text = document.createTextNode(index + ". ");
-      font.appendChild(text);
-      span.appendChild(font);
-      text = document.createTextNode(txt);
-      span.appendChild(text);
-      a.appendChild(span);
-      li.appendChild(a);
-      ul.appendChild(li);
-    }
-    vInfo.formats.forEach(function (format, index) {
-      item(format.container + " [" + format.quality + "] ... " 
-        + format.audioEncoding + " [" + format.audioBitrate + "K]", format.url, vInfo.title, index+1);
-    })
   }
 }
 
-var make = new mMake();
-self.port.on("info", function(vInfo) {
-  make(vInfo);
-});
+//Remove old elements
+while (document.getElementsByClassName("iaextractor-div").length) {
+  var elem = document.getElementsByClassName("iaextractor-div")[0];
+  elem.parentNode.removeChild(elem);
+}
+//Deactivate old workers
+var event = document.createEvent('CustomEvent');
+event.initCustomEvent('iaextractor-destroy', true, true, {});
+document.documentElement.dispatchEvent(event);
+//Add destroy listener
+document.documentElement.addEventListener("iaextractor-destroy", function(event) {
+  document.documentElement.removeEventListener("iaextractor-next", next, true);
+  document.documentElement.removeEventListener("iaextractor-next", previous, true);
+}, true);
 
+var make = new mMake();
+self.port.on("info", function(vInfo, worker) {
+  _worker = worker;
+  //Update the menu
+  window.setTimeout(function () {make.init(vInfo);}, 500);
+});
+var next = function () {
+  make.next();
+};
+document.documentElement.addEventListener("iaextractor-next", next, true);
+var previous = function () {
+  make.previous();
+};
+document.documentElement.addEventListener("iaextractor-previous", previous, true);
