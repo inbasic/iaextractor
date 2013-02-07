@@ -11,7 +11,7 @@ var mMake = function () {
     document.body.insertAdjacentHTML("afterbegin", 
     '<style>' +
     '  .iaextractor-div {' +
-    '    font-family: "Segoe UI Light", "Open Sans", "Lato", Verdana, Arial, Helvetica, sans-serif;' +
+    '    font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";' +
     '    position: absolute;' +
     '    background: #31859B;' +
     '    color: white;' +
@@ -22,10 +22,16 @@ var mMake = function () {
     '    padding-left: 28px;' +
     '    cursor: pointer;' +
     '    line-height: 28px;' +
-    '    margin: 10px;' +
+    '    margin: 13px 20px;' +
+    '  }' +
+    '  .iaextractor-item:hover {' +   
+    '    outline: 3px solid rgb(58, 58, 58);' +
     '  }' +
     '  .iaextractor-link {' +
     '    color: white !important;' +
+    '    text-decoration:none;' +
+    '  }' +
+    '  .iaextractor-link:hover {' +
     '    text-decoration:none;' +
     '  }' +
     '  #iaextractor-previous {' +
@@ -56,10 +62,10 @@ var mMake = function () {
     '  }' +
     '</style>' +
     '<div id="iaextractor-menu" class="iaextractor-div" style="top:' + (rect.top + window.scrollY) + "px; left:" + (rect.left + rect.width/2) + "px; width:" + (rect.width/2) + "px; height:" + (rect.height) + "px" + '">' +
-    '  <input type="submit" id="iaextractor-previous" disabled="true" style="float:left; margin: 4px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-previous\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
-    '  <input type="submit" id="iaextractor-next" style="float:left; margin: 4px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-next\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
-    '  <input type="submit" id="iaextractor-close" style="float:right; margin: 4px;" name="" value="" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' +
-    '  <center style="font-size: 20px; line-height: 30px;">Download Video</center> ' +
+    '  <input type="submit" id="iaextractor-previous" disabled="true" style="float:right; margin: 8px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-previous\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
+    '  <input type="submit" id="iaextractor-next" style="float:right; margin: 8px;" name="" value="" onclick="var event = document.createEvent(\'CustomEvent\'); event.initCustomEvent(\'iaextractor-next\', true, true, {}); document.documentElement.dispatchEvent(event);">' +
+    '  <input type="submit" id="iaextractor-close" style="float:left; margin: 8px;" name="" value="" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' +
+    '  <center style="font-size: 20px; line-height: 44px;">Download Video</center> ' +
     '</div>');
     
     numberOfItems = Math.floor(rect.height / 40);
