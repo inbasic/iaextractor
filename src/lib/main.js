@@ -5,6 +5,7 @@ var tabs          = require("sdk/tabs"),
     prefs         = require("sdk/simple-prefs").prefs,
     panel         = require("sdk/panel"),
     _             = require("sdk/l10n").get,
+    pageMod       = require("sdk/page-mod"),
     windowutils   = require("window-utils"),
     window        = windowutils.activeBrowserWindow,
     data          = self.data,
@@ -206,11 +207,10 @@ var cmds = {
     });
   },
   onShiftClick: function () {
-    var worker = tabs.activeTab.attach({
-      contentScriptOptions: {  },
-      contentScriptFile: data.url("formats.js")
-    });
     let url = tabs.activeTab.url;
+    let worker = tabs.activeTab.attach({
+      contentScriptFile: data.url("formats/inject.js"),
+    });
     urlExtractor(url, function (videoID) {
       if (!videoID) return;
       youtube.getInfo(videoID, function (vInfo) {
@@ -268,6 +268,14 @@ exports.main = function(options, callbacks) {
     welcome();
   }
 }
+
+/** Inject foramts menu into Youtube pages **/
+pageMod.PageMod({
+  include: ["*.youtube.com"],
+  contentStyleFile : data.url("formats/permanent.css"),
+  contentScriptFile: data.url("formats/permanent.js"),
+  contentScriptWhen: "start"
+});
 
 /** Detect a Youtube download link, download it and extract the audio**/
 var listener = (function () {

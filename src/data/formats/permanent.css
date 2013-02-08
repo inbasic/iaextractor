@@ -1,0 +1,51 @@
+.iaextractor-div {
+  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
+  position: absolute;
+  background: #31859B !important;
+  color: white;
+  z-index: 2147483647 !important;
+}
+.iaextractor-title {
+  display: block;
+  font-size: 20px !important;;
+  line-height: 38px;
+  text-align: center;
+}
+.iaextractor-item {
+  background: #17365D url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) 5px center no-repeat !important;
+  cursor: pointer;
+  padding-left: 28px !important;
+  line-height: 28px !important;
+  margin: 13px 20px !important;
+}
+.iaextractor-item:hover {   
+  outline: 2px solid rgb(58, 58, 58);
+}
+.iaextractor-link {
+  color: white !important;
+  text-decoration:none !important;
+}
+.iaextractor-link:hover {
+  text-decoration:none !important;
+}
+.iaextractor-div input {
+  -moz-appearance: none;
+  border: none !important;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  margin: 8px 14px;
+}
+#iaextractor-previous {
+  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/back.png) no-repeat !important;
+}
+#iaextractor-next {
+  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/forward.png) no-repeat !important;
+}
+#iaextractor-close {
+  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/close.png) no-repeat !important;
+}
+#iaextractor-previous:disabled,
+#iaextractor-next:disabled {
+  display: none;
+}
