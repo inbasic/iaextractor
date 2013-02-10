@@ -139,7 +139,7 @@ exports.perform = function (iFile, oFile, callback, pointer) {
     }
     catch(e) {
       write(oFile, e.toString());
-      oFile.moveTo(null, "error.log");
+      oFile.moveTo(null, oFile.leafName + ".error.log");
       callback.apply(pointer, [e]);
     }
   });
