@@ -1,0 +1,12 @@
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://iaextractor/skin/tools.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools.dtd">
+
+<window id="iaextractor-tools" 
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+  xmlns:html="http://www.w3.org/1999/xhtml" xmlns:h="http://www.w3.org/1999/xhtml">
+  
+<label value="&sample;"/>
+
+</window>

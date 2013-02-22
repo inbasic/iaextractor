@@ -78,7 +78,7 @@ function _getInfo (videoID, callback, pointer) {
       info.fmt_list[i] = info.fmt_list[i].split('/');
     }
     info.formats = (function () {
-      var tmp = info.url_encoded_fmt_stream_map.split(',');
+      var tmp = (info.url_encoded_fmt_stream_map || "").split(',');
       for (var i in tmp) {
         var format = tmp[i];
         var data = quary(format);
