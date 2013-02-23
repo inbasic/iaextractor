@@ -138,3 +138,6 @@ $("embed").addEventListener("click", function () {
 checkbox.addEventListener("change", function () {
   self.port.emit("extract", checkbox.checked);
 });
+$("tools").addEventListener("click", function () {
+  self.port.emit("tools");
+}, true);

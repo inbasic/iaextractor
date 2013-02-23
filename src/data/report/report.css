@@ -74,6 +74,9 @@ span {
 #download-button[type="active"]:before {
   background-position: -48px center;
 }
+#tools:before {
+  background-position: -80px center;
+}
 
 .list {
   display: inline-block;

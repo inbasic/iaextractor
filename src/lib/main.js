@@ -21,6 +21,7 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 var config = {
   //Youtube
   youtube: "https://www.youtube.com/",
+  tools: "chrome://iaextractor/content/tools.xul",
   //toolbar
   image: {
     get progressColor() {return prefs.progressColor}
@@ -35,7 +36,7 @@ var config = {
   panels: {
     rPanel: {
       width: 380,
-      height: 300 // Set this on Ubuntu
+      height: 320 // Set this on Ubuntu
     },
     iPanel: {
       width: 520,
@@ -79,6 +80,10 @@ rPanel.port.on("format", function (value) {
 });
 rPanel.port.on("extract", function (value) {
   prefs.doExtract = value;
+});
+rPanel.port.on("tools", function (value) {
+  rPanel.hide();
+  window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all');
 });
 rPanel.on("show", function() {
   rPanel.port.emit("update", prefs.doExtract, prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
@@ -267,13 +272,22 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
     welcome();
   }
+  //Close tools window
+  if (options.loadReason) {
+    let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+      .getService(Ci.nsIWindowMediator);   
+    let enumerator = wm.getEnumerator("iaextractor:tools");
+    while (enumerator.hasMoreElements()) {
+      let win = enumerator.getNext();
+      win.close();
+    }
+  }
 }
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
   include: ["*.youtube.com"],
   contentStyleFile : data.url("formats/permanent.css"),
-  contentScriptFile: data.url("formats/permanent.js"),
   contentScriptWhen: "start"
 });
 

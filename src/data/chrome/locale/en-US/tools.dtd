@@ -1,2 +1,11 @@
-<!ENTITY sample "This is a sample chrome window">
+<!ENTITY title "Tools - Youtube Video and Audio Downloader">
+<!ENTITY aac-to-mp3 "AAC to MP3 converter">
+<!ENTITY flv-to-aac "FLV audio extractor">
+<!ENTITY drop1 "Drag and drop an audio file (*.AAC) here">
+<!ENTITY p1 "Requesting conversion permission">
+<!ENTITY p2 "Uploading the audio file to server">
+<!ENTITY p3 "Wait for server to complete file conversion">
+<!ENTITY p4 "Server status:">
+<!ENTITY p5 "Downloading converted file">
+<!ENTITY drop2 "Drag and drop a video file (*.FLV) here">
 

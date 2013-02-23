@@ -4,9 +4,118 @@
 <!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools.dtd">
 
 <window id="iaextractor-tools" 
+  windowtype="iaextractor:tools"
+  width="520px" 
+  height="190px"
+  title="&title;"
+  persist="width height screenX screenY sizemode"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
-  xmlns:html="http://www.w3.org/1999/xhtml" xmlns:h="http://www.w3.org/1999/xhtml">
-  
-<label value="&sample;"/>
+  xmlns:html="http://www.w3.org/1999/xhtml" 
+  xmlns:h="http://www.w3.org/1999/xhtml">
+
+<script type="text/javascript">
+<![CDATA[
+exports = {};
+var require = function (id) {
+  if (id == "chrome") {
+    return {
+      Cc: Components.classes, 
+      Ci :Components.interfaces, 
+      Cu: Components.utils
+    }
+  }
+  if ("sdk/l10n") {
+    return {
+      get: function (id) {
+        if (id == "err1" || id == "err2" || id == "err3" || id == "err4" || id == "err5" || id == "err6") {
+          return bundle.getString(id.replace("err", "err1"));
+        }
+        return bundle.getString("err17");
+      }
+    }
+  }
+}
+]]>
+</script>
+<script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/download.js"/>
+<script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/extract.js"/>
+<script src="tools.js"/>
+
+<stringbundleset>
+  <stringbundle id="bundle" src="chrome://iaextractor/locale/tools.properties"/>
+</stringbundleset>
+
+<tabbox flex="1">
+  <tabs>
+    <tab label="&aac-to-mp3;"/>
+    <tab label="&flv-to-aac;"/>
+  </tabs>
+  <tabpanels flex="1">
+    <tabpanel
+      align="left" 
+      ondragenter="return drag1.checkDrag(event)"
+      ondragover="return drag1.checkDrag(event)"
+      ondrop="drag1.doDrop(event)">
+      <vbox flex="1">
+        <hbox pack="center" class="info">
+          <label value="&drop1;"/>
+        </hbox>
+        <grid>
+          <columns>
+            <column/>
+            <column flex="1"/>
+          </columns>
+          <rows>
+            <row align="center">
+              <image id="p1" class="item"/>
+              <hbox align="center">
+                <label value="&p1;"/>
+                <menulist id="bitrate">
+                  <menupopup>
+                    <menuitem label="64K" value="64k"/>
+                    <menuitem label="128K" value="128k" selected="true"/>
+                    <menuitem label="192K" value="192k"/>
+                    <menuitem label="256K" value="256k"/>
+                    <menuitem label="320K" value="320k"/>
+                  </menupopup>
+                </menulist>
+              </hbox>
+            </row>
+            <row align="center">
+              <image id="p2" class="item"/>
+              <label value="&p2;"/>
+            </row>
+            <row align="center">
+              <image id="p3" class="item"/>
+              <label value="&p3;"/>
+            </row>
+            <row align="center">
+              <image id="p4" class="item"/>
+              <hbox>
+                <label value="&p4;"/>
+                <label id="p4-2" value="-"/>
+              </hbox>
+            </row>
+            <row align="center">
+              <image id="p5" class="item"/>
+              <label value="&p5;"/>
+            </row>
+          </rows>
+        </grid>
+      </vbox>
+    </tabpanel>
+    <tabpanel
+      align="left" 
+      ondragenter="return drag2.checkDrag(event)"
+      ondragover="return drag2.checkDrag(event)"
+      ondrop="drag2.doDrop(event)">
+      <vbox flex="1">
+        <hbox pack="center" class="info">
+          <label value="&drop2;"/>
+        </hbox>
+      </vbox>
+      </tabpanel>
+  </tabpanels>
+</tabbox>
 
 </window>
