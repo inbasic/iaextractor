@@ -14,7 +14,7 @@ var bundle;
 var config = {
   url: {
     queue: "http://api.online-convert.com/get-queue",
-    token: "http://add0n.com/online-convert.php?request=token",
+    token: "http://add0n.com/online-convert.php?request=token&userAgent=" + btoa(navigator.userAgent),
     status: "http://add0n.com/online-convert.php?request=status&hash="
   }
 }
@@ -49,15 +49,15 @@ var drag1 = {
       convert (dropFile.path, $("bitrate").selectedItem.value, function (state, msg, err) {
         switch (state) {
           case 0:
-            $("p1").setAttribute("mod", "progress");
+            $("p1").setAttribute("mod", err ? "failed" : "progress");
             break;
           case 1:
             $("p1").setAttribute("mod", "done");
-            $("p2").setAttribute("mod", "progress");
+            $("p2").setAttribute("mod", err ? "failed" : "progress");
             break;
           case 2:
             $("p2").setAttribute("mod", "done");
-            $("p3").setAttribute("mod", "progress");
+            $("p3").setAttribute("mod", err ? "failed" : "progress");
             break;
           case 3:
             $("p3").setAttribute("mod", "done");
@@ -66,7 +66,7 @@ var drag1 = {
             break;
           case 4:
             $("p4").setAttribute("mod", "done");
-            $("p5").setAttribute("mod", "progress");
+            $("p5").setAttribute("mod", err ? "failed" : "progress");
             var dl = new exports.get({
               progress: function (){},
               done: function (dl) {
@@ -84,6 +84,9 @@ var drag1 = {
             oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
             dl(msg, oFile);
             break;
+        }
+        if (err) {
+          alert(err);
         }
       });
     }
@@ -148,7 +151,7 @@ function convert(path, bitrate, callback, pointer) {
     return (new XMLSerializer().serializeToString(doc));
   }
     
-  function send (url, form, callback, pointer) {
+  function send (url, form, callback, pointer) { //callback(req, err)
     var req = new XMLHttpRequest();
     req.open('POST', url, true);
     req.onreadystatechange = function (aEvt) {
@@ -157,7 +160,7 @@ function convert(path, bitrate, callback, pointer) {
           callback.apply(pointer, [req]);
         }
         else {
-          throw bundle.getString("err0") + req.status;
+          callback.apply(pointer, [null, bundle.getString("err0") + req.status]);
         }
       }
     }
@@ -169,17 +172,28 @@ function convert(path, bitrate, callback, pointer) {
   }
   
   if (callback) callback.call(pointer, 0);
-  send (config.url.token, [], function (req) {
+  alert(config.url.token);
+  send (config.url.token, [], function (req, err) {
+    if (err) {
+      if (callback) callback.call(pointer, 0, null, err);
+      return;
+    }
     var parser = new DOMParser();
     var doc = parser.parseFromString(req.responseText,'text/xml');
     var token = doc.getElementsByTagName('token');
     if (!token.length) {
-      throw bundle.getString("err1") + "\n" + doc.getElementsByTagName('message')[0].textContent;
+      if (callback) {
+        callback.call(pointer, 0, null, 
+          bundle.getString("err1") + "\n" + 
+          doc.getElementsByTagName('message')[0].textContent);
+      }
+      return;
     }
     token = token[0].textContent;
     var server = doc.getElementsByTagName('server');
     if (!server.length) {
-      throw bundle.getString("err2");
+      if (callback) callback.call(pointer, 0, null, bundle.getString("err2"));
+      return;
     }
     server = server[0].textContent;
     // Request Convert
@@ -192,33 +206,45 @@ function convert(path, bitrate, callback, pointer) {
       ['testMode', 'true'], 
       ['format', ['bitrate', bitrate]]
     ]]);
-    send(server + '/queue-insert', [['queue', xml], ['file', file]], function (req) {
+    send(server + '/queue-insert', [['queue', xml], ['file', file]], function (req, err) {
+      if (err) {
+        if (callback) callback.call(pointer, 1, null, err);
+        return;
+      }
       doc = parser.parseFromString(req.responseText,'text/xml');
       var msgUpload = doc.getElementsByTagName('message');
       if (!msgUpload.length) {
-        throw bundle.getString("err3");
+        if (callback) callback.call(pointer, 1, null, bundle.getString("err3"));
+        return;
       }
       msgUpload = msgUpload[0].textContent;
       
       var hash = doc.getElementsByTagName('hash');
       if (!hash.length) {
-        throw bundle.getString("err4");
+        if (callback) callback.call(pointer, 1, null, bundle.getString("err4"));
+        return;
       }
       hash = hash[0].textContent;
       // Check conversion status
       if (callback) callback.call(pointer, 2);
       
       function check () {
-        send(config.url.status + hash, [], function (req) {
+        send(config.url.status + hash, [], function (req, err) {
+          if (err) {
+            if (callback) callback.call(pointer, 3, null, err);
+            return;
+          }
           doc = parser.parseFromString(req.responseText,'text/xml');
           var msgStatus = doc.getElementsByTagName('message');
           if (!msgStatus.length) {
-            throw bundle.getString("err5");
+            if (callback) callback.call(pointer, 3, null, bundle.getString("err5"));
+            return;
           }
           msgStatus = msgStatus[0].textContent;
           var code = doc.getElementsByTagName('code');
           if (!code.length) {
-            throw bundle.getString("err6");
+            if (callback) callback.call(pointer, 3, null, bundle.getString("err6"));
+            return;
           }
           code = code[0].textContent;
           
@@ -231,7 +257,8 @@ function convert(path, bitrate, callback, pointer) {
             if (callback) callback.call(pointer, 4, server + '/download-file/' + hash);
           }
           else {
-            throw msgStatus;
+            if (callback) callback.call(pointer, 4, null, msgStatus);
+            return;
           }
         });
       }
