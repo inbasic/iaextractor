@@ -172,7 +172,6 @@ function convert(path, bitrate, callback, pointer) {
   }
   
   if (callback) callback.call(pointer, 0);
-  alert(config.url.token);
   send (config.url.token, [], function (req, err) {
     if (err) {
       if (callback) callback.call(pointer, 0, null, err);
@@ -184,7 +183,7 @@ function convert(path, bitrate, callback, pointer) {
     if (!token.length) {
       if (callback) {
         callback.call(pointer, 0, null, 
-          bundle.getString("err1") + "\n" + 
+          bundle.getString("err1") + "\n\n" + 
           doc.getElementsByTagName('message')[0].textContent);
       }
       return;
@@ -203,7 +202,6 @@ function convert(path, bitrate, callback, pointer) {
       ['token', token], 
       ['targetType', 'audio'], 
       ['targetMethod', 'convert-to-mp3'], 
-      ['testMode', 'true'], 
       ['format', ['bitrate', bitrate]]
     ]]);
     send(server + '/queue-insert', [['queue', xml], ['file', file]], function (req, err) {
