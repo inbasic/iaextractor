@@ -398,7 +398,6 @@ var get = function (videoID, listener) {
         if (prefs.doExtract) {
           oFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
           oFile.append(audioName + ".aac");
-          oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         }
       }
       catch (e) {
@@ -437,7 +436,6 @@ var get = function (videoID, listener) {
       iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
       if (prefs.doExtract) {
         oFile = FileUtils.getFile(root, audioPath);
-        oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
       }
     }
     //Download
@@ -471,6 +469,7 @@ var get = function (videoID, listener) {
           return afterExtract();
         }
         listener.onExtractStart();
+        oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         extract.perform(iFile, oFile, function (e) {
           if (prefs.extension != "0") { //
             notify(_("name"), _("msg5"));

@@ -31,7 +31,6 @@ var mMake = function () {
     '               document.documentElement.dispatchEvent(event);">' +
     '  </div>' +
     '</div>');
-    console.log(rect.height);
     numberOfItems = Math.floor((rect.height - 62 - 10) / 51);
   }
 
