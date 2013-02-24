@@ -16,10 +16,11 @@ var mMake = function () {
     '  height: ' + (rect.height) + 'px;">' +
     '  <span class="iaextractor-title">Download Video</span> ' +
     '  <input type="submit" id="iaextractor-close" ' + 
-    '    style="position: absolute; top: 0px; left: 0px;"' + 
+    '    style="position: absolute; top: 0px; right: 0px;"' + 
     '    value=""' + 
     '    onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' +
-    '  <div style="position: absolute; top: 0px; right: 0px;">' +
+    '  <div id="iaextractor-items" style="height: ' + (rect.height - 85) + 'px;"></div> ' +
+    '  <div class="iaextractor-bottom"> ' +
     '    <input type="submit" id="iaextractor-previous" disabled="true" value=""' + 
     '      onclick="var event = document.createEvent(\'CustomEvent\');' + 
     '               event.initCustomEvent(\'iaextractor-previous\', true, true, {});' + 
@@ -31,7 +32,7 @@ var mMake = function () {
     '  </div>' +
     '</div>');
     
-    numberOfItems = Math.floor(rect.height / 40);
+    numberOfItems = 6;
   }
 
   return {
@@ -44,12 +45,12 @@ var mMake = function () {
         p.setAttribute("class", "iaextractor-item");
         p.textContent = txt;
         a.appendChild(p);
-        $("iaextractor-menu").appendChild(a);
+        $("iaextractor-items").appendChild(a);
       }
       // Split formats into lists
       if (vInfo) {
         while (vInfo.formats.length) {
-          sets.push(vInfo.formats.splice(0, numberOfItems - 1));
+          sets.push(vInfo.formats.splice(0, numberOfItems));
         }
         title = vInfo.title;
       }
