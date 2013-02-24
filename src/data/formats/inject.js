@@ -59,8 +59,19 @@ var mMake = function () {
         elem.parentNode.removeChild(elem);
       }
       //Add new list
+      function map (str) {
+        switch (str) {
+          case "hd720":
+            return "HD720p";
+          case "hd1080":
+            return "HD1080p";
+          default:
+            return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
+        }
+      }
+      
       sets[activeSet].forEach(function (format, index) {
-        item(format.container.toUpperCase() + " " + format.quality + " - " + 
+        item(format.container.toUpperCase() + " " + map(format.quality) + " - " + 
           format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", format.url, title)
       });
       if (sets.length == 1) {

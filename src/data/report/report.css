@@ -34,14 +34,17 @@ span {
 }
 .img:before {
   display: block;
-  content:"";
-  position:absolute;
-  width:16px;
-  height:16px;
-  background-image: url(images.png);
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: url(images.png) center center;
   background-repeat: no-repeat;
 }
-.checkbox span,
+.checkbox span {
+  min-height: 20px;
+  min-width: 20px;
+}
+.checkboxTD,
 .list,
 .button {
   cursor: pointer;
