@@ -45,7 +45,7 @@ var require = function (id) {
   <stringbundle id="bundle" src="chrome://iaextractor/locale/tools.properties"/>
 </stringbundleset>
 
-<tabbox flex="1">
+<tabbox flex="1" selectedIndex="1">
   <tabs>
     <tab label="&aac-to-mp3;"/>
     <tab label="&flv-to-aac;"/>

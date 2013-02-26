@@ -1,5 +1,5 @@
 <!ENTITY title "Tools - Youtube Video and Audio Downloader">
-<!ENTITY aac-to-mp3 "AAC to MP3 converter">
+<!ENTITY aac-to-mp3 "AAC to MP3 converter (online tool)">
 <!ENTITY flv-to-aac "FLV audio extractor">
 <!ENTITY drop1 "Drag and drop an audio file (*.AAC) here">
 <!ENTITY p1 "Requesting conversion permission">
