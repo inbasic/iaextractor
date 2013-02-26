@@ -10,8 +10,15 @@
   display: block;
   background-color: #3BA0BA !important;
   font-size: 16px !important;
-  line-height: 30px;
   text-align: center;
+  height: 30px;
+}
+.iaextractor-title {
+  line-height: 27px;
+  padding-right: 1px !important;
+}
+.iaextractor-bottom {
+  line-height: 29px;
 }
 #iaextractor-items {
   margin-top: 25px !important;
@@ -20,8 +27,9 @@
   background: #17365D url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) 10px center no-repeat !important;
   cursor: pointer;
   padding-left: 36px !important;
-  line-height: 30px !important;
+  line-height: 29px !important;
   margin: 20px 30px !important;
+  height: 30px;
 }
 .iaextractor-item:hover {
   background: #275AA3 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) 10px center no-repeat !important;
