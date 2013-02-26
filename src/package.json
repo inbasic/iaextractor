@@ -78,5 +78,12 @@
     "title": "Progressbar color:",
     "type": "color",
     "value": "yellow"
-  }]
+  },
+  {
+    "name": "silent",
+    "title": "Silent mode (do not show progress panel during video download):",
+    "type": "bool",
+    "value": false
+  }
+  ]
 }

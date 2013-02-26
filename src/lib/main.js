@@ -165,7 +165,9 @@ var cmds = {
         tabs.open(config.youtube);
         return;
       };
-      rPanel.show(tbb);
+      if (!prefs.silent) {
+        rPanel.show(tbb);
+      }
       get(videoID, listener);
     });
   },
