@@ -67,6 +67,7 @@ var drag1 = {
           case 4:
             $("p4").setAttribute("mod", "done");
             $("p5").setAttribute("mod", err ? "failed" : "progress");
+            if (err) return;
             var dl = new exports.get({
               progress: function (){},
               done: function (dl) {
@@ -86,7 +87,7 @@ var drag1 = {
             break;
         }
         if (err) {
-          alert(err);
+          alert(msg);
         }
       });
     }
@@ -256,7 +257,9 @@ function convert(path, bitrate, callback, pointer) {
           code = code[0].textContent;
           
           if (callback) callback.call(pointer, 3, msgStatus, code == "105");
-          
+          if (code == "105") {
+            return;
+          }
           if (code == "101" || code == "102" || code == "104") {
             setTimeout(function () {check()}, 500);
           }

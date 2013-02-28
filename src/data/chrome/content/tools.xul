@@ -14,7 +14,10 @@
   xmlns:h="http://www.w3.org/1999/xhtml">
 
 <script type="text/javascript">
-<![CDATA[
+/* This chrome window uses "lib/download.js" and "lib/extract.js" from addon-sdk 
+ * library. This is a minimal implimentation of require function to prevent 
+ * code duplications!
+ */
 exports = {};
 var require = function (id) {
   if (id == "chrome") {
@@ -38,7 +41,6 @@ var require = function (id) {
     }
   }
 }
-]]>
 </script>
 <script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/download.js"/>
 <script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/extract.js"/>

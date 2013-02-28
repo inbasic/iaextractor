@@ -9,28 +9,33 @@ var mMake = function () {
   if (players.length) {
     var rect = players[0].getBoundingClientRect ();
     document.body.insertAdjacentHTML("afterbegin", 
-    '<div id="iaextractor-menu" class="iaextractor-div" style="' + 
-    '  top: ' + (rect.top + window.scrollY) + 'px;' + 
-    '  left: ' + (rect.left + rect.width/2) + 'px;' + 
-    '  width: ' + (rect.width/2) + 'px;' + 
-    '  height: ' + (rect.height) + 'px;">' +
+    '<div id="iaextractor-menu" class="iaextractor-div">' +
     '  <span class="iaextractor-title">Download Video</span> ' +
     '  <input type="submit" id="iaextractor-close" ' + 
-    '    style="position: absolute; top: 0px; right: 0px;"' + 
-    '    value=""' + 
-    '    onclick="this.parentNode.parentNode.removeChild(this.parentNode)">' +
-    '  <div id="iaextractor-items" style="height: ' + (rect.height - 85) + 'px;"></div> ' +
+    '    style="position: absolute; top: 0px; right: 0px;" value="">' +
+    '  <div id="iaextractor-items"></div> ' +
     '  <div class="iaextractor-bottom"> ' +
-    '    <input type="submit" id="iaextractor-previous" disabled="true" value=""' + 
-    '      onclick="var event = document.createEvent(\'CustomEvent\');' + 
-    '               event.initCustomEvent(\'iaextractor-previous\', true, true, {});' + 
-    '               document.documentElement.dispatchEvent(event);">' +
-    '    <input type="submit" id="iaextractor-next" value=""' + 
-    '      onclick="var event = document.createEvent(\'CustomEvent\');' +
-    '               event.initCustomEvent(\'iaextractor-next\', true, true, {});' + 
-    '               document.documentElement.dispatchEvent(event);">' +
+    '    <input type="submit" id="iaextractor-previous" disabled="true" value="">' +
+    '    <input type="submit" id="iaextractor-next" value="">' +
     '  </div>' +
     '</div>');
+    $("iaextractor-menu").setAttribute("style", 
+      'top: ' + (rect.top + window.scrollY) + 'px;' + 
+      'left: ' + (rect.left + rect.width/2) + 'px;' + 
+      'width: ' + (rect.width/2) + 'px;' + 
+      'height: ' + (rect.height) + 'px;">'
+    );
+    $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
+    $("iaextractor-close").addEventListener('click', function (e) {
+      e.originalTarget.parentNode.parentNode.removeChild(e.originalTarget.parentNode);
+    });
+    $('iaextractor-previous').addEventListener('click', function () {
+      make.previous();
+    });
+    $('iaextractor-next').addEventListener('click', function () {
+      make.next();
+    });
+    
     numberOfItems = Math.floor((rect.height - 62 - 10) / 51);
   }
 
@@ -115,13 +120,6 @@ document.documentElement.addEventListener("detach", destroy, true);
 
 var make = new mMake();
 self.port.on("info", function(vInfo) {
+  if (!$("iaextractor-items")) return;
   make.init(vInfo);
 });
-var next = function () {
-  make.next();
-};
-document.documentElement.addEventListener("iaextractor-next", next, true);
-var previous = function () {
-  make.previous();
-};
-document.documentElement.addEventListener("iaextractor-previous", previous, true);

@@ -257,7 +257,7 @@ exports.main = function(options, callbacks) {
   }
   //Monitor tab changes
   function monitor (tab) {
-    urlExtractor(tab.url, function (videoID) {
+    urlExtractor(tabs.activeTab.url, function (videoID) {
       if (videoID) {
         yButton.saturate = 1;
         yButton.hueRotate = 0;
