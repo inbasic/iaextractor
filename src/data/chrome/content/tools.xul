@@ -24,7 +24,10 @@ var require = function (id) {
       Cu: Components.utils
     }
   }
-  if ("sdk/l10n") {
+  if (id == "sdk/timers") {
+    return window;
+  }
+  if (id == "sdk/l10n") {
     return {
       get: function (id) {
         if (id == "err1" || id == "err2" || id == "err3" || id == "err4" || id == "err5" || id == "err6") {
@@ -52,7 +55,6 @@ var require = function (id) {
   </tabs>
   <tabpanels flex="1">
     <tabpanel
-      align="left" 
       ondragenter="return drag1.checkDrag(event)"
       ondragover="return drag1.checkDrag(event)"
       ondrop="drag1.doDrop(event)">
@@ -105,7 +107,6 @@ var require = function (id) {
       </vbox>
     </tabpanel>
     <tabpanel
-      align="left" 
       ondragenter="return drag2.checkDrag(event)"
       ondragover="return drag2.checkDrag(event)"
       ondrop="drag2.doDrop(event)">
@@ -113,6 +114,9 @@ var require = function (id) {
         <hbox pack="center" class="info">
           <label value="&drop2;"/>
         </hbox>
+        <vbox flex="1" pack="center">
+          <progressmeter id="extract-progressmeter" mode="determined" collapsed="true"/>
+        </vbox>
       </vbox>
       </tabpanel>
   </tabpanels>

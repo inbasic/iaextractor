@@ -1,4 +1,5 @@
 var _           = require("sdk/l10n").get,
+    timer       = require("sdk/timers"),
    {Cc, Ci, Cu} = require('chrome');
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -38,7 +39,7 @@ function write (oFile, data) {
 
 /** Extract Audio **/
 function extract(stream, callback, pointer) {
-  var pointer = 0, audio = "";
+  var pointer = 0, audio = "", oldPercent = 0, stack = 0;
 
   if (stream.slice(0,3) != "FLV") {
      throw Error(_("err1"));
@@ -66,7 +67,9 @@ function extract(stream, callback, pointer) {
       var skip = read3Bytes() + 11;    
       pointer += skip;
       if (pointer >= stream.length - 1) {
-        callback.apply(pointer, [audio])
+        if (callback && callback.done) {
+          callback.done.apply(pointer, [audio]);
+        }
         return;
       }
       tagType = readByte();
@@ -124,23 +127,45 @@ function extract(stream, callback, pointer) {
     else {
       throw Error(_("err6"));
     }
-    oneChunk();
+    if (callback && callback.progress) {
+      var percent = pointer/stream.length * 100;
+      if (percent > oldPercent + 5) {
+        oldPercent = percent;
+        callback.progress.apply(pointer, [pointer/stream.length * 100]);
+      }
+    }
+    //async call to prevent stack overflow for long extractions
+    stack += 1;
+    if (stack == 1000) {
+      stack = 0;
+      timer.setTimeout(function () {oneChunk();}, 0);
+    }
+    else {
+      oneChunk();
+    }
   }
   oneChunk();
 }
 
-exports.perform = function (iFile, oFile, callback, pointer) {
+exports.perform = function (iFile, oFile, done, progress, pointer) {
   read(iFile, function (stream) {
     try {
-        extract(stream, function (audio) {
+      extract(stream, {
+        done: function (audio) {
           write(oFile, audio);
-          callback.apply(pointer);
-        });
+          done.apply(pointer);
+        },
+        progress: function (percent) {
+          if (progress) {
+            progress.apply(pointer, [percent]);
+          }
+        }
+      });
     }
     catch(e) {
       write(oFile, e.toString());
       oFile.moveTo(null, oFile.leafName + ".error.log");
-      callback.apply(pointer, [e]);
+      done.apply(pointer, [e]);
     }
   });
 }

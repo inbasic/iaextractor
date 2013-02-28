@@ -114,11 +114,20 @@ var drag2 = {
       oFile.initWithPath(dropFile.parent.path);
       oFile.append(audioName);
       oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
-      exports.perform(dropFile, oFile, function (e) {
-        if (e) {
-          alert(e);
+      var meter = $("extract-progressmeter");
+      meter.collapsed = false;
+      meter.value = 0;
+      exports.perform(dropFile, oFile, 
+        function (e) {
+          if (e) {
+            alert(e);
+          }
+          meter.collapsed = true;
+        }, 
+        function (percent) {
+          meter.value = percent;
         }
-      });
+      );
     }
   }
 }
