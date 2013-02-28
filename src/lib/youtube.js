@@ -136,7 +136,13 @@ var getLink = function (videoID, callback, pointer) {
     
       //format is already sorted high to low
       var tmp = info.formats.filter(function(a){return a.container == getFormat(prefs.extension)});
-      
+      if (prefs.doExtract && getFormat(prefs.extension) == "flv") {
+        var tmp2 = tmp.filter(function (a){return a.audioEncoding == "aac"});
+        if (tmp2.length) {
+          tmp = tmp2;
+        }
+      }
+      tmp.filter(function (a){});
       var detected;
       var qualityValue = prefs.quality;
       while (tmp.length && !detected && qualityValue > -1) {
