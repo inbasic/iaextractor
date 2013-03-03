@@ -289,8 +289,13 @@ exports.main = function(options, callbacks) {
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
   include: ["*.youtube.com"],
-  contentStyleFile : data.url("formats/permanent.css"),
-  contentScriptWhen: "start"
+  contentScriptFile: data.url("formats/permanent.js"),
+  contentStyleFile: data.url("formats/permanent.css"),
+  onAttach: function(worker) {
+    worker.port.on("formats", function() {
+      cmds.onShiftClick();
+    });
+  }
 });
 
 /** Detect a Youtube download link, download it and extract the audio**/
