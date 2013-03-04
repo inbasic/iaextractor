@@ -1,6 +1,6 @@
-var iaextractor_button = document.getElementById("watch-headline-title");
+var iaextractor_parent = document.getElementById("watch-headline-title");
 
-if (iaextractor_button) {
+if (iaextractor_parent) {
   var button = document.createElement("button");
   button.setAttribute("title", "Detect all possible download links");
   //button.setAttribute("class", "yt-uix-tooltip");
@@ -17,5 +17,5 @@ if (iaextractor_button) {
     self.port.emit("formats");
   });
   button.appendChild(img);
-  iaextractor_button.appendChild(button);
+  iaextractor_parent.appendChild(button);
 }
