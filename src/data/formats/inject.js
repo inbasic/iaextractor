@@ -2,7 +2,7 @@ var $ = function (id) {
   return document.getElementById(id);
 }
 
-var mMake = function () {
+var mMake = function (doSize) {
   var sets = [], numberOfItems, activeSet = 0, title;
   //Position
   var players = document.getElementsByTagName("embed");
@@ -21,8 +21,8 @@ var mMake = function () {
     '</div>');
     $("iaextractor-menu").setAttribute("style", 
       'top: ' + (rect.top + window.scrollY) + 'px;' + 
-      'left: ' + (rect.left + rect.width/2) + 'px;' + 
-      'width: ' + (rect.width/2) + 'px;' + 
+      'left: ' + (rect.left + rect.width/2 + (doSize ? -50 : 0)) + 'px;' + 
+      'width: ' + (rect.width/2 + (doSize ? 50 : 0)) + 'px;' + 
       'height: ' + (rect.height) + 'px;">'
     );
     $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
@@ -41,10 +41,10 @@ var mMake = function () {
 
   return {
     init: function (vInfo) {
-      function item (txt, url, name) {
+      function item (txt, url) {
         var a = document.createElement("a");
         a.setAttribute("class", "iaextractor-link");
-        a.setAttribute("href", url + "&keepalive=yes&title=" + encodeURI(name));
+        a.setAttribute("href", url);
         var p = document.createElement("p");
         p.setAttribute("class", "iaextractor-item");
         p.textContent = txt;
@@ -74,10 +74,16 @@ var mMake = function () {
             return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
         }
       }
-      
       sets[activeSet].forEach(function (format, index) {
-        item(format.container.toUpperCase() + " " + map(format.quality) + " - " + 
-          format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", format.url, title)
+        var url = format.url + "&keepalive=yes&title=" + encodeURI(title);
+        item(
+          format.container.toUpperCase() + " " + map(format.quality) + 
+          " - " + 
+          format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
+          url);
+          if (doSize) {
+            self.port.emit("file-size-request", url, index);
+          }
       });
       if (sets.length == 1) {
         $('iaextractor-next').disabled = true;
@@ -118,8 +124,17 @@ event.initCustomEvent('detach', true, true, {});
 document.documentElement.dispatchEvent(event);
 document.documentElement.addEventListener("detach", destroy, true);
 
-var make = new mMake();
+var make = new mMake(self.options.doSize);
 self.port.on("info", function(vInfo) {
   if (!$("iaextractor-items")) return;
   make.init(vInfo);
+});
+self.port.on("file-size-response", function(url, size, index) {
+  var a = $("iaextractor-items").childNodes[index];
+  var p = a.childNodes[0];
+  //Reject wrong file size
+  if (a.getAttribute("href") != url) {
+    return;
+  }
+  p.textContent += " - " + size;
 });

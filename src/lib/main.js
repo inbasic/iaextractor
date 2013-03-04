@@ -10,10 +10,11 @@ var tabs          = require("sdk/tabs"),
     window        = windowutils.activeBrowserWindow,
     data          = self.data,
     {Cc, Ci, Cu}  = require('chrome'),
-    toolbarbutton = require("toolbarbutton"),
-    youtube       = require("youtube"),
-    download      = require("download"),
-    extract       = require("extract");
+    toolbarbutton = require("./toolbarbutton"),
+    youtube       = require("./youtube"),
+    download      = require("./download"),
+    extract       = require("./extract"),
+    fileSize      = require("./file-size");
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
     
@@ -64,6 +65,7 @@ rPanel.port.on("cancelAll", function () {
   listener.cancel();
 });
 rPanel.port.on("formats", function () {
+  rPanel.hide();
   cmds.onShiftClick();
 });
 rPanel.port.on("embed", function () {
@@ -81,7 +83,7 @@ rPanel.port.on("format", function (value) {
 rPanel.port.on("extract", function (value) {
   prefs.doExtract = value;
 });
-rPanel.port.on("tools", function (value) {
+rPanel.port.on("tools", function () {
   rPanel.hide();
   window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all');
 });
@@ -217,6 +219,14 @@ var cmds = {
     let url = tabs.activeTab.url;
     let worker = tabs.activeTab.attach({
       contentScriptFile: data.url("formats/inject.js"),
+      contentScriptOptions: {
+        doSize: prefs.getFileSize
+      }
+    });
+    worker.port.on("file-size-request", function (url, index) {
+      fileSize.calculate(url, function (url, size) {
+        worker.port.emit("file-size-response", url, size, index);
+      });
     });
     urlExtractor(url, function (videoID) {
       if (!videoID) return;
