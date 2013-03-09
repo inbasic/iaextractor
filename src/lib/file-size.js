@@ -1,13 +1,16 @@
 var {Cc, Ci} = require('chrome');
 
 function format (size) {
-  if (size < Math.pow(2, 20)) {
-    return (size / Math.pow(2, 10)).toFixed(1) + " KB";
+  if (size >= Math.pow(2, 30)) {
+    return (size / Math.pow(2, 30)).toFixed(1) + " GB";
   }
-  if (size < Math.pow(2, 30)) {
+  if (size >= Math.pow(2, 20)) {
     return (size / Math.pow(2, 20)).toFixed(1) + " MB";
   }
-  return (size / Math.pow(2, 30)).toFixed(1) + " GB";
+  if (size >= Math.pow(2, 10)) {
+    return (size / Math.pow(2, 10)).toFixed(1) + " KB";
+  }
+  return size + " B";
 }
 
 var cache = {};
