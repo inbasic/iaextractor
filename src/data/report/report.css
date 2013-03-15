@@ -2,6 +2,8 @@ body {
   font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
   font-size: 13px;
+  background-color: white;
+  margin: 0;
 }
 table {
   font-size: 13px;
@@ -13,13 +15,44 @@ label {
   text-align: left;
 }
 
+#border-t, #border-b, #border-l, #border-r {
+  position: fixed;
+  background: #548DD4;
+  z-index: 10;
+}
+#border-t {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+}
+#border-b {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+}
+
+#border-l {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+#border-r {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
 .tabs {
   position: fixed;
-  top: 5px;
-  width: 95%;
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 2;
-  background-color: rgba(140,183,234,.8);
-  border-radius: 4px;
+  background-color: #548DD4;
   height: 24px;
   line-height: 24px;
 }
@@ -27,21 +60,21 @@ label {
   cursor: pointer;
   padding: 0px 12px;
   -moz-user-select: none;
-  color: white;
+  color: #CECECE;
 }
 .tab[selected] {
-  text-shadow: 0 0 1px #FFFFFF, 0 0 2px #FFFFFF, 0 0 3px #FFFFFF, 0 0 4px blue, 0 0 7px blue, 0 0 8px blue, 0 0 10px blue, 0 0 15px blue;
+  color: white;
 }
 
 .tabpanels {
   position: relative;
-  margin-top: 30px;
+  padding-top: 30px;
 }
 .tabpanel {
   display: none;
-  position: absolute;
+  position: relative;
   margin: 4px;
-  width: 100%
+  width: 100%;
 }
 .tabpanel[selected] {
   display: block;

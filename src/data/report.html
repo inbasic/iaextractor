@@ -4,91 +4,94 @@
     <link rel="stylesheet" type="text/css" href="report/report.css">
   </head>
   <body>
-    <div>
-      <div id="tabs" class="tabs">
-        <span class="tab" selected="true">Download</span>
-        <span class="tab">Progress</span>
-        <span class="tab">Tools</span>
-      </div>
+    <div id="border-t"></div>
+    <div id="border-b"></div>
+    <div id="border-l"></div>
+    <div id="border-r"></div>
 
-      <div id="tabpanels" class="tabpanels">
-        <div class="tabpanel" selected="true">
-          <table border="0" style="width: 100%; height: 80px;">
-            <tr>
-              <td align="center">
-                <img id="download-button" src="report/download.png"/>
-              </td>
-              <td align="center">
-                <img id="formats-button" src="report/list.png"/>
-              </td>
-            </tr>
-          </table>
-          <table border="0" style="width: 100%;">
-            <tr>
-              <td>Video quality:</td>
-              <td align="right">
-                <span id="video-list" style="width: 185px;" class="list button" style="float:right">High</span>
-                <br />
-                <span id="video-addition" style="width: 185px;" class="list" style="float:right">
-                  <label><input type="radio" name="vinput" value="0">HD1080p</label><br>
-                  <label><input type="radio" name="vinput" value="1">HD720p</label><br>
-                  <label><input type="radio" name="vinput" value="2">High</label><br>
-                  <label><input type="radio" name="vinput" value="3">Medium</label><br>
-                  <label><input type="radio" name="vinput" value="4">Small</label>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Video format:</td>
-              <td align="right">
-                <span id="format-list" style="width: 185px;" class="list button" style="float:right">FLV</span>
-                <br />
-                <span id="format-addition" style="width: 185px;" class="list" style="float:right">
-                  <label><input type="radio" name="finput" value="0">FLV</label><br>
-                  <label><input type="radio" name="finput" value="1">3GP</label><br>
-                  <label><input type="radio" name="finput" value="2">MP4</label><br>
-                  <label><input type="radio" name="finput" value="3">WebM</label><br>
-                </span>
-              </td>
-            </tr>
-          </table>
-        </div>
-        <div class="tabpanel">
-          This is progress panel!
-        </div>
-        <div class="tabpanel">
-          <table border="0">
-            <tr>
-              <td style="width: 100%;">Extract all embed videos:</td>
-              <td id="embed-button" class="box img button"></td>
-            </tr>
-            <tr>
-              <td>Extract audio file:</td>
-              <td class="box checkboxTD"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></td>
-            </tr>
-            <tr>
-              <td>Video conversion tool:</td>
-              <td id="tools-button" class="box img button"></td>
-            </tr>
-          </table>
-          <table border="0" style="width: 100%">
-            <tr>
-              <td>Download folder:</td>
-              <td align="right">
-                <span id="download-list" style="width: 185px;" class="list button" style="float:right">OS temporary directory</span>
-                <br />
-                <span id="download-addition" style="width: 185px;" class="list" style="float:right">
-                  <label><input type="radio" name="dinput" value="0">Downloads directory</label><br>
-                  <label><input type="radio" name="dinput" value="1">Home directory</label><br>
-                  <label><input type="radio" name="dinput" value="2">OS temporary directory</label><br>
-                  <label><input type="radio" name="dinput" value="3">Desktop directory</label><br>
-                  <label><input type="radio" name="dinput" value="4">Select folder each time</label>
-                  <label><input type="radio" name="dinput" value="5">User defined folder</label>
-                </span>
-              </td>
-            </tr>
-          </table>
-        </div>
+    <div id="tabs" class="tabs">
+      <span class="tab" selected="true">Download</span>
+      <span class="tab">Progress</span>
+      <span class="tab">Tools</span>
+    </div>
+
+    <div id="tabpanels" class="tabpanels">
+      <div class="tabpanel" selected="true">
+        <table border="0" style="width: 100%; height: 80px;">
+          <tr>
+            <td align="center">
+              <img id="download-button" src="report/download.png"/>
+            </td>
+            <td align="center">
+              <img id="formats-button" src="report/list.png"/>
+            </td>
+          </tr>
+        </table>
+        <table border="0" style="width: 100%;">
+          <tr>
+            <td>Video quality:</td>
+            <td align="right">
+              <span id="video-list" style="width: 185px;" class="list button" style="float:right">High</span>
+              <br />
+              <span id="video-addition" style="width: 185px;" class="list" style="float:right">
+                <label><input type="radio" name="vinput" value="0">HD1080p</label><br>
+                <label><input type="radio" name="vinput" value="1">HD720p</label><br>
+                <label><input type="radio" name="vinput" value="2">High</label><br>
+                <label><input type="radio" name="vinput" value="3">Medium</label><br>
+                <label><input type="radio" name="vinput" value="4">Small</label>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>Video format:</td>
+            <td align="right">
+              <span id="format-list" style="width: 185px;" class="list button" style="float:right">FLV</span>
+              <br />
+              <span id="format-addition" style="width: 185px;" class="list" style="float:right">
+                <label><input type="radio" name="finput" value="0">FLV</label><br>
+                <label><input type="radio" name="finput" value="1">3GP</label><br>
+                <label><input type="radio" name="finput" value="2">MP4</label><br>
+                <label><input type="radio" name="finput" value="3">WebM</label><br>
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="tabpanel">
+        This is progress panel!
+      </div>
+      <div class="tabpanel">
+        <table border="0">
+          <tr>
+            <td style="width: 100%;">Extract all embed videos:</td>
+            <td id="embed-button" class="box img button"></td>
+          </tr>
+          <tr>
+            <td>Extract audio file:</td>
+            <td class="box checkboxTD"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></td>
+          </tr>
+          <tr>
+            <td>Video conversion tool:</td>
+            <td id="tools-button" class="box img button"></td>
+          </tr>
+        </table>
+        <table border="0" style="width: 100%">
+          <tr>
+            <td>Download folder:</td>
+            <td align="right">
+              <span id="download-list" style="width: 185px;" class="list button" style="float:right">OS temporary directory</span>
+              <br />
+              <span id="download-addition" style="width: 185px;" class="list" style="float:right">
+                <label><input type="radio" name="dinput" value="0">Downloads directory</label><br>
+                <label><input type="radio" name="dinput" value="1">Home directory</label><br>
+                <label><input type="radio" name="dinput" value="2">OS temporary directory</label><br>
+                <label><input type="radio" name="dinput" value="3">Desktop directory</label><br>
+                <label><input type="radio" name="dinput" value="4">Select folder each time</label>
+                <label><input type="radio" name="dinput" value="5">User defined folder</label>
+              </span>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </body>

@@ -90,7 +90,7 @@ var format = new mList (
     switch (value + "") {
       case "0": return "FLV";
       case "1": return "3GP";
-      case "2": return "Mp4";
+      case "2": return "MP4";
       case "3": return "WebM";
     }
   },
