@@ -1,28 +1,52 @@
 body {
-  font-family: arial,sans-serif;
+  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
+  font-size: 13px;
 }
-fieldset {
-  border-width: 1px 0 0 0;
-  border-color: ThreeDFace;
-}
-body,
 table {
   font-size: 13px;
+  padding-right: 10px;
 }
 label {
   display: inline-block;
   width: 100%;
-}
-span {
   text-align: left;
 }
-.caption {
-  background: none repeat scroll 0 0;
-  border: 1px solid ThreeDFace;
-  color: #555555;
-  font-size: 15px;
+
+.tabs {
+  position: fixed;
+  top: 5px;
+  width: 95%;
+  z-index: 2;
+  background-color: rgba(140,183,234,.8);
+  border-radius: 4px;
+  height: 24px;
+  line-height: 24px;
 }
+.tab {
+  cursor: pointer;
+  padding: 0px 12px;
+  -moz-user-select: none;
+  color: white;
+}
+.tab[selected] {
+  text-shadow: 0 0 1px #FFFFFF, 0 0 2px #FFFFFF, 0 0 3px #FFFFFF, 0 0 4px blue, 0 0 7px blue, 0 0 8px blue, 0 0 10px blue, 0 0 15px blue;
+}
+
+.tabpanels {
+  position: relative;
+  margin-top: 30px;
+}
+.tabpanel {
+  display: none;
+  position: absolute;
+  margin: 4px;
+  width: 100%
+}
+.tabpanel[selected] {
+  display: block;
+}
+
 .box {
   text-align: center;
   min-height: 18px;
@@ -37,12 +61,20 @@ span {
   content: "";
   width: 16px;
   height: 16px;
-  background: url(images.png) center center;
+  background: url("images.png") center center;
   background-repeat: no-repeat;
 }
 .checkbox span {
   min-height: 20px;
   min-width: 20px;
+}
+.checkbox input {
+    display: none;
+}
+.checkbox input:checked + span {
+    background-image: url("checkmark.png");
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 .checkboxTD,
 .list,
@@ -62,23 +94,18 @@ span {
 .button:active {
   background-image: linear-gradient(rgba(140,183,234,.5), rgba(140,183,234,.3));
 }
-#cancel:before {
+
+#embed-button:before {
   background-position: 0 center;
 }
-#embed:before {
+#tools-button:before {
   background-position: -16px center;
 }
-#formats:before {
-  background-position: -32px center;
+#download-button {
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='grayscale'><feColorMatrix type='matrix' values='0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0'/></filter></svg>#grayscale");
 }
-#download-button:before {
-  background-position: -64px center;
-}
-#download-button[type="active"]:before {
-  background-position: -48px center;
-}
-#tools:before {
-  background-position: -80px center;
+#download-button[type="active"] {
+  filter: none;
 }
 
 .list {
@@ -88,20 +115,13 @@ span {
 #video-list,
 #format-list,
 #download-list {
-  background: url(dropdown.png) right center;
+  text-align: left;
+  background: url("dropdown.png") right center;
   background-repeat: no-repeat;
 }
 #video-addition,
 #format-addition,
 #download-addition {
+  margin-top: -1px;
   display: none;
-}
-
-.checkbox input {
-    display: none;
-}
-.checkbox input:checked + span {
-    background-image: url("checkmark.png");
-    background-position: center center;
-    background-repeat: no-repeat;
 }

@@ -42,7 +42,7 @@ var mList = function (name, el1, el2, value, func1, func2) {
 }
 
 var downloadButton = $("download-button"),
-    checkbox = $("checkbox");
+    aCheckbox = $("audio-checkbox");
 
 var download = new mList (
   "dinput", 
@@ -51,7 +51,7 @@ var download = new mList (
   0,
   function (value) {
     switch (value + "") {
-      case "0": return "Default Downloads directory";
+      case "0": return "Downloads directory";
       case "1": return "Home directory";
       case "2": return "OS temporary directory";
       case "3": return "Desktop directory";
@@ -70,8 +70,8 @@ var quality = new mList (
   0,
   function (value) {
     switch (value + "") {
-      case "0": return "hd1080";
-      case "1": return "hd720";
+      case "0": return "HD1080p";
+      case "1": return "HD720p";
       case "2": return "High";
       case "3": return "Medium";
       case "4": return "Small";
@@ -99,9 +99,35 @@ var format = new mList (
   }
 );
 
+$("tabs").addEventListener("click", function (e) {
+  var n = 0, child = e.originalTarget
+  if (child.localName != "span") {
+    return;
+  }
+  while ((child = child.previousSibling)) {
+    if(child.localName) {
+      n += 1;
+    }
+  }
+
+  var tabs = $("tabs").getElementsByClassName("tab");
+  var tabpanels = $("tabpanels").getElementsByClassName("tabpanel");
+  for (var i = 0; i < tabs.length; i++) {
+    var tab = tabs[i], 
+        tabpanel = tabpanels[i];
+    if (i == n) {
+      tab.setAttribute("selected", true);
+      tabpanel.setAttribute("selected", true);
+    }
+    else {
+      tab.removeAttribute("selected");
+      tabpanel.removeAttribute("selected");
+    }
+  }
+});
 
 self.port.on("update", function(doExtract, dIndex, vIndex, fIndex, isRed) {
-  checkbox.checked = doExtract;
+  aCheckbox.checked = doExtract;
   download.value = dIndex;
   quality.value = vIndex;
   format.value = fIndex;
@@ -126,18 +152,18 @@ self.port.on("extract", function(str) {
 downloadButton.addEventListener("click", function () {
   self.port.emit("download");
 }, true);
-$("cancel").addEventListener("click", function () {
+/* $("cancel").addEventListener("click", function () {
   self.port.emit("cancelAll");
-}, true);
-$("formats").addEventListener("click", function () {
+}, true); */
+$("formats-button").addEventListener("click", function () {
   self.port.emit("formats");
 }, true);
-$("embed").addEventListener("click", function () {
+$("embed-button").addEventListener("click", function () {
   self.port.emit("embed");
 }, true);
-checkbox.addEventListener("change", function () {
-  self.port.emit("extract", checkbox.checked);
+aCheckbox.addEventListener("change", function () {
+  self.port.emit("extract", aCheckbox.checked);
 });
-$("tools").addEventListener("click", function () {
+$("tools-button").addEventListener("click", function () {
   self.port.emit("tools");
 }, true);
