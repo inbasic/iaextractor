@@ -36,8 +36,8 @@ var config = {
   //Panels
   panels: {
     rPanel: {
-      width: 350,
-      height: 180 // Set this on Ubuntu
+      width: 384,
+      height: 245
     },
     iPanel: {
       width: 520,

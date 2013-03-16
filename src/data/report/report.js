@@ -42,6 +42,7 @@ var mList = function (name, el1, el2, value, func1, func2) {
 }
 
 var downloadButton = $("download-button"),
+    formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox");
 
 var download = new mList (
@@ -133,9 +134,11 @@ self.port.on("update", function(doExtract, dIndex, vIndex, fIndex, isRed) {
   format.value = fIndex;
   if (isRed) {
     downloadButton.setAttribute("type", "active");
+    formatsButton.setAttribute("type", "active");
   }
   else {
     downloadButton.removeAttribute("type");
+    formatsButton.removeAttribute("type");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
 });
@@ -155,7 +158,7 @@ downloadButton.addEventListener("click", function () {
 /* $("cancel").addEventListener("click", function () {
   self.port.emit("cancelAll");
 }, true); */
-$("formats-button").addEventListener("click", function () {
+formatsButton.addEventListener("click", function () {
   self.port.emit("formats");
 }, true);
 $("embed-button").addEventListener("click", function () {

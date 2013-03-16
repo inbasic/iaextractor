@@ -4,7 +4,6 @@
     <link rel="stylesheet" type="text/css" href="report/report.css">
   </head>
   <body>
-    <div id="border-t"></div>
     <div id="border-b"></div>
     <div id="border-l"></div>
     <div id="border-r"></div>
@@ -17,13 +16,17 @@
 
     <div id="tabpanels" class="tabpanels">
       <div class="tabpanel" selected="true">
-        <table border="0" style="width: 100%; height: 80px;">
+        <table border="0" style="width: 100%; height: 174px;">
           <tr>
             <td align="center">
               <img id="download-button" src="report/download.png"/>
+              <br />
+              <p>Quick Download</p>
             </td>
             <td align="center">
               <img id="formats-button" src="report/list.png"/>
+              <br />
+              <p>Show Download Links</p>
             </td>
           </tr>
         </table>
@@ -31,23 +34,16 @@
           <tr>
             <td>Video quality:</td>
             <td align="right">
-              <span id="video-list" style="width: 185px;" class="list button" style="float:right">High</span>
-              <br />
-              <span id="video-addition" style="width: 185px;" class="list" style="float:right">
+              <span id="video-list" style="width: 90px;" class="list button" style="float:right">High</span>
+              <span id="format-list" style="width: 73px;" class="list button" style="float:right">FLV</span>
+              <span id="video-addition" style="width: 90px; margin-right: 95px;" class="list" style="clear:both; float:right">
                 <label><input type="radio" name="vinput" value="0">HD1080p</label><br>
                 <label><input type="radio" name="vinput" value="1">HD720p</label><br>
                 <label><input type="radio" name="vinput" value="2">High</label><br>
                 <label><input type="radio" name="vinput" value="3">Medium</label><br>
                 <label><input type="radio" name="vinput" value="4">Small</label>
               </span>
-            </td>
-          </tr>
-          <tr>
-            <td>Video format:</td>
-            <td align="right">
-              <span id="format-list" style="width: 185px;" class="list button" style="float:right">FLV</span>
-              <br />
-              <span id="format-addition" style="width: 185px;" class="list" style="float:right">
+              <span id="format-addition" style="width: 73px;" class="list" style="clear:both; float:right">
                 <label><input type="radio" name="finput" value="0">FLV</label><br>
                 <label><input type="radio" name="finput" value="1">3GP</label><br>
                 <label><input type="radio" name="finput" value="2">MP4</label><br>

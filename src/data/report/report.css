@@ -1,13 +1,13 @@
 body {
   font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
-  font-size: 13px;
+  font-size: 15px;
   background-color: white;
   margin: 0;
 }
 table {
   font-size: 13px;
-  padding-right: 10px;
+  padding-right: 28px;
 }
 label {
   display: inline-block;
@@ -15,16 +15,10 @@ label {
   text-align: left;
 }
 
-#border-t, #border-b, #border-l, #border-r {
+#border-b, #border-l, #border-r {
   position: fixed;
   background: #548DD4;
   z-index: 10;
-}
-#border-t {
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
 }
 #border-b {
   left: 0;
@@ -35,13 +29,13 @@ label {
 
 #border-l {
   left: 0;
-  top: 0;
+  top: 34px;
   bottom: 0;
   width: 2px;
 }
 #border-r {
   right: 0;
-  top: 0;
+  top: 34px;
   bottom: 0;
   width: 2px;
 }
@@ -50,30 +44,41 @@ label {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   z-index: 2;
-  background-color: #548DD4;
-  height: 24px;
-  line-height: 24px;
+  width: 100%;
+  height: 32px;
+  border: 2px #548DD4;
+  border-bottom-style: solid;
 }
 .tab {
-  cursor: pointer;
-  padding: 0px 12px;
   -moz-user-select: none;
-  color: #CECECE;
+  display: inline-block;
+  width: 122px;
+  height: 27px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  background-color: #548DD4;
+  margin-right: -1px;
+  border: solid 2px;
+  border-color: #548DD4;
+  border-bottom-style: none;
 }
 .tab[selected] {
-  color: white;
+  color: black;
+  height: 32px;
+  background-color: white;
 }
 
 .tabpanels {
   position: relative;
-  padding-top: 30px;
+  margin-top: 34px;
 }
 .tabpanel {
   display: none;
   position: relative;
-  margin: 4px;
+  margin: 15px;
   width: 100%;
 }
 .tabpanel[selected] {
@@ -134,9 +139,11 @@ label {
 #tools-button:before {
   background-position: -16px center;
 }
+#formats-button,
 #download-button {
-  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='grayscale'><feColorMatrix type='matrix' values='0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0'/></filter></svg>#grayscale");
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='6'/><feFuncG type='linear' slope='6'/><feFuncB type='linear' slope='6'/></feComponentTransfer> </filter></svg>#brightness");
 }
+#formats-button[type="active"],
 #download-button[type="active"] {
   filter: none;
 }
