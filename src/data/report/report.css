@@ -46,6 +46,7 @@ label {
   left: 0;
   z-index: 2;
   width: 100%;
+  background-color: white;
   height: 32px;
   border: 2px #548DD4;
   border-bottom-style: solid;
@@ -83,6 +84,27 @@ label {
 }
 .tabpanel[selected] {
   display: block;
+}
+.download-item {
+  margin-left: -14px;
+  padding-left: 14px;
+  width: 100%;
+  border-bottom: solid 1px #A7C2E9;
+}
+.progress-outer {
+  background: #BEBEBE;
+  height: 11px;
+  width: 100%;
+}
+.progress-inner {
+  background: #548DD4;
+  width: 50%;
+  height: 100%;
+}
+.nd-content {
+  display: none;
+  padding: 10% 0;
+  text-align: center;
 }
 
 .box {

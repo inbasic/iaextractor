@@ -90,6 +90,5 @@
     "title": "Resolve size of download links in the injected menu:",
     "type": "bool",
     "value": false
-  }
-  ]
+  }]
 }

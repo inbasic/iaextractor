@@ -58,37 +58,41 @@ var rPanel = panel.Panel({
   contentScriptFile: data.url('report/report.js'),
   contentScriptWhen: "ready"
 });
-rPanel.port.on("download", function () {
-  cmds.onCommand();
-});
-rPanel.port.on("cancelAll", function () {
-  listener.cancel();
-});
-rPanel.port.on("formats", function () {
-  rPanel.hide();
-  cmds.onShiftClick();
-});
-rPanel.port.on("embed", function () {
-  cmds.onCtrlClick();
-});
-rPanel.port.on("destination", function (value) {
-  prefs.dFolder = parseInt(value);
-});
-rPanel.port.on("quality", function (value) {
-  prefs.quality = parseInt(value);
-});
-rPanel.port.on("format", function (value) {
-  prefs.extension = parseInt(value);
-});
-rPanel.port.on("extract", function (value) {
-  prefs.doExtract = value;
-});
-rPanel.port.on("tools", function () {
-  rPanel.hide();
-  window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all');
+rPanel.port.on("cmd", function (cmd) {
+  switch (cmd) {
+    case "download":
+      cmds.onCommand();
+      break;
+    case "formats":
+      rPanel.hide();
+      cmds.onShiftClick();
+      break;
+    case "embed":
+      cmds.onCtrlClick();
+      break;
+    case "destination":
+      prefs.dFolder = parseInt(arguments[1]);
+      break;
+    case "quality":
+      prefs.quality = parseInt(arguments[1]);
+      break;
+    case "format":
+      prefs.extension = parseInt(arguments[1]);
+      break;
+    case "do-extract":
+      prefs.doExtract = arguments[1];
+      break;
+    case "do-size":
+      prefs.getFileSize = arguments[1];
+      break;
+    case "tools":
+      rPanel.hide();
+      window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all');
+      break;
+  }
 });
 rPanel.on("show", function() {
-  rPanel.port.emit("update", prefs.doExtract, prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
+  rPanel.port.emit("update", prefs.doExtract, prefs.getFileSize, prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
 });
 
 var iPanel = panel.Panel({
@@ -217,22 +221,26 @@ var cmds = {
   },
   onShiftClick: function () {
     let url = tabs.activeTab.url;
-    let worker = tabs.activeTab.attach({
-      contentScriptFile: data.url("formats/inject.js"),
-      contentScriptOptions: {
-        doSize: prefs.getFileSize
-      }
-    });
-    worker.port.on("file-size-request", function (url, index) {
-      fileSize.calculate(url, function (url, size) {
-        worker.port.emit("file-size-response", url, size, index);
-      });
-    });
     urlExtractor(url, function (videoID) {
-      if (!videoID) return;
-      youtube.getInfo(videoID, function (vInfo) {
-        worker.port.emit('info', vInfo);
-      });
+        if (videoID) {
+        let worker = tabs.activeTab.attach({
+          contentScriptFile: data.url("formats/inject.js"),
+          contentScriptOptions: {
+            doSize: prefs.getFileSize
+          }
+        });
+        worker.port.on("file-size-request", function (url, index) {
+          fileSize.calculate(url, function (url, size) {
+            worker.port.emit("file-size-response", url, size, index);
+          });
+        });
+        youtube.getInfo(videoID, function (vInfo) {
+          worker.port.emit('info', vInfo);
+        });
+      }
+      else {
+        notify(_('name'), _('msg4'));
+      }
     });
   }
 }

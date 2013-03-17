@@ -43,7 +43,8 @@ var mList = function (name, el1, el2, value, func1, func2) {
 
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
-    aCheckbox = $("audio-checkbox");
+    aCheckbox = $("audio-checkbox"),
+    sCheckbox = $("resolve-size-checkbox");
 
 var download = new mList (
   "dinput", 
@@ -61,7 +62,7 @@ var download = new mList (
     }
   },
   function (value) {
-    self.port.emit("destination", value);
+    self.port.emit("cmd", "destination", value);
   }
 );
 var quality = new mList (
@@ -79,7 +80,7 @@ var quality = new mList (
     }
   },
   function (value) {
-    self.port.emit("quality", value);
+    self.port.emit("cmd", "quality", value);
   }
 );
 var format = new mList (
@@ -96,7 +97,7 @@ var format = new mList (
     }
   },
   function (value) {
-    self.port.emit("format", value);
+    self.port.emit("cmd", "format", value);
   }
 );
 
@@ -127,8 +128,9 @@ $("tabs").addEventListener("click", function (e) {
   }
 });
 
-self.port.on("update", function(doExtract, dIndex, vIndex, fIndex, isRed) {
+self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
   aCheckbox.checked = doExtract;
+  sCheckbox.checked = doFileSize;
   download.value = dIndex;
   quality.value = vIndex;
   format.value = fIndex;
@@ -153,20 +155,20 @@ self.port.on("extract", function(str) {
 });
 
 downloadButton.addEventListener("click", function () {
-  self.port.emit("download");
+  self.port.emit("cmd", "download");
 }, true);
-/* $("cancel").addEventListener("click", function () {
-  self.port.emit("cancelAll");
-}, true); */
 formatsButton.addEventListener("click", function () {
-  self.port.emit("formats");
+  self.port.emit("cmd", "formats");
 }, true);
 $("embed-button").addEventListener("click", function () {
-  self.port.emit("embed");
+  self.port.emit("cmd", "embed");
 }, true);
 aCheckbox.addEventListener("change", function () {
-  self.port.emit("extract", aCheckbox.checked);
+  self.port.emit("cmd", "do-extract", aCheckbox.checked);
+});
+sCheckbox.addEventListener("change", function () {
+  self.port.emit("cmd", "do-size", sCheckbox.checked);
 });
 $("tools-button").addEventListener("click", function () {
-  self.port.emit("tools");
+  self.port.emit("cmd", "tools");
 }, true);
