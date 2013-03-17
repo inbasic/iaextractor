@@ -179,8 +179,8 @@ label {
   filter: none;
 }
 .cancel:hover,
-#formats-button :hover,
-#download-button:hover {
+#formats-button:hover[type="active"],
+#download-button:hover[type="active"] {
   filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='.6'/><feFuncG type='linear' slope='.6'/><feFuncB type='linear' slope='.6'/></feComponentTransfer> </filter></svg>#brightness");
 }
 
