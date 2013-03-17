@@ -89,6 +89,9 @@ rPanel.port.on("cmd", function (cmd) {
       rPanel.hide();
       window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all');
       break;
+    case "cancel":
+      listener.cancel(parseInt(arguments[1]));
+      break;
   }
 });
 rPanel.on("show", function() {
@@ -319,7 +322,6 @@ pageMod.PageMod({
 /** Detect a Youtube download link, download it and extract the audio**/
 var listener = (function () {
   var objs = [];
-  var detects = 0, downloads = 0, extracts = 0;
   function remove (dl) {
     objs.forEach(function (obj, index) {
       if (obj.id == dl.id) {
@@ -336,25 +338,25 @@ var listener = (function () {
   
   return {
     onDetectStart: function () {
-      rPanel.port.emit('detect', ++detects);
+      rPanel.port.emit('detect', _("msg7"));
     },
-    onDetectDone: function () {
-      rPanel.port.emit('detect', --detects);
+    onDetectDone: function () {},
+    onDownloadStart: function (dl) {
+      rPanel.port.emit('download-start', dl.id, dl.displayName, _("msg6"));
     },
-    onDownloadStart: function () {
-      rPanel.port.emit('download', ++downloads);
-    },
-    onDownloadDone: function (dl) {
+    onDownloadDone: function (dl, error) {
+      rPanel.port.emit('download-done', dl.id, _("msg8"), !prefs.doExtract || error);
       remove(dl);
-      rPanel.port.emit('download', --downloads);
     },
-    onExtractStart: function () {
-      rPanel.port.emit('extract', ++extracts);
+    onExtractStart: function (id) {
+      rPanel.port.emit('extract', id, _("msg9"));
     },
-    onExtractDone: function () {
-      rPanel.port.emit('extract', --extracts);
+    onExtractDone: function (id) {
+      rPanel.port.emit('extract', id, _("msg10"), true);
     },
     onProgress: function (dl) {
+      rPanel.port.emit('download-update', dl.id, dl.amountTransferred/dl.size*100);
+      //
       var exist = false;
       objs.forEach(function (obj) {if (dl.id == obj.id) exist = true;});
       if (!exist) objs.push(dl);
@@ -371,12 +373,10 @@ var listener = (function () {
         _("tooltip5").replace("%1", (ttSize/tSize*100).toFixed(1));
     },
     onError: remove,
-    cancel: function () {
+    cancel: function (id) {
       var dm = Cc["@mozilla.org/download-manager;1"]
         .getService(Ci.nsIDownloadManager);
-      objs.forEach(function (dl) {
-        dm.cancelDownload(dl.id);
-      });
+      dm.cancelDownload(id);
     }
   }
 })();
@@ -464,20 +464,10 @@ var get = function (videoID, listener) {
       }
     }
     //Download
-    listener.onDownloadStart();
-    notify(
-      _('name'), 
-      _('msg3').replace("%1", vInfo.quality)
-        .replace("%2", vInfo.container)
-        .replace("%3", vInfo.resolution)
-        .replace("%4", vInfo.encoding)
-        .replace("%5", vInfo.bitrate)
-        .replace("%6", vInfo.audioEncoding)
-        .replace("%7", vInfo.audioBitrate)
-    );
     var dr = new download.get({
       progress: listener.onProgress,
       done: function (dl) {
+        var id = dl.id;
         listener.onDownloadDone(dl);
         function afterExtract (e) {
           if (prefs.open) {
@@ -493,22 +483,33 @@ var get = function (videoID, listener) {
         if (!prefs.doExtract) {
           return afterExtract();
         }
-        listener.onExtractStart();
+        listener.onExtractStart(id);
+        
         oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
-        extract.perform(iFile, oFile, function (e) {
+        extract.perform(id, iFile, oFile, function (id, e) {
           if (prefs.extension != "0") { //
             notify(_("name"), _("msg5"));
           }
-          listener.onExtractDone();
+          listener.onExtractDone(id);
           afterExtract(prefs.extension == "0" ? e : null);
         });
       },
       error: function (dl) {
         listener.onError(dl);
-        listener.onDownloadDone(dl);
+        listener.onDownloadDone(dl, true);
       }
     });
-    dr(vInfo.url, iFile);
+    listener.onDownloadStart(dr(vInfo.url, iFile));
+    notify(
+      _('name'), 
+      _('msg3').replace("%1", vInfo.quality)
+        .replace("%2", vInfo.container)
+        .replace("%3", vInfo.resolution)
+        .replace("%4", vInfo.encoding)
+        .replace("%5", vInfo.bitrate)
+        .replace("%6", vInfo.audioEncoding)
+        .replace("%7", vInfo.audioBitrate)
+    );
   });
 }
 

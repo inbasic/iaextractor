@@ -88,8 +88,14 @@ label {
 .download-item {
   margin-left: -14px;
   padding-left: 14px;
-  width: 100%;
   border-bottom: solid 1px #A7C2E9;
+}
+.download-item span {
+  display: block; 
+  width: 290px; 
+  overflow: hidden;
+  white-space: nowrap; 
+  text-overflow: ellipsis;
 }
 .progress-outer {
   background: #BEBEBE;
@@ -98,13 +104,16 @@ label {
 }
 .progress-inner {
   background: #548DD4;
-  width: 50%;
+  width: 0%;
   height: 100%;
 }
-.nd-content {
+.d-content {
   display: none;
+}
+.nd-content {
   padding: 10% 0;
   text-align: center;
+  margin-left: -32px;
 }
 
 .box {
@@ -168,6 +177,11 @@ label {
 #formats-button[type="active"],
 #download-button[type="active"] {
   filter: none;
+}
+.cancel:hover,
+#formats-button :hover,
+#download-button:hover {
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='.6'/><feFuncG type='linear' slope='.6'/><feFuncB type='linear' slope='.6'/></feComponentTransfer> </filter></svg>#brightness");
 }
 
 .list {

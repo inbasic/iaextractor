@@ -15,7 +15,7 @@
     </div>
 
     <div id="tabpanels" class="tabpanels">
-      <div class="tabpanel" selected="true">
+      <div class="tabpanel">
         <table border="0" style="width: 100%; height: 174px;">
           <tr>
             <td align="center">
@@ -53,27 +53,27 @@
           </tr>
         </table>
       </div>
-      <div class="tabpanel">
-        <div class="nd-content">
-          <img id="download-button" src="report/no-active-download.png"/>
+      <div class="tabpanel" selected="true">
+        <div id="no-download-manager" class="nd-content">
+          <img src="report/no-active-download.png"/>
           <br />
           <p>No active downloads yet!</p>
         </div>
-        <div class="d-content">
-          <table class="download-item">
+        <div id="download-manager" class="d-content">
+          <table id="download-item" class="download-item" style="display:none;">
             <tr>
               <td width="42">
                 <img style="clear:both; float:left" src="report/download2.png"/>
               </td>
-              <td>
-                <span>%f</span>
+              <td width="100%">
+                <span>-</span>
                 <div class="progress-outer">
                     <div class="progress-inner"></div>
                 </div>
-                <span>%d</span>
+                <span>...</span>
               </td>
               <td width="20">
-                <img style="clear:both; float:left" src="report/cancel.png"/>
+                <img class="cancel" style="clear:both; float:left" src="report/cancel.png"/>
               </td>
             </tr>
           </table>

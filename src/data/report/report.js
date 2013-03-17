@@ -2,6 +2,11 @@ var $ = function (id) {
   return document.getElementById(id);
 }
 
+var downloadButton = $("download-button"),
+    formatsButton = $("formats-button"),
+    aCheckbox = $("audio-checkbox"),
+    sCheckbox = $("resolve-size-checkbox");
+
 var mList = function (name, el1, el2, value, func1, func2) {
   var isHidden = true;
   var radios = document.getElementsByName(name);
@@ -40,11 +45,6 @@ var mList = function (name, el1, el2, value, func1, func2) {
     }
   }
 }
-
-var downloadButton = $("download-button"),
-    formatsButton = $("formats-button"),
-    aCheckbox = $("audio-checkbox"),
-    sCheckbox = $("resolve-size-checkbox");
 
 var download = new mList (
   "dinput", 
@@ -101,17 +101,24 @@ var format = new mList (
   }
 );
 
-$("tabs").addEventListener("click", function (e) {
-  var n = 0, child = e.originalTarget
-  if (child.localName != "span") {
-    return;
+function tabSelector (e) {
+  var n;
+  if (typeof(e) == "number") {
+    n = e;
   }
-  while ((child = child.previousSibling)) {
-    if(child.localName) {
-      n += 1;
+  else {
+    n = 0;
+    var child = e.originalTarget
+    if (child.localName != "span") {
+      return;
+    }
+    while ((child = child.previousSibling)) {
+      if(child.localName) {
+        n += 1;
+      }
     }
   }
-
+  //Select a new tab
   var tabs = $("tabs").getElementsByClassName("tab");
   var tabpanels = $("tabpanels").getElementsByClassName("tabpanel");
   for (var i = 0; i < tabs.length; i++) {
@@ -126,32 +133,112 @@ $("tabs").addEventListener("click", function (e) {
       tabpanel.removeAttribute("selected");
     }
   }
-});
+}
+$("tabs").addEventListener("click", tabSelector, false);
 
-self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
-  aCheckbox.checked = doExtract;
-  sCheckbox.checked = doFileSize;
-  download.value = dIndex;
-  quality.value = vIndex;
-  format.value = fIndex;
-  if (isRed) {
-    downloadButton.setAttribute("type", "active");
-    formatsButton.setAttribute("type", "active");
+var dm = {}, inList = [];
+var dmUI = {
+  set: function (id, item) {
+    if (id && item) {
+      dm[id] = item;
+    }
+    else if (item) {
+      inList.push(item);
+    }
+    else {
+      dm[id] = inList.shift();
+    }
+  },
+  get: (function () {
+    var cache = [];
+    return function (item) {
+      if (typeof (item) == "number") {
+        item = dm[item];
+      }
+      
+      if (item.hasAttribute("cache")) {
+        return cache[item.getAttribute("cache")];
+      }
+      var span = item.getElementsByTagName("span");
+      var progress = item.getElementsByClassName("progress-inner");
+      var image = item.getElementsByTagName("img");
+      
+      var rtn = {
+        set name(value) {span[0].textContent = value},
+        set description(value) {span[1].textContent = value},
+        set progress(value) {progress[0].style.width = value},
+        get close() {return image[1]}
+      };
+      item.setAttribute("cache", cache.push(rtn) - 1);
+      return rtn;
+    }
+  })(),
+  isEmpty: function () {
+    return Object.getOwnPropertyNames(dm).length == 0;
+  },
+  add: function () {
+    //Show download manager
+    $("no-download-manager").style.display = "none";
+    $("download-manager").style.display = "block";
+    //Add new download item
+    var _item = $("download-item");
+    var item = _item.cloneNode(true);
+    $("download-manager").appendChild(item);
+    item.style.display = "inline-block";
+    this.get(item).close.addEventListener("click", function (e) {
+      var id = e.originalTarget.getAttribute("dlID");
+      if (id) {
+        self.port.emit("cmd", "cancel", id);
+      }
+    }, true);
+    
+    return item;
+  },
+  remove: function (id) {
+    $("download-manager").removeChild(dm[id]);
+    delete dm[id];
+   
+    if (dmUI.isEmpty()) {
+      $("no-download-manager").style.display = "block";
+      $("download-manager").style.display = "none";
+    }
   }
-  else {
-    downloadButton.removeAttribute("type");
-    formatsButton.removeAttribute("type");
+}
+
+self.port.on("detect", function(msg) {
+  var item = dmUI.add();
+  //Update fields
+  dmUI.get(item).description = msg;
+  //Switch to progress tab
+  tabSelector(1);
+  //
+  dmUI.set(null, item);
+});
+self.port.on("download-start", function(id, name, msg) {
+  if (id == -1) return;
+  //Finding free slot
+  dmUI.set(id, null);
+  dmUI.get(id).close.setAttribute("dlID", id);
+  dmUI.get(id).name = name;
+  dmUI.get(id).description = msg;
+});
+self.port.on("download-update", function(id, percent) {
+  if (id == -1) return;
+  //
+  dmUI.get(id).progress = percent + "%";
+});
+self.port.on("download-done", function(id, msg, rm) {
+  dmUI.get(id).progress = "100%";
+  dmUI.get(id).description = msg;
+  if (rm) {
+    dmUI.remove(id);
   }
-  downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
 });
-self.port.on("detect", function(str) {
-  $("detect").firstChild.nodeValue = str;
-});
-self.port.on("download", function(str) {
-  $("download").firstChild.nodeValue = str;
-});
-self.port.on("extract", function(str) {
-  $("extract").firstChild.nodeValue = str;
+self.port.on("extract", function(id, msg, rm) {
+  dmUI.get(id).description = msg;
+  if (rm) {
+    dmUI.remove(id);
+  }
 });
 
 downloadButton.addEventListener("click", function () {
@@ -172,3 +259,32 @@ sCheckbox.addEventListener("change", function () {
 $("tools-button").addEventListener("click", function () {
   self.port.emit("cmd", "tools");
 }, true);
+//Onload
+self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
+  //Resizing tabs
+  var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
+  width = (width - 18)/3;
+  var tab = document.getElementsByClassName("tab");
+  for (var i = 0; i < tab.length; i++) {
+    tab[i].style.width = width + "px";
+  }
+  //
+  aCheckbox.checked = doExtract;
+  sCheckbox.checked = doFileSize;
+  download.value = dIndex;
+  quality.value = vIndex;
+  format.value = fIndex;
+  if (isRed) {
+    downloadButton.setAttribute("type", "active");
+    formatsButton.setAttribute("type", "active");
+  }
+  else {
+    downloadButton.removeAttribute("type");
+    formatsButton.removeAttribute("type");
+  }
+  downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
+  //If there is no download switch to download tab
+  if (dmUI.isEmpty()) {
+    tabSelector(0);
+  }
+});

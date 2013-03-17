@@ -50,6 +50,8 @@ var get = function (callback, pointer) {
     dm.addListener(listener);
     persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
     persist.saveURI(dl.source, null, null, null, null, file, null);
+    
+    return dl;
   }
 };
 exports.get = get;
