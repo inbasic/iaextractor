@@ -78,3 +78,19 @@
 #iaextractor-next:disabled {
   display: none;
 }
+#formats-button-small {
+  position: absolute; 
+  right: 5px; 
+  top: 5px;
+  z-index: 2147483647; 
+  cursor: pointer;  
+  transition: background-color 0.1s !important;
+  padding: 3px 2px 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 2px !important;
+}
+#formats-button-small:hover {
+  background-color: #CCE0FF !important;
+  border: 1px solid #5C9DFF !important;
+}
+

@@ -1,5 +1,5 @@
 body {
-  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
+  font-family: "Segoe UI Symbol", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
   font-size: 15px;
   background-color: white;
@@ -85,10 +85,12 @@ label {
 .tabpanel[selected] {
   display: block;
 }
-.download-item {
+/*.download-item {
   margin-left: -14px;
   padding-left: 14px;
   border-bottom: solid 1px #A7C2E9;
+  font-size: 12px;
+  height: 69px;
 }
 .download-item span {
   display: block; 
@@ -96,22 +98,54 @@ label {
   overflow: hidden;
   white-space: nowrap; 
   text-overflow: ellipsis;
+  line-height: 25px;
 }
 .progress-outer {
   background: #BEBEBE;
   height: 11px;
-  width: 100%;
+  width: 272px;
+  margin-left: 8px;
+  margin-top: 10px;
+}*/
+.download-item {
+  margin-left: -14px;
+  padding-left: 14px;
+  height: 70px;
+  padding-top: 3px;
+  border-bottom: solid 1px #A7C2E9;
+  font-size: 12px;
+  width: 381px;
+}
+.download-item span {
+  display: block; 
+  width: 272px; 
+  margin: 0 10px 1px 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 18px;
+}
+.progress-outer {
+  background: #BEBEBE;
+  height: 11px;
+  width: 272px;
+  margin: 10px 0 3px 12px;
 }
 .progress-inner {
   background: #548DD4;
   width: 0%;
   height: 100%;
 }
+#top-text {
+   margin-top: 1px;
+   margin-bottom: -6px;
+}
 .d-content {
   display: none;
 }
 .nd-content {
-  padding: 10% 0;
+  padding: 15% 0;
+  line-height: 0;
   text-align: center;
   margin-left: -32px;
 }
@@ -138,12 +172,12 @@ label {
   min-width: 20px;
 }
 .checkbox input {
-    display: none;
+  display: none;
 }
 .checkbox input:checked + span {
-    background-image: url("checkmark.png");
-    background-position: center center;
-    background-repeat: no-repeat;
+  background-image: url("checkmark.png");
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 .checkboxTD,
 .list,
@@ -172,16 +206,32 @@ label {
 }
 #formats-button,
 #download-button {
-  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='6'/><feFuncG type='linear' slope='6'/><feFuncB type='linear' slope='6'/></feComponentTransfer> </filter></svg>#brightness");
+  /*filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='6'/><feFuncG type='linear' slope='6'/><feFuncB type='linear' slope='6'/></feComponentTransfer> </filter></svg>#brightness");*/
+  opacity: 0.5;
+  transition: background-color 0.1s;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  padding: 4px;
+  font-size: 30px;
 }
 #formats-button[type="active"],
 #download-button[type="active"] {
-  filter: none;
+  /*filter: none;*/
+  opacity: 1;
 }
-.cancel:hover,
+/*.cancel:hover,*/
 #formats-button:hover[type="active"],
 #download-button:hover[type="active"] {
-  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='.6'/><feFuncG type='linear' slope='.6'/><feFuncB type='linear' slope='.6'/></feComponentTransfer> </filter></svg>#brightness");
+  /*filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='.6'/><feFuncG type='linear' slope='.6'/><feFuncB type='linear' slope='.6'/></feComponentTransfer> </filter></svg>#brightness");*/
+  background-color: #CCE0FF;
+  border: 1px solid #5C9DFF;
+}
+.cancel {
+  opacity: 0.7;
+  margin-left: -2px;
+}
+.cancel:hover {
+  opacity: 1;
 }
 
 .list {
@@ -200,4 +250,8 @@ label {
 #download-addition {
   margin-top: -1px;
   display: none;
+}
+#download-list,
+#download-addition {
+  margin-right: -1px;
 }

@@ -3,11 +3,8 @@ var iaextractor_parent = document.getElementById("watch-headline-title");
 if (iaextractor_parent) {
   var button = document.createElement("button");
   button.setAttribute("title", "Detect all possible download links");
+  button.setAttribute("id", "formats-button-small");
   //button.setAttribute("class", "yt-uix-tooltip");
-  button.setAttribute(
-    "style", 
-    "position: absolute; right: 10px; z-index: 2147483647; cursor: pointer;"
-  );
   var img = document.createElement("img");
   img.setAttribute(
     "src", 
