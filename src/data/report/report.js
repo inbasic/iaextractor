@@ -166,6 +166,7 @@ var dmUI = {
       var rtn = {
         set name(value) {span[0].textContent = value},
         set description(value) {span[1].textContent = value},
+        get progress() {return progress[0]},
         set progress(value) {progress[0].style.width = value},
         get close() {return image[1]}
       };
@@ -219,13 +220,28 @@ self.port.on("download-start", function(id, name, msg) {
   //Finding free slot
   dmUI.set(id, null);
   dmUI.get(id).close.setAttribute("dlID", id);
-  dmUI.get(id).name = name;
+  try {
+    var reg = /(.*)\.([^\.]*)$/.exec(name);
+    dmUI.get(id).name = reg[1] + " (" + reg[2] + ")";
+  }
+  catch (e) {
+    dmUI.get(id).name = name;
+  }
   dmUI.get(id).description = msg;
 });
-self.port.on("download-update", function(id, percent) {
+self.port.on("download-update", function(id, percent, msg, amountTransferred, size, speed) {
   if (id == -1) return;
-  //
+  //  
   dmUI.get(id).progress = percent + "%";
+  dmUI.get(id).progress.removeAttribute("type");
+  dmUI.get(id).description = msg
+    .replace("%f1", amountTransferred)
+    .replace("%f2", size)
+    .replace("%f3", speed);
+});
+self.port.on("download-paused", function(id, msg) {
+  dmUI.get(id).description = msg;
+  dmUI.get(id).progress.setAttribute("type", "inactive");
 });
 self.port.on("download-done", function(id, msg, rm) {
   dmUI.get(id).progress = "100%";

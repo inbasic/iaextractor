@@ -85,28 +85,6 @@ label {
 .tabpanel[selected] {
   display: block;
 }
-/*.download-item {
-  margin-left: -14px;
-  padding-left: 14px;
-  border-bottom: solid 1px #A7C2E9;
-  font-size: 12px;
-  height: 69px;
-}
-.download-item span {
-  display: block; 
-  width: 290px; 
-  overflow: hidden;
-  white-space: nowrap; 
-  text-overflow: ellipsis;
-  line-height: 25px;
-}
-.progress-outer {
-  background: #BEBEBE;
-  height: 11px;
-  width: 272px;
-  margin-left: 8px;
-  margin-top: 10px;
-}*/
 .download-item {
   margin-left: -14px;
   padding-left: 14px;
@@ -135,6 +113,9 @@ label {
   background: #548DD4;
   width: 0%;
   height: 100%;
+}
+.progress-inner[type="inactive"] {
+  background: #FF6A00;
 }
 #top-text {
    margin-top: 1px;
@@ -206,7 +187,6 @@ label {
 }
 #formats-button,
 #download-button {
-  /*filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='6'/><feFuncG type='linear' slope='6'/><feFuncB type='linear' slope='6'/></feComponentTransfer> </filter></svg>#brightness");*/
   opacity: 0.5;
   transition: background-color 0.1s;
   border-radius: 2px;
@@ -216,13 +196,10 @@ label {
 }
 #formats-button[type="active"],
 #download-button[type="active"] {
-  /*filter: none;*/
   opacity: 1;
 }
-/*.cancel:hover,*/
 #formats-button:hover[type="active"],
 #download-button:hover[type="active"] {
-  /*filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='brightness'><feComponentTransfer><feFuncR type='linear' slope='.6'/><feFuncG type='linear' slope='.6'/><feFuncB type='linear' slope='.6'/></feComponentTransfer> </filter></svg>#brightness");*/
   background-color: #CCE0FF;
   border: 1px solid #5C9DFF;
 }

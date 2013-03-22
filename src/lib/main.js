@@ -14,7 +14,9 @@ var tabs          = require("sdk/tabs"),
     youtube       = require("./youtube"),
     download      = require("./download"),
     extract       = require("./extract"),
-    fileSize      = require("./file-size");
+    tools         = require("./misc"),
+    fileSize      = tools.fileSize,
+    format        = tools.format;
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
     
@@ -233,7 +235,7 @@ var cmds = {
           }
         });
         worker.port.on("file-size-request", function (url, index) {
-          fileSize.calculate(url, function (url, size) {
+          fileSize(url, function (url, size) {
             worker.port.emit("file-size-response", url, size, index);
           });
         });
@@ -344,6 +346,9 @@ var listener = (function () {
     onDownloadStart: function (dl) {
       rPanel.port.emit('download-start', dl.id, dl.displayName, _("msg6"));
     },
+    onDownloadPaused: function (dl) {
+      rPanel.port.emit('download-paused', dl.id, _("msg12"));
+    },
     onDownloadDone: function (dl, error) {
       rPanel.port.emit('download-done', dl.id, _("msg8"), !prefs.doExtract || error);
       remove(dl);
@@ -355,7 +360,14 @@ var listener = (function () {
       rPanel.port.emit('extract', id, _("msg10"), true);
     },
     onProgress: function (dl) {
-      rPanel.port.emit('download-update', dl.id, dl.amountTransferred/dl.size*100);
+      rPanel.port.emit('download-update', 
+        dl.id, 
+        dl.amountTransferred/dl.size*100, 
+        _("msg11"), 
+        format(dl.amountTransferred), 
+        format(dl.size), 
+        format(dl.speed)
+      );
       //
       var exist = false;
       objs.forEach(function (obj) {if (dl.id == obj.id) exist = true;});
@@ -466,6 +478,7 @@ var get = function (videoID, listener) {
     //Download
     var dr = new download.get({
       progress: listener.onProgress,
+      paused: listener.onDownloadPaused,
       done: function (dl) {
         var id = dl.id;
         listener.onDownloadDone(dl);
