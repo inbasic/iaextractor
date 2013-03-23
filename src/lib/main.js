@@ -132,6 +132,9 @@ function urlExtractor (url, callback, pointer) {
     var tmp = function () {
       try {
         var divs = document.getElementsByClassName('channels-video-player');
+        if (!divs.length) {
+          divs = document.getElementsByClassName('c4-flexible-player-box');
+        }
         return divs.length ? divs[0].getAttribute('data-video-id') : null
       }
       catch(e){

@@ -19,10 +19,11 @@ var mMake = function (doSize) {
     '    <input type="submit" id="iaextractor-next" value="">' +
     '  </div>' +
     '</div>');
+    var width = 320 + (doSize ? 40 : 0);
     $("iaextractor-menu").setAttribute("style", 
       'top: ' + (rect.top + window.scrollY) + 'px;' + 
-      'left: ' + (rect.left + rect.width/2 + (doSize ? -40 : 0)) + 'px;' + 
-      'width: ' + (rect.width/2 + (doSize ? 40 : 0)) + 'px;' + 
+      'left: ' + (rect.left + (rect.width - width)) + 'px;' + 
+      'width: ' + width + 'px;' + 
       'height: ' + (rect.height) + 'px;">'
     );
     $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
