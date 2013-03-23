@@ -80,12 +80,6 @@
     "value": "yellow"
   },
   {
-    "name": "silent",
-    "title": "Silent mode (do not show progress panel during video download):",
-    "type": "bool",
-    "value": false
-  },
-  {
     "name": "getFileSize",
     "title": "Resolve size of download links in the injected menu:",
     "type": "bool",

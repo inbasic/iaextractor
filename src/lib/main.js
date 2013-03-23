@@ -63,7 +63,7 @@ var rPanel = panel.Panel({
 rPanel.port.on("cmd", function (cmd) {
   switch (cmd) {
     case "download":
-      cmds.onCommand();
+      cmds.onCommand(null, null, true);
       break;
     case "formats":
       rPanel.hide();
@@ -169,17 +169,17 @@ var welcome = function () {
 /** Initialize **/
 var yButton;
 var cmds = {
-  onCommand: function (e, tbb) {
+  onCommand: function (e, tbb, download) {
     let url = tabs.activeTab.url;
     urlExtractor(url, function (videoID) {
       if (!videoID) {
         tabs.open(config.youtube);
         return;
       };
-      if (!prefs.silent) {
-        rPanel.show(tbb);
+      rPanel.show(tbb);
+      if (download) {
+        get(videoID, listener);
       }
-      get(videoID, listener);
     });
   },
   onMiddleClick: function (e, tbb) {
