@@ -62,7 +62,7 @@ var rPanel = panel.Panel({
 rPanel.port.on("cmd", function (cmd) {
   switch (cmd) {
     case "download":
-      cmds.onCommand(null, null, true);
+      cmds.onCommand(null, null, true, null);
       break;
     case "formats":
       rPanel.hide();
@@ -168,16 +168,28 @@ var welcome = function () {
 /** Initialize **/
 var yButton;
 var cmds = {
-  onCommand: function (e, tbb, download) {
+  /**
+   * onCommand
+   * 
+   * @param {Event} mouse event.
+   * @param {Object} Toolbar button object, used to detect the position of panel.
+   * @param {Boolean} auto start download after link detection
+   * @param {Number} index of YouTube link in vInfo object
+   * 
+   * no return output
+   */
+  onCommand: function (e, tbb, download, fIndex) {
     let url = tabs.activeTab.url;
     urlExtractor(url, function (videoID) {
       if (!videoID) {
         tabs.open(config.youtube);
         return;
       };
-      rPanel.show(tbb);
+      if (tbb) {
+        rPanel.show(tbb);
+      }
       if (download) {
-        get(videoID, listener);
+        get(videoID, listener, fIndex);
       }
     });
   },
@@ -237,6 +249,9 @@ var cmds = {
           fileSize(url, function (url, size) {
             worker.port.emit("file-size-response", url, size, index);
           });
+        });
+        worker.port.on("download", function (fIndex) {
+          cmds.onCommand(null, null, true, fIndex);
         });
         youtube.getInfo(videoID, function (vInfo) {
           worker.port.emit('info', vInfo);
@@ -392,10 +407,10 @@ var listener = (function () {
   }
 })();
 
-var get = function (videoID, listener) {
+var get = function (videoID, listener, fIndex) {
   //Detect
   listener.onDetectStart();
-  youtube.getLink(videoID, function (vInfo, title, e) {
+  youtube.getLink(videoID, fIndex, function (vInfo, title, e) {
     listener.onDetectDone();
     if (e) {
       notify(_('name'), e);
