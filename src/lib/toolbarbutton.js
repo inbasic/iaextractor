@@ -148,6 +148,8 @@ exports.ToolbarButton = function ToolbarButton(options) {
         }
 
         tb.insertItem(options.id, b4, null, false);
+        tb.setAttribute("currentset", tb.currentSet);
+        doc.persist(tb.id, "currentset");
       }
 
       var saveTBNodeInfo = function(e) {
@@ -238,7 +240,11 @@ exports.ToolbarButton = function ToolbarButton(options) {
 
         // TODO: if b4 dne, but insertbefore is in currentset, then find toolbar to right
 
-        if (tb) tb.insertItem(options.id, b4, null, false);
+        if (tb) {
+          tb.insertItem(options.id, b4, null, false);
+          tb.setAttribute("currentset", tb.currentSet);
+          doc.persist(tb.id, "currentset");
+        }
       };
     },
     get label() options.label,
