@@ -383,7 +383,7 @@ var get = function (videoID, listener) {
       return;
     }
     //Creating temporary files
-    var videoName = (prefs.addUserInfo ? user + " - " : "") + title.replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
+    var videoName = ((prefs.addUserInfo ? user + " - " : "") + title).replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
     var audioName = videoName;
     var root, audioPath = [], videoPath = [];
     var iFile, oFile;
