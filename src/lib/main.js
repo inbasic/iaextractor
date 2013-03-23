@@ -376,14 +376,14 @@ var listener = (function () {
 var get = function (videoID, listener) {
   //Detect
   listener.onDetectStart();
-  youtube.getLink(videoID, function (vInfo, title, e) {
+  youtube.getLink(videoID, function (vInfo, title, user, e) {
     listener.onDetectDone();
     if (e) {
       notify(_('name'), e);
       return;
     }
     //Creating temporary files
-    var videoName = title.replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
+    var videoName = (prefs.addUserInfo ? user + " - " : "") + title.replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
     var audioName = videoName;
     var root, audioPath = [], videoPath = [];
     var iFile, oFile;
