@@ -60,5 +60,5 @@ var get = function (callback, pointer) {
 exports.get = get;
 
 exports.show = function () {
-  downloadManagerUI.show(window, dl.id, Ci.nsIDownloadManagerUI.REASON_NEW_DOWNLOAD);
+  downloadManagerUI.show();
 }

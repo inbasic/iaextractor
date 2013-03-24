@@ -64,6 +64,9 @@ rPanel.port.on("cmd", function (cmd) {
     case "download":
       cmds.onCommand(null, null, true, null);
       break;
+    case "show-download-manager":
+      download.show();
+      break;
     case "formats":
       rPanel.hide();
       cmds.onShiftClick();

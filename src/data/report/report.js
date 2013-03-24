@@ -174,8 +174,20 @@ var dmUI = {
       return rtn;
     }
   })(),
+  get count () {
+    return Object.getOwnPropertyNames(dm).length;
+  },
   isEmpty: function () {
-    return Object.getOwnPropertyNames(dm).length == 0;
+    return dmUI.count == 0;
+  },
+  checkState: function () {
+    //exceed ?
+    if (dmUI.count > 3) {
+      $("download-manager-toolbar").textContent = "You have " + (dmUI.count - 3) + " more downloads";
+    }
+    else {
+      $("download-manager-toolbar").textContent = "Show downloads history";
+    }
   },
   add: function () {
     //Show download manager
@@ -192,7 +204,6 @@ var dmUI = {
         self.port.emit("cmd", "cancel", id);
       }
     }, true);
-    
     return item;
   },
   remove: function (id) {
@@ -219,6 +230,7 @@ self.port.on("download-start", function(id, name, msg) {
   if (id == -1) return;
   //Finding free slot
   dmUI.set(id, null);
+  dmUI.checkState();
   dmUI.get(id).close.setAttribute("dlID", id);
   try {
     var reg = /(.*)\.([^\.]*)$/.exec(name);
@@ -248,12 +260,14 @@ self.port.on("download-done", function(id, msg, rm) {
   dmUI.get(id).description = msg;
   if (rm) {
     dmUI.remove(id);
+    dmUI.checkState();
   }
 });
 self.port.on("extract", function(id, msg, rm) {
   dmUI.get(id).description = msg;
   if (rm) {
     dmUI.remove(id);
+    dmUI.checkState();
   }
 });
 
@@ -274,6 +288,9 @@ sCheckbox.addEventListener("change", function () {
 });
 $("tools-button").addEventListener("click", function () {
   self.port.emit("cmd", "tools");
+}, true);
+$("download-manager-toolbar").addEventListener("click", function () {
+  self.port.emit("cmd", "show-download-manager");
 }, true);
 //Onload
 self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {

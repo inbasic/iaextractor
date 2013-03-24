@@ -81,6 +81,7 @@ label {
   position: relative;
   margin: 15px;
   width: 100%;
+  height: 194px;
 }
 .tabpanel[selected] {
   display: block;
@@ -88,8 +89,8 @@ label {
 .download-item {
   margin-left: -14px;
   padding-left: 14px;
-  height: 70px;
-  padding-top: 3px;
+  height: 62px;
+  padding-top: 1px;
   border-bottom: solid 1px #A7C2E9;
   font-size: 12px;
   width: 381px;
@@ -101,7 +102,7 @@ label {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  line-height: 18px;
+  line-height: 16px;
 }
 .progress-outer {
   background: #BEBEBE;
@@ -129,6 +130,18 @@ label {
   line-height: 0;
   text-align: center;
   margin-left: -32px;
+}
+.d-footer {
+  position: absolute; 
+  left: -15px; 
+  bottom: -16px; 
+  color: white; 
+  background-color: #548DD4;
+  width: 100%; 
+  height: 24px; 
+  line-height: 22px; 
+  text-align: center;
+  cursor: pointer;
 }
 
 .box {
