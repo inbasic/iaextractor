@@ -93,4 +93,6 @@
   background-color: #CCE0FF !important;
   border: 1px solid #5C9DFF !important;
 }
-
+#formats-button-small::-moz-focus-inner {
+  border: 0;  /* remove dotted outline */
+}
