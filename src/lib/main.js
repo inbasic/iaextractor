@@ -27,7 +27,7 @@ var config = {
   image: {
     get progressColor() {return prefs.progressColor}
   },
-  move: {toolbarID: "nav-bar", forceMove: false},
+  move: {toolbarID: "nav-bar", insertbefore: "home-button", forceMove: false},
   //Timing
   desktopNotification: 3, //seconds
   //Tooltip
