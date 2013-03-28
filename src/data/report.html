@@ -16,34 +16,34 @@
 
     <div id="tabpanels" class="tabpanels">
       <div class="tabpanel" selected="true">
-        <table border="0" style="width: 100%; height: 174px;">
+        <table border="0" style="width: 100%; height: 174px; margin-top: -7px;">
           <tr>
-            <td align="center">
+            <td align="center" style="font-size: 14px;">
               <img id="download-button" src="report/download.png"/>
               <br />
               <p>Quick Download</p>
             </td>
-            <td align="center">
+            <td align="center" style="font-size: 14px;">
               <img id="formats-button" src="report/list.png"/>
               <br />
-              <p>Show Download Links</p>
+              <p>Download Links</p>
             </td>
           </tr>
         </table>
-        <table border="0" style="width: 100%;">
+        <table border="0" style="width: 100%; margin-top: -2px;">
           <tr>
-            <td>Video quality:</td>
-            <td align="right">
-              <span id="video-list" style="width: 90px;" class="list button" style="float:right">High</span>
-              <span id="format-list" style="width: 73px;" class="list button" style="float:right">FLV</span>
-              <span id="video-addition" style="width: 90px; margin-right: 95px;" class="list" style="clear:both; float:right">
+            <td align="right" style="padding: 0 15px 3px 16px; font-size: 14px;">Video Quality:</td>
+            <td>
+              <span id="video-list" style="width: 75px;" class="list button" style="float:right">High</span>
+              <span id="format-list" style="width: 75px;" class="list button" style="float:right">FLV</span>
+              <span id="video-addition" style="width: 75px;" class="list" style="clear:both; float:right">
                 <label><input type="radio" name="vinput" value="0">HD1080p</label><br>
                 <label><input type="radio" name="vinput" value="1">HD720p</label><br>
                 <label><input type="radio" name="vinput" value="2">High</label><br>
                 <label><input type="radio" name="vinput" value="3">Medium</label><br>
                 <label><input type="radio" name="vinput" value="4">Small</label>
               </span>
-              <span id="format-addition" style="width: 73px;" class="list" style="clear:both; float:right">
+              <span id="format-addition" style="width: 75px; margin-left: 97px;" class="list" style="clear:both; float:right">
                 <label><input type="radio" name="finput" value="0">FLV</label><br>
                 <label><input type="radio" name="finput" value="1">3GP</label><br>
                 <label><input type="radio" name="finput" value="2">MP4</label><br>
@@ -63,12 +63,12 @@
           <table id="download-item" class="download-item" style="display:none;">
             <tr>
               <td width="42" style="-moz-user-select: none;">
-                <img style="clear:both; float:left" src="report/download2.png"/>
+                <img class="d-icon" style="clear:both; float:left" src="report/download2.png"/>
               </td>
               <td width="100%">
                 <span id="top-text">-</span>
                 <div class="progress-outer">
-                    <div class="progress-inner"></div>
+                 <div class="progress-inner"></div>
                 </div>
                 <span id="bottom-text">...</span>
               </td>
@@ -79,11 +79,11 @@
           </table>
         </div>
         <div id="download-manager-toolbar" class="d-footer">
-          Show downloads history
+          Show Downloads History
         </div>
       </div>
       <div class="tabpanel">
-        <table border="0">
+        <table border="0" style="margin-top: 38px;">
           <tr>
             <td style="width: 100%;">Video conversion tool:</td>
             <td id="tools-button" class="box img button"></td>

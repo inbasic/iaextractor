@@ -18,3 +18,54 @@ row {
 .item[mod="failed"] {
   -moz-image-region: rect(0, 48px, 16px, 32px);
 }
+tabs {
+  -moz-appearance: none !important;
+  background-color: white !important;
+  border: 3px #548DD4 !important;
+  border-bottom-style: solid !important;
+  position: fixed !important;
+  height: 28px !important;
+  width: 503px !important;
+}
+tab {
+  -moz-appearance: none !important;
+  border-radius: 0 !important;
+  color: white !important;
+  background-color: #548DD4 !important;
+  border: solid 3px #548DD4!important;
+  border-bottom-style: none !important;
+  margin-right: 3px !important;
+  margin-top: -1px !important;
+  height: 22px !important;
+  padding-bottom: 19px !important;
+  width: 250px !important;
+  text-align: center !important;
+}
+tab[selected] {
+  color: black !important;
+  background-color: white !important;
+  height: 29px !important;
+  padding-bottom: 12px !important;
+}
+tab:last-child {
+  margin-right: 0 !important;
+}
+tabpanels {
+  -moz-appearance: none !important;
+  border: 3px solid #548DD4 !important;
+  border-top: none !important;
+  border-radius: 0 !important;
+  background-color: white !important;
+  margin-top: 28px !important;
+  height: 195px !important;
+  min-width: 503px !important;
+}
+tabbox {
+  margin: 6px !important;
+}
+menulist {  
+  -moz-appearance: none !important;
+  padding: 1px 0 1px 3px !important;
+  border: 1px solid rgba(140,183,234,.5) !important;
+  background-image: linear-gradient(rgba(244,248,253,.5), rgba(244,248,253,.3)) !important;
+}

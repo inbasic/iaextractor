@@ -1,5 +1,5 @@
 body {
-  font-family: "Segoe UI Symbol", Tahoma, Helvetica, "Sans-Serif";
+  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
   font-size: 15px;
   background-color: white;
@@ -24,20 +24,20 @@ label {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 2px;
+  height: 3px;
 }
 
 #border-l {
   left: 0;
   top: 34px;
   bottom: 0;
-  width: 2px;
+  width: 3px;
 }
 #border-r {
   right: 0;
   top: 34px;
   bottom: 0;
-  width: 2px;
+  width: 3px;
 }
 
 .tabs {
@@ -48,21 +48,21 @@ label {
   width: 100%;
   background-color: white;
   height: 32px;
-  border: 2px #548DD4;
+  border: 3px #548DD4;
   border-bottom-style: solid;
 }
 .tab {
   -moz-user-select: none;
   display: inline-block;
-  width: 122px;
-  height: 27px;
-  line-height: 24px;
+  width: 121px !important;
+  height: 26px;
+  line-height: 22px;
   text-align: center;
   cursor: pointer;
   color: white;
   background-color: #548DD4;
   margin-right: -1px;
-  border: solid 2px;
+  border: solid 3px;
   border-color: #548DD4;
   border-bottom-style: none;
 }
@@ -74,7 +74,7 @@ label {
 
 .tabpanels {
   position: relative;
-  margin-top: 34px;
+  margin-top: 35px;
 }
 .tabpanel {
   display: none;
@@ -87,10 +87,9 @@ label {
   display: block;
 }
 .download-item {
-  margin-left: -14px;
-  padding-left: 14px;
+  margin-left: -12px;
+  padding-left: 12px;
   height: 62px;
-  padding-top: 1px;
   border-bottom: solid 1px #A7C2E9;
   font-size: 12px;
   width: 381px;
@@ -98,17 +97,17 @@ label {
 .download-item span {
   display: block; 
   width: 272px; 
-  margin: 0 10px 1px 12px;
+  margin: 0 10px 1px 10px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  line-height: 16px;
+  line-height: 18px;
 }
 .progress-outer {
   background: #BEBEBE;
   height: 11px;
   width: 272px;
-  margin: 10px 0 3px 12px;
+  margin: 10px 0 3px 10px;
 }
 .progress-inner {
   background: #548DD4;
@@ -119,7 +118,6 @@ label {
   background: #FF6A00;
 }
 #top-text {
-   margin-top: 1px;
    margin-bottom: -6px;
 }
 .d-content {
@@ -134,12 +132,12 @@ label {
 .d-footer {
   position: absolute; 
   left: -15px; 
-  bottom: -16px; 
+  bottom: -19px; 
   color: white; 
   background-color: #548DD4;
   width: 100%; 
-  height: 24px; 
-  line-height: 22px; 
+  height: 28px; 
+  line-height: 26px; 
   text-align: center;
   cursor: pointer;
 }
@@ -204,8 +202,8 @@ label {
   transition: background-color 0.1s;
   border-radius: 2px;
   border: 1px solid transparent;
-  padding: 4px;
-  font-size: 30px;
+  margin-bottom: -37px;
+  padding: 5px 15px 30px;
 }
 #formats-button[type="active"],
 #download-button[type="active"] {
@@ -217,8 +215,7 @@ label {
   border: 1px solid #5C9DFF;
 }
 .cancel {
-  opacity: 0.7;
-  margin-left: -2px;
+  opacity: 0.5;
 }
 .cancel:hover {
   opacity: 1;
@@ -241,6 +238,14 @@ label {
   margin-top: -1px;
   display: none;
 }
+#video-addition,
+#download-addition {
+  margin-bottom: 10px;
+}
+#format-addition {
+  margin-bottom: 29px;
+}
+
 #download-list,
 #download-addition {
   margin-right: -1px;

@@ -37,8 +37,8 @@ var config = {
   //Panels
   panels: {
     rPanel: {
-      width: 384,
-      height: 245
+      width: 387,
+      height: 247
     },
     iPanel: {
       width: 520,

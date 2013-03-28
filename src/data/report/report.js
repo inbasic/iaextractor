@@ -186,7 +186,7 @@ var dmUI = {
       $("download-manager-toolbar").textContent = "You have " + (dmUI.count - 3) + " more downloads";
     }
     else {
-      $("download-manager-toolbar").textContent = "Show downloads history";
+      $("download-manager-toolbar").textContent = "Show Downloads History";
     }
   },
   add: function () {
