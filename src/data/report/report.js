@@ -1,20 +1,31 @@
-var $ = function (id) {
+var $ = function (id) { 
   return document.getElementById(id);
+} 
+var _ = function (id) {
+  var items = $("locale").getElementsByTagName("span");
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute("data-l10n-id") == id) {
+      return items[i].textContent;
+    }
+  }
+  return id;
 }
 
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox"),
-    sCheckbox = $("resolve-size-checkbox");
+    sCheckbox = $("resolve-size-checkbox"),
+    downloadButtonLabel = $("download-button-label"),
+    toolbar = $("download-manager-toolbar");
 
-var mList = function (name, el1, el2, value, func1, func2) {
+var mList = function (name, el1, el2, value, func) {
   var isHidden = true;
   var radios = document.getElementsByName(name);
   
   function set (soft) {
-    el1.textContent = func1(value);
+    el1.textContent = el2.children[value].childNodes[1].textContent;
     radios[parseInt(value)].checked = true;
-    if (!soft) func2(value);
+    if (!soft) func(value);
   }
   set(true);
   el1.addEventListener("click", function () {
@@ -52,16 +63,6 @@ var download = new mList (
   $('download-addition'),
   0,
   function (value) {
-    switch (value + "") {
-      case "0": return "Downloads directory";
-      case "1": return "Home directory";
-      case "2": return "OS temporary directory";
-      case "3": return "Desktop directory";
-      case "4": return "Select folder each time";
-      case "5": return "User defined folder";
-    }
-  },
-  function (value) {
     self.port.emit("cmd", "destination", value);
   }
 );
@@ -71,15 +72,6 @@ var quality = new mList (
   $('video-addition'),
   0,
   function (value) {
-    switch (value + "") {
-      case "0": return "HD1080p";
-      case "1": return "HD720p";
-      case "2": return "High";
-      case "3": return "Medium";
-      case "4": return "Small";
-    }
-  },
-  function (value) {
     self.port.emit("cmd", "quality", value);
   }
 );
@@ -88,14 +80,6 @@ var format = new mList (
   $('format-list'), 
   $('format-addition'),
   0,
-  function (value) {
-    switch (value + "") {
-      case "0": return "FLV";
-      case "1": return "3GP";
-      case "2": return "MP4";
-      case "3": return "WebM";
-    }
-  },
   function (value) {
     self.port.emit("cmd", "format", value);
   }
@@ -182,11 +166,14 @@ var dmUI = {
   },
   checkState: function () {
     //exceed ?
+    console.log(_("show-numbers"));
+    
+    var label = $("download-manager-toolbar-label");
     if (dmUI.count > 3) {
-      $("download-manager-toolbar").textContent = "You have " + (dmUI.count - 3) + " more downloads";
+      label.textContent = _("show-numbers").replace("%d", (dmUI.count - 3));
     }
     else {
-      $("download-manager-toolbar").textContent = "Show Downloads History";
+      label.textContent = _("show-history");
     }
   },
   add: function () {
@@ -289,7 +276,7 @@ sCheckbox.addEventListener("change", function () {
 $("tools-button").addEventListener("click", function () {
   self.port.emit("cmd", "tools");
 }, true);
-$("download-manager-toolbar").addEventListener("click", function () {
+toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
 //Onload
@@ -310,10 +297,12 @@ self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, i
   if (isRed) {
     downloadButton.setAttribute("type", "active");
     formatsButton.setAttribute("type", "active");
+    downloadButtonLabel.textContent = _("quick-download");
   }
   else {
     downloadButton.removeAttribute("type");
     formatsButton.removeAttribute("type");
+    downloadButtonLabel.textContent = _("open-youtube");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
   //If there is no download switch to download tab
@@ -321,3 +310,7 @@ self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, i
     tabSelector(0);
   }
 });
+
+window.addEventListener("load", function () {
+  dmUI.checkState();
+}, false);

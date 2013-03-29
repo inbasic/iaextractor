@@ -41,6 +41,9 @@ tab {
   width: 250px !important;
   text-align: center !important;
 }
+tab::-moz-focus-inner {
+  border: 0;  /* remove dotted outline */
+}
 tab[selected] {
   color: black !important;
   background-color: white !important;
