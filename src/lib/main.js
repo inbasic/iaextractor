@@ -416,7 +416,7 @@ var listener = (function () {
 var get = function (videoID, listener, fIndex) {
   //Detect
   listener.onDetectStart();
-  youtube.getLink(videoID, fIndex, function (vInfo, title, e) {
+  youtube.getLink(videoID, fIndex, function (vInfo, title, user, e) {
     listener.onDetectDone();
     if (e) {
       notify(_('name'), e);
