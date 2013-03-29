@@ -129,33 +129,39 @@ var getQuality = function (value) {
   }
 }
 
-var getLink = function (videoID, callback, pointer) {
+var getLink = function (videoID, fIndex, callback, pointer) {
   try {
     _getInfo(videoID, function (info) {
       var quality = prefs.quality;
-    
-      //format is already sorted high to low
-      var tmp = info.formats.filter(function(a){return a.container == getFormat(prefs.extension)});
-      if (prefs.doExtract && getFormat(prefs.extension) == "flv") {
-        var tmp2 = tmp.filter(function (a){return a.audioEncoding == "aac"});
-        if (tmp2.length) {
-          tmp = tmp2;
+      if (!fIndex) {
+        //format is already sorted high to low
+        var tmp = info.formats.filter(function(a){return a.container == getFormat(prefs.extension)});
+        if (prefs.doExtract && getFormat(prefs.extension) == "flv") {
+          var tmp2 = tmp.filter(function (a){return a.audioEncoding == "aac"});
+          if (tmp2.length) {
+            tmp = tmp2;
+          }
         }
+        tmp.filter(function (a){});
+        var detected;
+        var qualityValue = prefs.quality;
+        while (tmp.length && !detected && qualityValue > -1) {
+          var b = tmp.filter(function (a) {
+            if (a.quality == getQuality(qualityValue))
+              return true;
+            else
+              return false
+          });
+          if (b.length) detected = b[0];
+          qualityValue -= 1;
+        }
+        if (!detected && tmp.length) detected = tmp[0]
+        if (!detected) detected = info.formats[0];  //Get highest quality
       }
-      tmp.filter(function (a){});
-      var detected;
-      var qualityValue = prefs.quality;
-      while (tmp.length && !detected && qualityValue > -1) {
-        var b = tmp.filter(function (a) {
-          if (a.quality == getQuality(qualityValue))
-            return true;
-          else
-            return false
-        });
-        if (b.length) detected = b[0];
-        qualityValue -= 1;
+      else {
+        detected = info.formats[fIndex];
       }
-      if (!detected && tmp.length) detected = tmp[0]
+      if (!detected && tmp.length) detected = tmp[0];
       if (!detected) detected = info.formats[0];  //Get highest quality
       
       if (callback) callback.apply(pointer, [detected, info.title, info.author, null]);

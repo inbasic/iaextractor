@@ -29,11 +29,14 @@ var get = function (callback, pointer) {
         dm.removeListener(this);
         if (callback && callback.done) callback.done.apply(pointer, [dl]);
       }
+      else if (dl.state == Ci.nsIDownloadManager.DOWNLOAD_PAUSED) {
+        if (callback && callback.paused) callback.paused.apply(pointer, [dl]);
+      }
       else if (dl.state == Ci.nsIDownloadManager.DOWNLOAD_FAILED ||
         dl.state == Ci.nsIDownloadManager.DOWNLOAD_CANCELED ||
         dl.state == Ci.nsIDownloadManager.DOWNLOAD_BLOCKED_PARENTAL ||
         dl.state ==  Ci.nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY ||
-        dl.state == Ci.nsIDownloadManager.DOWNLOAD_DIRTY){
+        dl.state == Ci.nsIDownloadManager.DOWNLOAD_DIRTY) {
         dm.removeListener(this);
         if (callback && callback.error) callback.error.apply(pointer, [dl]);
       }
@@ -50,10 +53,12 @@ var get = function (callback, pointer) {
     dm.addListener(listener);
     persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
     persist.saveURI(dl.source, null, null, null, null, file, null);
+    
+    return dl;
   }
 };
 exports.get = get;
 
 exports.show = function () {
-  downloadManagerUI.show(window, dl.id, Ci.nsIDownloadManagerUI.REASON_NEW_DOWNLOAD);
+  downloadManagerUI.show();
 }

@@ -12,6 +12,7 @@ function format (size) {
   }
   return size + " B";
 }
+exports.format = format;
 
 var cache = {};
 var calculate = function (url, callback, pointer) {
@@ -57,4 +58,4 @@ var calculate = function (url, callback, pointer) {
   };
   req.send(null);
 }
-exports.calculate = calculate;
+exports.fileSize = calculate;

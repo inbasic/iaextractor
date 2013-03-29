@@ -19,13 +19,24 @@ var mMake = function (doSize) {
     '    <input type="submit" id="iaextractor-next" value="">' +
     '  </div>' +
     '</div>');
+    var width = 320 + (doSize ? 40 : 0);
     $("iaextractor-menu").setAttribute("style", 
       'top: ' + (rect.top + window.scrollY) + 'px;' + 
-      'left: ' + (rect.left + rect.width/2 + (doSize ? -40 : 0)) + 'px;' + 
-      'width: ' + (rect.width/2 + (doSize ? 40 : 0)) + 'px;' + 
+      'left: ' + (rect.left + (rect.width - width)) + 'px;' + 
+      'width: ' + width + 'px;' + 
       'height: ' + (rect.height) + 'px;">'
     );
     $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
+    $("iaextractor-items").addEventListener('click', function (e) {
+      var p = e.originalTarget;
+      if (p.localName != "p") {
+        return true;
+      }
+      e.preventDefault();
+      e.stopPropagation ();
+      self.port.emit("download", p.getAttribute("fIndex"));
+      return false;
+    });
     $("iaextractor-close").addEventListener('click', function (e) {
       e.originalTarget.parentNode.parentNode.removeChild(e.originalTarget.parentNode);
     });
@@ -41,12 +52,16 @@ var mMake = function (doSize) {
 
   return {
     init: function (vInfo) {
-      function item (txt, url) {
+      /**
+       * @param {Number} index of YouTube link in vInfo object
+       */
+      function item (fIndex, txt, url) {
         var a = document.createElement("a");
         a.setAttribute("class", "iaextractor-link");
         a.setAttribute("href", url);
         var p = document.createElement("p");
         p.setAttribute("class", "iaextractor-item");
+        p.setAttribute("fIndex", fIndex);
         p.textContent = txt;
         a.appendChild(p);
         $("iaextractor-items").appendChild(a);
@@ -76,14 +91,16 @@ var mMake = function (doSize) {
       }
       sets[activeSet].forEach(function (format, index) {
         var url = format.url + "&keepalive=yes&title=" + encodeURI(title);
-        item(
+        item (
+          activeSet * numberOfItems + index,
           format.container.toUpperCase() + " " + map(format.quality) + 
           " - " + 
           format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
-          url);
-          if (doSize) {
-            self.port.emit("file-size-request", url, index);
-          }
+          url
+        );
+        if (doSize) {
+          self.port.emit("file-size-request", url, index);
+        }
       });
       if (sets.length == 1) {
         $('iaextractor-next').disabled = true;

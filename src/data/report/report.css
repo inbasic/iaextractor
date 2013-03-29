@@ -1,28 +1,147 @@
 body {
-  font-family: arial,sans-serif;
+  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   overflow: hidden;
+  font-size: 15px;
+  background-color: white;
+  margin: 0;
 }
-fieldset {
-  border-width: 1px 0 0 0;
-  border-color: ThreeDFace;
-}
-body,
 table {
   font-size: 13px;
+  padding-right: 28px;
 }
 label {
   display: inline-block;
   width: 100%;
-}
-span {
   text-align: left;
 }
-.caption {
-  background: none repeat scroll 0 0;
-  border: 1px solid ThreeDFace;
-  color: #555555;
-  font-size: 15px;
+
+#border-b, #border-l, #border-r {
+  position: fixed;
+  background: #548DD4;
+  z-index: 10;
 }
+#border-b {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+}
+
+#border-l {
+  left: 0;
+  top: 34px;
+  bottom: 0;
+  width: 3px;
+}
+#border-r {
+  right: 0;
+  top: 34px;
+  bottom: 0;
+  width: 3px;
+}
+
+.tabs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  background-color: white;
+  height: 32px;
+  border: 3px #548DD4;
+  border-bottom-style: solid;
+}
+.tab {
+  -moz-user-select: none;
+  display: inline-block;
+  width: 121px !important;
+  height: 26px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  background-color: #548DD4;
+  margin-right: -1px;
+  border: solid 3px;
+  border-color: #548DD4;
+  border-bottom-style: none;
+}
+.tab[selected] {
+  color: black;
+  height: 32px;
+  background-color: white;
+}
+
+.tabpanels {
+  position: relative;
+  margin-top: 35px;
+}
+.tabpanel {
+  display: none;
+  position: relative;
+  margin: 15px;
+  width: 100%;
+  height: 194px;
+}
+.tabpanel[selected] {
+  display: block;
+}
+.download-item {
+  margin-left: -12px;
+  padding-left: 12px;
+  height: 62px;
+  border-bottom: solid 1px #A7C2E9;
+  font-size: 12px;
+  width: 381px;
+}
+.download-item span {
+  display: block; 
+  width: 272px; 
+  margin: 0 10px 1px 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 18px;
+}
+.progress-outer {
+  background: #BEBEBE;
+  height: 11px;
+  width: 272px;
+  margin: 10px 0 3px 10px;
+}
+.progress-inner {
+  background: #548DD4;
+  width: 0%;
+  height: 100%;
+}
+.progress-inner[type="inactive"] {
+  background: #FF6A00;
+}
+#top-text {
+   margin-bottom: -6px;
+}
+.d-content {
+  display: none;
+}
+.nd-content {
+  padding: 15% 0;
+  line-height: 0;
+  text-align: center;
+  margin-left: -32px;
+}
+.d-footer {
+  position: absolute; 
+  left: -15px; 
+  bottom: -19px; 
+  color: white; 
+  background-color: #548DD4;
+  width: 100%; 
+  height: 28px; 
+  line-height: 26px; 
+  text-align: center;
+  cursor: pointer;
+}
+
 .box {
   text-align: center;
   min-height: 18px;
@@ -37,12 +156,20 @@ span {
   content: "";
   width: 16px;
   height: 16px;
-  background: url(images.png) center center;
+  background: url("images.png") center center;
   background-repeat: no-repeat;
 }
 .checkbox span {
   min-height: 20px;
   min-width: 20px;
+}
+.checkbox input {
+  display: none;
+}
+.checkbox input:checked + span {
+  background-image: url("checkmark.png");
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 .checkboxTD,
 .list,
@@ -62,23 +189,36 @@ span {
 .button:active {
   background-image: linear-gradient(rgba(140,183,234,.5), rgba(140,183,234,.3));
 }
-#cancel:before {
+
+#embed-button:before {
   background-position: 0 center;
 }
-#embed:before {
+#tools-button:before {
   background-position: -16px center;
 }
-#formats:before {
-  background-position: -32px center;
+#formats-button,
+#download-button {
+  opacity: 0.5;
+  transition: background-color 0.1s;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  margin-bottom: -37px;
+  padding: 5px 15px 30px;
 }
-#download-button:before {
-  background-position: -64px center;
+#formats-button[type="active"],
+#download-button[type="active"] {
+  opacity: 1;
 }
-#download-button[type="active"]:before {
-  background-position: -48px center;
+#formats-button:hover[type="active"],
+#download-button:hover[type="active"] {
+  background-color: #CCE0FF;
+  border: 1px solid #5C9DFF;
 }
-#tools:before {
-  background-position: -80px center;
+.cancel {
+  opacity: 0.5;
+}
+.cancel:hover {
+  opacity: 1;
 }
 
 .list {
@@ -88,20 +228,25 @@ span {
 #video-list,
 #format-list,
 #download-list {
-  background: url(dropdown.png) right center;
+  text-align: left;
+  background: url("dropdown.png") right center;
   background-repeat: no-repeat;
 }
 #video-addition,
 #format-addition,
 #download-addition {
+  margin-top: -1px;
   display: none;
 }
-
-.checkbox input {
-    display: none;
+#video-addition,
+#download-addition {
+  margin-bottom: 10px;
 }
-.checkbox input:checked + span {
-    background-image: url("checkmark.png");
-    background-position: center center;
-    background-repeat: no-repeat;
+#format-addition {
+  margin-bottom: 29px;
+}
+
+#download-list,
+#download-addition {
+  margin-right: -1px;
 }

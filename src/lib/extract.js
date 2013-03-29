@@ -147,17 +147,17 @@ function extract(stream, callback, pointer) {
   oneChunk();
 }
 
-exports.perform = function (iFile, oFile, done, progress, pointer) {
+exports.perform = function (id, iFile, oFile, done, progress, pointer) {
   read(iFile, function (stream) {
     try {
       extract(stream, {
         done: function (audio) {
           write(oFile, audio);
-          done.apply(pointer);
+          done.apply(pointer, [id]);
         },
         progress: function (percent) {
           if (progress) {
-            progress.apply(pointer, [percent]);
+            progress.apply(pointer, [id, percent]);
           }
         }
       });
@@ -165,7 +165,7 @@ exports.perform = function (iFile, oFile, done, progress, pointer) {
     catch(e) {
       write(oFile, e.toString());
       oFile.moveTo(null, oFile.leafName + ".error.log");
-      done.apply(pointer, [e]);
+      done.apply(pointer, [id, e]);
     }
   });
 }

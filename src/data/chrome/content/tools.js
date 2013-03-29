@@ -118,14 +118,14 @@ var drag2 = {
       var meter = $("extract-progressmeter");
       meter.collapsed = false;
       meter.value = 0;
-      exports.perform(dropFile, oFile, 
-        function (e) {
+      exports.perform(null, dropFile, oFile, 
+        function (id, e) {
           if (e) {
             alert(e);
           }
           meter.collapsed = true;
         }, 
-        function (percent) {
+        function (id, percent) {
           meter.value = percent;
         }
       );

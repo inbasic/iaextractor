@@ -1,15 +1,31 @@
-var $ = function (id) {
+var $ = function (id) { 
   return document.getElementById(id);
+} 
+var _ = function (id) {
+  var items = $("locale").getElementsByTagName("span");
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute("data-l10n-id") == id) {
+      return items[i].textContent;
+    }
+  }
+  return id;
 }
 
-var mList = function (name, el1, el2, value, func1, func2) {
+var downloadButton = $("download-button"),
+    formatsButton = $("formats-button"),
+    aCheckbox = $("audio-checkbox"),
+    sCheckbox = $("resolve-size-checkbox"),
+    downloadButtonLabel = $("download-button-label"),
+    toolbar = $("download-manager-toolbar");
+
+var mList = function (name, el1, el2, value, func) {
   var isHidden = true;
   var radios = document.getElementsByName(name);
   
   function set (soft) {
-    el1.textContent = func1(value);
+    el1.textContent = el2.children[value].childNodes[1].textContent;
     radios[parseInt(value)].checked = true;
-    if (!soft) func2(value);
+    if (!soft) func(value);
   }
   set(true);
   el1.addEventListener("click", function () {
@@ -41,26 +57,13 @@ var mList = function (name, el1, el2, value, func1, func2) {
   }
 }
 
-var downloadButton = $("download-button"),
-    checkbox = $("checkbox");
-
 var download = new mList (
   "dinput", 
   $('download-list'), 
   $('download-addition'),
   0,
   function (value) {
-    switch (value + "") {
-      case "0": return "Default Downloads directory";
-      case "1": return "Home directory";
-      case "2": return "OS temporary directory";
-      case "3": return "Desktop directory";
-      case "4": return "Select folder each time";
-      case "5": return "User defined folder";
-    }
-  },
-  function (value) {
-    self.port.emit("destination", value);
+    self.port.emit("cmd", "destination", value);
   }
 );
 var quality = new mList (
@@ -69,16 +72,7 @@ var quality = new mList (
   $('video-addition'),
   0,
   function (value) {
-    switch (value + "") {
-      case "0": return "hd1080";
-      case "1": return "hd720";
-      case "2": return "High";
-      case "3": return "Medium";
-      case "4": return "Small";
-    }
-  },
-  function (value) {
-    self.port.emit("quality", value);
+    self.port.emit("cmd", "quality", value);
   }
 );
 var format = new mList (
@@ -87,57 +81,236 @@ var format = new mList (
   $('format-addition'),
   0,
   function (value) {
-    switch (value + "") {
-      case "0": return "FLV";
-      case "1": return "3GP";
-      case "2": return "Mp4";
-      case "3": return "WebM";
-    }
-  },
-  function (value) {
-    self.port.emit("format", value);
+    self.port.emit("cmd", "format", value);
   }
 );
 
+function tabSelector (e) {
+  var n;
+  if (typeof(e) == "number") {
+    n = e;
+  }
+  else {
+    n = 0;
+    var child = e.originalTarget
+    if (child.localName != "span") {
+      return;
+    }
+    while ((child = child.previousSibling)) {
+      if(child.localName) {
+        n += 1;
+      }
+    }
+  }
+  //Select a new tab
+  var tabs = $("tabs").getElementsByClassName("tab");
+  var tabpanels = $("tabpanels").getElementsByClassName("tabpanel");
+  for (var i = 0; i < tabs.length; i++) {
+    var tab = tabs[i], 
+        tabpanel = tabpanels[i];
+    if (i == n) {
+      tab.setAttribute("selected", true);
+      tabpanel.setAttribute("selected", true);
+    }
+    else {
+      tab.removeAttribute("selected");
+      tabpanel.removeAttribute("selected");
+    }
+  }
+}
+$("tabs").addEventListener("click", tabSelector, false);
 
-self.port.on("update", function(doExtract, dIndex, vIndex, fIndex, isRed) {
-  checkbox.checked = doExtract;
+var dm = {}, inList = [];
+var dmUI = {
+  set: function (id, item) {
+    if (id && item) {
+      dm[id] = item;
+    }
+    else if (item) {
+      inList.push(item);
+    }
+    else {
+      dm[id] = inList.shift();
+    }
+  },
+  get: (function () {
+    var cache = [];
+    return function (item) {
+      if (typeof (item) == "number") {
+        item = dm[item];
+      }
+      
+      if (item.hasAttribute("cache")) {
+        return cache[item.getAttribute("cache")];
+      }
+      var span = item.getElementsByTagName("span");
+      var progress = item.getElementsByClassName("progress-inner");
+      var image = item.getElementsByTagName("img");
+      
+      var rtn = {
+        set name(value) {span[0].textContent = value},
+        set description(value) {span[1].textContent = value},
+        get progress() {return progress[0]},
+        set progress(value) {progress[0].style.width = value},
+        get close() {return image[1]}
+      };
+      item.setAttribute("cache", cache.push(rtn) - 1);
+      return rtn;
+    }
+  })(),
+  get count () {
+    return Object.getOwnPropertyNames(dm).length;
+  },
+  isEmpty: function () {
+    return dmUI.count == 0;
+  },
+  checkState: function () {
+    //exceed ?
+    console.log(_("show-numbers"));
+    
+    var label = $("download-manager-toolbar-label");
+    if (dmUI.count > 3) {
+      label.textContent = _("show-numbers").replace("%d", (dmUI.count - 3));
+    }
+    else {
+      label.textContent = _("show-history");
+    }
+  },
+  add: function () {
+    //Show download manager
+    $("no-download-manager").style.display = "none";
+    $("download-manager").style.display = "block";
+    //Add new download item
+    var _item = $("download-item");
+    var item = _item.cloneNode(true);
+    $("download-manager").appendChild(item);
+    item.style.display = "inline-block";
+    this.get(item).close.addEventListener("click", function (e) {
+      var id = e.originalTarget.getAttribute("dlID");
+      if (id) {
+        self.port.emit("cmd", "cancel", id);
+      }
+    }, true);
+    return item;
+  },
+  remove: function (id) {
+    $("download-manager").removeChild(dm[id]);
+    delete dm[id];
+   
+    if (dmUI.isEmpty()) {
+      $("no-download-manager").style.display = "block";
+      $("download-manager").style.display = "none";
+    }
+  }
+}
+
+self.port.on("detect", function(msg) {
+  var item = dmUI.add();
+  //Update fields
+  dmUI.get(item).description = msg;
+  //Switch to progress tab
+  tabSelector(1);
+  //
+  dmUI.set(null, item);
+});
+self.port.on("download-start", function(id, name, msg) {
+  if (id == -1) return;
+  //Finding free slot
+  dmUI.set(id, null);
+  dmUI.checkState();
+  dmUI.get(id).close.setAttribute("dlID", id);
+  try {
+    var reg = /(.*)\.([^\.]*)$/.exec(name);
+    dmUI.get(id).name = reg[1] + " (" + reg[2] + ")";
+  }
+  catch (e) {
+    dmUI.get(id).name = name;
+  }
+  dmUI.get(id).description = msg;
+});
+self.port.on("download-update", function(id, percent, msg, amountTransferred, size, speed) {
+  if (id == -1) return;
+  //  
+  dmUI.get(id).progress = percent + "%";
+  dmUI.get(id).progress.removeAttribute("type");
+  dmUI.get(id).description = msg
+    .replace("%f1", amountTransferred)
+    .replace("%f2", size)
+    .replace("%f3", speed);
+});
+self.port.on("download-paused", function(id, msg) {
+  dmUI.get(id).description = msg;
+  dmUI.get(id).progress.setAttribute("type", "inactive");
+});
+self.port.on("download-done", function(id, msg, rm) {
+  dmUI.get(id).progress = "100%";
+  dmUI.get(id).description = msg;
+  if (rm) {
+    dmUI.remove(id);
+    dmUI.checkState();
+  }
+});
+self.port.on("extract", function(id, msg, rm) {
+  dmUI.get(id).description = msg;
+  if (rm) {
+    dmUI.remove(id);
+    dmUI.checkState();
+  }
+});
+
+downloadButton.addEventListener("click", function () {
+  self.port.emit("cmd", "download");
+}, true);
+formatsButton.addEventListener("click", function () {
+  self.port.emit("cmd", "formats");
+}, true);
+$("embed-button").addEventListener("click", function () {
+  self.port.emit("cmd", "embed");
+}, true);
+aCheckbox.addEventListener("change", function () {
+  self.port.emit("cmd", "do-extract", aCheckbox.checked);
+});
+sCheckbox.addEventListener("change", function () {
+  self.port.emit("cmd", "do-size", sCheckbox.checked);
+});
+$("tools-button").addEventListener("click", function () {
+  self.port.emit("cmd", "tools");
+}, true);
+toolbar.addEventListener("click", function () {
+  self.port.emit("cmd", "show-download-manager");
+}, true);
+//Onload
+self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
+  //Resizing tabs
+  var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
+  width = (width - 18)/3;
+  var tab = document.getElementsByClassName("tab");
+  for (var i = 0; i < tab.length; i++) {
+    tab[i].style.width = width + "px";
+  }
+  //
+  aCheckbox.checked = doExtract;
+  sCheckbox.checked = doFileSize;
   download.value = dIndex;
   quality.value = vIndex;
   format.value = fIndex;
   if (isRed) {
     downloadButton.setAttribute("type", "active");
+    formatsButton.setAttribute("type", "active");
+    downloadButtonLabel.textContent = _("quick-download");
   }
   else {
     downloadButton.removeAttribute("type");
+    formatsButton.removeAttribute("type");
+    downloadButtonLabel.textContent = _("open-youtube");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
-});
-self.port.on("detect", function(str) {
-  $("detect").firstChild.nodeValue = str;
-});
-self.port.on("download", function(str) {
-  $("download").firstChild.nodeValue = str;
-});
-self.port.on("extract", function(str) {
-  $("extract").firstChild.nodeValue = str;
+  //If there is no download switch to download tab
+  if (dmUI.isEmpty()) {
+    tabSelector(0);
+  }
 });
 
-downloadButton.addEventListener("click", function () {
-  self.port.emit("download");
-}, true);
-$("cancel").addEventListener("click", function () {
-  self.port.emit("cancelAll");
-}, true);
-$("formats").addEventListener("click", function () {
-  self.port.emit("formats");
-}, true);
-$("embed").addEventListener("click", function () {
-  self.port.emit("embed");
-}, true);
-checkbox.addEventListener("change", function () {
-  self.port.emit("extract", checkbox.checked);
-});
-$("tools").addEventListener("click", function () {
-  self.port.emit("tools");
-}, true);
+window.addEventListener("load", function () {
+  dmUI.checkState();
+}, false);
