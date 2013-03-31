@@ -110,7 +110,7 @@ function _getInfo (videoID, callback, pointer) {
   }
   req.send();
 }
-
+//Do not localize
 var getFormat = function (value) {
   switch (value) {
     case 0: return "flv";
@@ -119,6 +119,7 @@ var getFormat = function (value) {
     case 3: return "webm";
   }
 }
+//Do not localize
 var getQuality = function (value) {
   switch (value) {
     case 4: return "small";

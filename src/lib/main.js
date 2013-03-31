@@ -49,7 +49,7 @@ var config = {
   //pref
   pref: "extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.",
   //Homepage
-  homepage: "http://iaextractor1.notlong.com/"
+  homepage: "http://add0n.com/youtube.html"
 }
 /** Functions **/
 var _prefs = (function () {
@@ -58,7 +58,8 @@ var _prefs = (function () {
   return {
     getComplexValue: pservice.getComplexValue,
     setComplexValue: function (id, val) {
-      var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+      var str = Cc["@mozilla.org/supports-string;1"]
+        .createInstance(Ci.nsISupportsString);
       str.data = val;
       pservice.setComplexValue(id, Ci.nsISupportsString, str);
     }
@@ -113,14 +114,25 @@ rPanel.port.on("cmd", function (cmd) {
   }
 });
 rPanel.on("show", function() {
-  rPanel.port.emit("update", prefs.doExtract, prefs.getFileSize, prefs.dFolder, prefs.quality, prefs.extension, yButton.saturate);
+  rPanel.port.emit(
+    "update", 
+    prefs.doExtract, 
+    prefs.getFileSize, 
+    prefs.dFolder, 
+    prefs.quality, 
+    prefs.extension, 
+    yButton.saturate
+  );
 });
 
 var iPanel = panel.Panel({
   width: config.panels.iPanel.width,
   height: config.panels.iPanel.height,
   contentURL: data.url('info.html'),
-  contentScriptFile: [data.url('info/jsoneditor/jsoneditor.js'), data.url('info/info.js')],
+  contentScriptFile: [
+    data.url('info/jsoneditor/jsoneditor.js'), 
+    data.url('info/info.js')
+  ],
   contentScriptWhen: "ready"
 });
 
@@ -461,7 +473,7 @@ var get = function (videoID, listener, fIndex) {
       let nsIFilePicker = Ci.nsIFilePicker;
       let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
       fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
-      fp.appendFilter("Video File", "*." + vInfo.container);
+      fp.appendFilter(_("msg14"), "*." + vInfo.container);
       fp.defaultString = videoName + "." + vInfo.container;
       let res = fp.show();
       if (res == nsIFilePicker.returnCancel) return;

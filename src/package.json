@@ -1,13 +1,12 @@
 {
   "fullName": "Youtube Video and Audio Downloader",
   "name": "iaextractor",
-  
-  "description": "An extension to downnload Youtube video in various formats and extract the audio file.",
+  "description": "",
 
   "license": "mozilla public license 1.1",
 
   "author": "InBasic",
-  "contributors": [],
+  "contributors": ["Alejandro Rodriguez"],
   
   "url": "",
   "version": "0.1.7",
@@ -18,8 +17,8 @@
   
   "preferences": [{
     "name": "extension",
-    "title": "Prefered file format:",
-    "description": "Only audio extraction from FLV format is supported.",
+    "title": "",
+    "description": "",
     "type": "menulist",
     "value": 0,
     "options": [
@@ -31,7 +30,7 @@
   },
   {
     "name": "quality",
-    "title": "Select video quality:",
+    "title": "",
     "type": "menulist",
     "value": 2,
     "options": [
@@ -44,50 +43,50 @@
   },
   {
     "name": "doExtract",
-    "title": "Extract audio from video file:",
+    "title": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "dFolder",
-    "title": "Select download folder:",
+    "title": "",
     "type": "menulist",
     "value": 2,
     "options": [
-      {"value": "0", "label": "Default Downloads directory"},
-      {"value": "1", "label": "Home directory"},
-      {"value": "2", "label": "OS temporary directory"},
-      {"value": "3", "label": "Desktop directory"},
-      {"value": "4", "label": "Select folder each time"},
-      {"value": "5", "label": "User folder"}
+      {"value": "0", "label": "dft_dir"},
+      {"value": "1", "label": "hm_dir"},
+      {"value": "2", "label": "tmp_dir"},
+      {"value": "3", "label": "dsk_dir"},
+      {"value": "4", "label": "slt_fdr"},
+      {"value": "5", "label": "urs_fdr"}
     ]
   },
   {
     "name": "userFolder",
     "type": "directory",
-    "title": "User defined folder:"
+    "title": ""
   },
   {
     "name": "open",
-    "title": "Open download folder on completion:",
+    "title": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "progressColor",
-    "title": "Progressbar color:",
+    "title": "",
     "type": "color",
     "value": "yellow"
   },
   {
     "name": "getFileSize",
-    "title": "Resolve size of download links in the injected menu:",
+    "title": "",
     "type": "bool",
     "value": false
   },
   {
     "name": "addUserInfo",
-    "title": "Include author's name in video and audio files:",
+    "title": "",
     "type": "bool",
     "value": true
   }]
