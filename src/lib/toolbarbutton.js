@@ -59,15 +59,11 @@ exports.ToolbarButton = function ToolbarButton(options) {
       img.setAttribute("class", "iaextractor-image");
       let box = doc.createElementNS(NS_XUL, "vbox");
       box.setAttribute("flex", "1");
-      box.setAttribute("align", "center");
+      box.setAttribute("align", "left");
       box.setAttribute("style", "margin-top: 1px");
-      let pmOuter = doc.createElementNS(NS_XUL, "box");
-      pmOuter.setAttribute("collapsed", "true");
-      pmOuter.setAttribute("style", "border: solid 1px #BEBEBE; width: 16px; height: 5px; background-color: white");
-      box.appendChild(pmOuter);
-      let pmInner = doc.createElementNS(NS_XUL, "box");
-      pmInner.setAttribute("style", "border: none; background-color: #548DD4;");
-      pmOuter.appendChild(pmInner);
+      let progressmeter = doc.createElementNS(NS_XUL, "box");
+      progressmeter.setAttribute("style", "margin-left: 4px; margin-top: 1px; border: none; background-color: #FF6A00; width: 0; height: 2px;");
+      box.appendChild(progressmeter);
       let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
@@ -162,14 +158,15 @@ exports.ToolbarButton = function ToolbarButton(options) {
   }
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      let pmOuter = tbb.childNodes[0].childNodes[1].childNodes[0];
-      let pmInner = pmOuter.childNodes[0];
+      let image = tbb.childNodes[0].childNodes[0];
+      let progressbar = tbb.childNodes[0].childNodes[1].childNodes[0];
       if (!aOptions.progress) {
-        pmOuter.collapsed = true;
+        image.setAttribute("class", "iaextractor-image");
+        progressbar.style.width = 0;
       }
       else {
-        pmOuter.collapsed = false;
-        pmInner.style.width = (14 * aOptions.progress) + "px";
+        image.setAttribute("class", "iaextractor-counter");
+        progressbar.style.width = (8 * aOptions.progress) + "px";
       }
     }, options.id);
     return aOptions.progress;

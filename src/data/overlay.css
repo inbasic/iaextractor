@@ -5,3 +5,10 @@
 .iaextractor-image[type="gray"] {
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
+.iaextractor-counter {
+  list-style-image: url('toolbar.png');
+  -moz-image-region: rect(16px, 32px, 32px, 16px);  
+}
+.iaextractor-counter[type="gray"] {
+  -moz-image-region: rect(16px, 16px, 32px, 0);
+}
