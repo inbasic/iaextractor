@@ -1,15 +1,16 @@
 /** Require **/
-var tabs          = require("sdk/tabs"),
+var {Cc, Ci, Cu}  = require('chrome'),
+    tabs          = require("sdk/tabs"),
     self          = require("sdk/self"),
     timer         = require("sdk/timers"),
-    prefs         = require("sdk/simple-prefs").prefs,
+    sp            = require("sdk/simple-prefs"),
+    prefs         = sp.prefs,
     panel         = require("sdk/panel"),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
     windowutils   = require("window-utils"),
     window        = windowutils.activeBrowserWindow,
     data          = self.data,
-    {Cc, Ci, Cu}  = require('chrome'),
     toolbarbutton = require("./toolbarbutton"),
     youtube       = require("./youtube"),
     download      = require("./download"),
@@ -50,8 +51,21 @@ var config = {
   //Homepage
   homepage: "http://iaextractor1.notlong.com/"
 }
+/** Functions **/
+var _prefs = (function () {
+  var pservice = Cc["@mozilla.org/preferences-service;1"].
+    getService(Ci.nsIPrefService).getBranch(config.pref)
+  return {
+    getComplexValue: pservice.getComplexValue,
+    setComplexValue: function (id, val) {
+      var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+      str.data = val;
+      pservice.setComplexValue(id, Ci.nsISupportsString, str);
+    }
+  }    
+})();
 
-/** Panel (report) **/
+/** Panels **/
 var rPanel = panel.Panel({
   width: config.panels.rPanel.width,
   height: config.panels.rPanel.height,
@@ -327,6 +341,22 @@ exports.main = function(options, callbacks) {
       win.close();
     }
   }
+  // Pref listener
+  sp.on("dFolder", function () {
+    if (prefs.dFolder == "5" && !prefs.userFolder) {
+      rPanel.hide();
+      var nsIFilePicker = Ci.nsIFilePicker;
+      var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      fp.init(window, _("msg13"), nsIFilePicker.modeGetFolder);
+      var res = fp.show();
+      if (res != nsIFilePicker.returnCancel){
+        _prefs.setComplexValue("userFolder", fp.file.path);
+      }
+      else {
+        prefs.dFolder = 2;
+      }
+    }
+  });
 }
 
 /** Inject foramts menu into Youtube pages **/
@@ -447,8 +477,6 @@ var get = function (videoID, listener, fIndex) {
     else if (prefs.dFolder == 5) { //Select folder by user
       try {
         //Simple-prefs doesnt support complex type
-        let _prefs = Cc["@mozilla.org/preferences-service;1"].
-          getService(Ci.nsIPrefService).getBranch(config.pref);
         iFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
         iFile.append(videoName + "." + vInfo.container);
         iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
