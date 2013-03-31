@@ -283,7 +283,7 @@ toolbar.addEventListener("click", function () {
 self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
   //Resizing tabs
   var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
-  width = (width - 18)/3;
+  width = (width - 24)/3;
   var tab = document.getElementsByClassName("tab");
   for (var i = 0; i < tab.length; i++) {
     tab[i].style.width = width + "px";
