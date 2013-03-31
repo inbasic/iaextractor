@@ -46,55 +46,36 @@ exports.ToolbarButton = function ToolbarButton(options) {
     onTrack: function (window) {
       if ("chrome://browser/content/browser.xul" != window.location || destroyed)
         return;
-
       let doc = window.document;
       let $ = function(id) doc.getElementById(id);
 
       options.tooltiptext = options.tooltiptext || '';
 
       // create toolbar button
-      let svg = doc.createElementNS(NS_SVG, "svg");
-      svg.setAttributeNS (NS_SVG, "xlink", NS_XLINK)
-      svg.setAttribute("width", 16);
-      svg.setAttribute("height", 16);
-      
-      let image = doc.createElementNS(NS_SVG, "image");
-      image.setAttribute("width", 16);
-      image.setAttribute("height", 16);
-      image.setAttribute("filter", 'url(#iaextractor_filter)');
-      if (options.image) image.setAttributeNS (NS_XLINK, "href", options.image);
-      svg.appendChild(image);
-      
-      let rect = doc.createElementNS(NS_SVG, "rect");
-      rect.setAttribute("x", 1);
-      rect.setAttribute("y", 2);
-      rect.setAttribute("width", 14 * (options.progress ? options.progress : 0));
-      rect.setAttribute("height", 3);
-      rect.setAttribute("fill", options.progressColor ? options.progressColor : "yellow");
-      svg.appendChild(rect);
-      
-      let filter = doc.createElementNS(NS_SVG, "filter");
-      filter.setAttribute("id", "iaextractor_filter");
-      let feColorMatrix1 = doc.createElementNS(NS_SVG, "feColorMatrix");
-      feColorMatrix1.setAttribute("type", "hueRotate");
-      feColorMatrix1.setAttribute("values", "0");
-      filter.appendChild(feColorMatrix1);
-      let feColorMatrix2 = doc.createElementNS(NS_SVG, "feColorMatrix");
-      feColorMatrix2.setAttribute("type", "saturate");
-      feColorMatrix2.setAttribute("values", "1");
-      filter.appendChild(feColorMatrix2);
-      svg.appendChild(filter);
-      
       let stack = doc.createElementNS(NS_XUL, "stack");
       stack.setAttribute("class", "toolbarbutton-icon");
-      stack.appendChild(svg);
-      
+      //stack.appendChild(svg);
+      let img = doc.createElementNS(NS_XUL, "image");
+      img.setAttribute("class", "iaextractor-image");
+      let box = doc.createElementNS(NS_XUL, "vbox");
+      box.setAttribute("flex", "1");
+      box.setAttribute("align", "center");
+      box.setAttribute("style", "margin-top: 1px");
+      let pmOuter = doc.createElementNS(NS_XUL, "box");
+      pmOuter.setAttribute("collapsed", "true");
+      pmOuter.setAttribute("style", "border: solid 1px #BEBEBE; width: 16px; height: 5px; background-color: white");
+      box.appendChild(pmOuter);
+      let pmInner = doc.createElementNS(NS_XUL, "box");
+      pmInner.setAttribute("style", "border: none; background-color: #548DD4;");
+      pmOuter.appendChild(pmInner);
       let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
       tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
       tbb.setAttribute("label", options.label);
       tbb.setAttribute('tooltiptext', options.tooltiptext);
+      stack.appendChild(img);
+      stack.appendChild(box);
       tbb.appendChild(stack);
 
       tbb.addEventListener("command", function(e) {
@@ -102,16 +83,16 @@ exports.ToolbarButton = function ToolbarButton(options) {
           options.onCommand(e, tbb); // TODO: provide something?
       }, true);
       if (options.onClick) {
-          tbb.addEventListener("click", function (e) {
-            options.onClick(e, tbb);
-          }, true);
+        tbb.addEventListener("click", function (e) {
+          options.onClick(e, tbb);
+        }, true);
       }
       if (options.panel) {
-          tbb.addEventListener("contextmenu", function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            options.panel.show(tbb);
-          }, true);
+        tbb.addEventListener("contextmenu", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          options.panel.show(tbb);
+        }, true);
       }
       // add toolbarbutton to palette
       ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(tbb);
@@ -146,7 +127,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
             }
           }
         }
-
         tb.insertItem(options.id, b4, null, false);
       }
 
@@ -182,19 +162,27 @@ exports.ToolbarButton = function ToolbarButton(options) {
   }
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[0].childNodes[1].setAttribute("width", 14*aOptions.progress);
+      let pmOuter = tbb.childNodes[0].childNodes[1].childNodes[0];
+      let pmInner = pmOuter.childNodes[0];
+      if (!aOptions.progress) {
+        pmOuter.collapsed = true;
+      }
+      else {
+        pmOuter.collapsed = false;
+        pmInner.style.width = (14 * aOptions.progress) + "px";
+      }
     }, options.id);
     return aOptions.progress;
   }
-  function setHueRotate(aOptions) {
-    getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[0].childNodes[2].childNodes[0].setAttribute("values", aOptions.value);
-    }, options.id);
-    return aOptions.value;
-  }
   function setSaturate(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[0].childNodes[2].childNodes[1].setAttribute("values", aOptions.value);
+      let img = tbb.childNodes[0].childNodes[0];
+      if (!aOptions.value) {
+        img.setAttribute("type", "gray");
+      }
+      else {
+        img.removeAttribute("type");
+      }
     }, options.id);
     options.saturate = aOptions.value;
     return aOptions.value;
@@ -257,7 +245,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
     get image() options.image,
     set image(value) setIcon({image: value}),
     set progress(value) setProgress({progress: value}),
-    set hueRotate(value) setHueRotate({value: value}),
     set saturate(value) setSaturate({value: value}),
     get saturate() options.saturate,
     get tooltiptext() options.tooltiptext,

@@ -1,0 +1,7 @@
+.iaextractor-image {
+  list-style-image: url('toolbar.png');
+  -moz-image-region: rect(0, 32px, 16px, 16px);  
+}
+.iaextractor-image[type="gray"] {
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}

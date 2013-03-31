@@ -73,12 +73,6 @@
     "value": true
   },
   {
-    "name": "progressColor",
-    "title": "",
-    "type": "color",
-    "value": "yellow"
-  },
-  {
     "name": "getFileSize",
     "title": "",
     "type": "bool",

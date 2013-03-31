@@ -12,6 +12,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     window        = windowutils.activeBrowserWindow,
     data          = self.data,
     toolbarbutton = require("./toolbarbutton"),
+    userstyles    = require("userstyles"),
     youtube       = require("./youtube"),
     download      = require("./download"),
     extract       = require("./extract"),
@@ -20,17 +21,18 @@ var {Cc, Ci, Cu}  = require('chrome'),
     format        = tools.format;
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
-    
+
 /** Internal configurations **/
 var config = {
   //Youtube
   youtube: "https://www.youtube.com/",
   tools: "chrome://iaextractor/content/tools.xul",
   //toolbar
-  image: {
-    get progressColor() {return prefs.progressColor}
+  move: {
+    toolbarID: "nav-bar", 
+    insertbefore: "home-button", 
+    forceMove: false
   },
-  move: {toolbarID: "nav-bar", insertbefore: "home-button", forceMove: false},
   //Timing
   desktopNotification: 3, //seconds
   //Tooltip
@@ -51,6 +53,7 @@ var config = {
   //Homepage
   homepage: "http://add0n.com/youtube.html"
 }
+
 /** Functions **/
 var _prefs = (function () {
   var pservice = Cc["@mozilla.org/preferences-service;1"].
@@ -296,13 +299,13 @@ var cmds = {
   }
 }
 exports.main = function(options, callbacks) {
+  //Load style
+  userstyles.load(data.url("overlay.css"));
   //Toolbar
   yButton = toolbarbutton.ToolbarButton({
     id: "youtube-audio-converter",
     label: _("toolbar"),
     tooltiptext: config.tooltip,
-    progressColor: config.image.progressColor,
-    image: data.url("notification.png"),
     panel: rPanel,
     onCommand: cmds.onCommand,
     onClick: function (e, tbb) { //Linux problem for onClick
@@ -329,7 +332,6 @@ exports.main = function(options, callbacks) {
     urlExtractor(tabs.activeTab.url, function (videoID) {
       if (videoID) {
         yButton.saturate = 1;
-        yButton.hueRotate = 0;
       }
       else {
         yButton.saturate = 0;
