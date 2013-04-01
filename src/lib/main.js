@@ -36,7 +36,7 @@ var config = {
   //Timing
   desktopNotification: 3, //seconds
   //Tooltip
-  tooltip: _("tooltip1") + "\n" + _("tooltip2"),
+  tooltip: _("name") + "\n\n" + _("tooltip1") + "\n" + _("tooltip2"),
   //Panels
   panels: {
     rPanel: {
