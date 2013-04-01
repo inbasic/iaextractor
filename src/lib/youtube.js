@@ -165,7 +165,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       if (!detected && tmp.length) detected = tmp[0];
       if (!detected) detected = info.formats[0];  //Get highest quality
       
-      if (callback) callback.apply(pointer, [detected, info.title, info.author, null]);
+      if (callback) callback.apply(pointer, [detected, info.title, info.author.replace(/\+/g, " "), null]);
     });
   }
   catch(e) {

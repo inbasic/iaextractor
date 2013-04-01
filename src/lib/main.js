@@ -182,14 +182,26 @@ function urlExtractor (url, callback, pointer) {
         var divs = document.getElementsByClassName('ux-thumb-wrap');
         return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null
       }
-      catch(e){
+      catch(e) {
         return null
       }
     }
     fetchId(tmp + "");
   }
   else {
-    callback.apply(pointer, []);
+    var tmp = function () {
+      try {
+        var embed = document.getElementsByTagName("embed")[0];
+        var str = decodeURIComponent(embed.getAttribute("flashvars"));
+        var id = /video\_id\=([^\&]*)/.exec(str);
+        console.error(id);
+        return id[1];
+      }
+      catch (e) {
+        return null
+      }
+    }
+    fetchId(tmp + "");
   }
 }
 
@@ -339,8 +351,10 @@ exports.main = function(options, callbacks) {
     });
   }
   monitor(tabs.activeTab);
+  tabs.on('ready', function () {
+    timer.setTimeout(monitor, 500);
+  });
   tabs.on('activate', monitor);
-  tabs.on('ready', monitor);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
     welcome();
