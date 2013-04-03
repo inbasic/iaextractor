@@ -1,3 +1,7 @@
-content iaextractor resources/iaextractor/data/chrome/content/
-skin    iaextractor classic/1.0 resources/iaextractor/data/chrome/skin/classic/
-locale  iaextractor en-US resources/iaextractor/data/chrome/locale/en-US/
+content   iaextractor resources/iaextractor/data/chrome/content/
+skin      iaextractor classic/1.0 resources/iaextractor/data/chrome/skin/classic/ os=WINNT
+skin      iaextractor classic/1.0 resources/iaextractor/data/chrome/skin/classic-mac/ os=Darwin
+skin      iaextractor classic/1.0 resources/iaextractor/data/chrome/skin/classic-linux/ os=Linux
+locale    iaextractor en-US resources/iaextractor/data/chrome/locale/en-US/
+
+

@@ -18,6 +18,7 @@ row {
 .item[mod="failed"] {
   -moz-image-region: rect(0, 48px, 16px, 32px);
 }
+
 tabs {
   -moz-appearance: none !important;
   background-color: white !important;
