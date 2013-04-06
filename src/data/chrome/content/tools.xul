@@ -1,5 +1,6 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://iaextractor/skin/tools.css" type="text/css"?>
+<?xml-stylesheet href="chrome://iaextractor/skin/tools-extra.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools.dtd">
 
@@ -8,7 +9,7 @@
   width="520px" 
   height="190px"
   title="&title;"
-  persist="width height screenX screenY sizemode"
+  persist="screenX screenY sizemode"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
   xmlns:html="http://www.w3.org/1999/xhtml" 
   xmlns:h="http://www.w3.org/1999/xhtml">

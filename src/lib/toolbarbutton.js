@@ -1,31 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MIT/X11 License
- * 
- * Copyright (c) 2010 Erik Vold
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * Contributor(s):
- *   Erik Vold <erikvvold@gmail.com> (Original Author)
- *   Greg Parris <greg.parris@gmail.com>
- *
- * ***** END LICENSE BLOCK ***** */
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const NS_SVG = "http://www.w3.org/2000/svg";
 const NS_XLINK = "http://www.w3.org/1999/xlink";
@@ -59,7 +31,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
       box.setAttribute("flex", "1");
       box.setAttribute("align", "center");
       box.setAttribute("pack", "end");
-      box.setAttribute("style", "margin-top: 1px");
       let progressmeter = doc.createElementNS(NS_XUL, "box");
       progressmeter.setAttribute("class", "progress");
       box.appendChild(progressmeter);

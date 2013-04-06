@@ -1,0 +1,19 @@
+tabs {
+  width: 508px !important;
+  padding: 0 !important;
+}
+tab {
+  margin-right: 3px !important;
+  margin-top: -1px !important;
+  height: 22px !important;
+  padding-bottom: 19px !important;
+  width: 252px !important;
+}
+tab[selected] {
+  height: 29px !important;
+  width: 253px !important;
+  padding-bottom: 12px !important;
+}
+dropmarker {
+  display: none !important;
+}

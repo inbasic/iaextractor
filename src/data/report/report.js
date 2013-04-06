@@ -283,6 +283,9 @@ toolbar.addEventListener("click", function () {
 self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
   //Resizing tabs
   var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
+  if (navigator.userAgent.indexOf("Mac OS X") != -1) {
+    width -= 1;
+  }
   width = (width - 24)/3;
   var tab = document.getElementsByClassName("tab");
   for (var i = 0; i < tab.length; i++) {
