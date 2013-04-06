@@ -188,13 +188,13 @@ function urlExtractor (url, callback, pointer) {
     }
     fetchId(tmp + "");
   }
-  else {
+  //Other YouTube pages
+  else if (/http.*:.*youtube.com/.test(url)) {
     var tmp = function () {
       try {
         var embed = document.getElementsByTagName("embed")[0];
         var str = decodeURIComponent(embed.getAttribute("flashvars"));
         var id = /video\_id\=([^\&]*)/.exec(str);
-        console.error(id);
         return id[1];
       }
       catch (e) {
@@ -202,6 +202,9 @@ function urlExtractor (url, callback, pointer) {
       }
     }
     fetchId(tmp + "");
+  }
+  else {
+    return callback.apply(pointer, [null]);
   }
 }
 

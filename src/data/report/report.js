@@ -166,8 +166,6 @@ var dmUI = {
   },
   checkState: function () {
     //exceed ?
-    console.log(_("show-numbers"));
-    
     var label = $("download-manager-toolbar-label");
     if (dmUI.count > 3) {
       label.textContent = _("show-numbers").replace("%d", (dmUI.count - 3));
