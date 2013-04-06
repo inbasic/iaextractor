@@ -90,7 +90,7 @@ var mMake = function (doSize) {
         }
       }
       sets[activeSet].forEach(function (format, index) {
-        var url = format.url + "&keepalive=yes&title=" + encodeURI(title);
+        var url = format.url + "&keepalive=yes&title=" + encodeURIComponent(title);
         item (
           activeSet * numberOfItems + index,
           format.container.toUpperCase() + " " + map(format.quality) + 
