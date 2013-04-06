@@ -1,14 +1,24 @@
-.iaextractor-image {
+.iaextractor .normal {
   list-style-image: url('toolbar.png');
   -moz-image-region: rect(0, 32px, 16px, 16px);  
 }
-.iaextractor-image[type="gray"] {
+.iaextractor[type="gray"] .normal {
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
-.iaextractor-counter {
+.iaextractor .counter {
   list-style-image: url('toolbar.png');
   -moz-image-region: rect(16px, 32px, 32px, 16px);  
 }
-.iaextractor-counter[type="gray"] {
+.iaextractor[type="gray"] .counter {
   -moz-image-region: rect(16px, 16px, 32px, 0);
+}
+.iaextractor .progress {
+  border: none; 
+  background-color: black; 
+  width: 8px; 
+  height: 0; 
+  margin-bottom: 3px;
+}
+.iaextractor[type="gray"] .progress {
+  background-color: #FF6A00; 
 }

@@ -55,23 +55,24 @@ exports.ToolbarButton = function ToolbarButton(options) {
       let stack = doc.createElementNS(NS_XUL, "stack");
       stack.setAttribute("class", "toolbarbutton-icon");
       //stack.appendChild(svg);
-      let img = doc.createElementNS(NS_XUL, "image");
-      img.setAttribute("class", "iaextractor-image");
       let box = doc.createElementNS(NS_XUL, "vbox");
       box.setAttribute("flex", "1");
-      box.setAttribute("align", "left");
+      box.setAttribute("align", "center");
+      box.setAttribute("pack", "end");
       box.setAttribute("style", "margin-top: 1px");
       let progressmeter = doc.createElementNS(NS_XUL, "box");
-      progressmeter.setAttribute("style", "margin-left: 4px; margin-top: 1px; border: none; background-color: #FF6A00; width: 0; height: 2px;");
+      progressmeter.setAttribute("class", "progress");
       box.appendChild(progressmeter);
+      let img = doc.createElementNS(NS_XUL, "image");
+      img.setAttribute("class", "normal");
       let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
-      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional iaextractor");
       tbb.setAttribute("label", options.label);
       tbb.setAttribute('tooltiptext', options.tooltiptext);
-      stack.appendChild(img);
       stack.appendChild(box);
+      stack.appendChild(img);
       tbb.appendChild(stack);
 
       tbb.addEventListener("command", function(e) {
@@ -149,36 +150,28 @@ exports.ToolbarButton = function ToolbarButton(options) {
   };
   var tracker = winUtils.WindowTracker(delegate);
 
-  function setIcon(aOptions) {
-    options.image = aOptions.image || aOptions.url;
-    getToolbarButtons(function(tbb) {
-      tbb.childNodes[0].childNodes[0].childNodes[0].setAttributeNS(NS_XLINK, "href", options.image);
-    }, options.id);
-    return options.image;
-  }
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      let image = tbb.childNodes[0].childNodes[0];
-      let progressbar = tbb.childNodes[0].childNodes[1].childNodes[0];
+      let image = tbb.childNodes[0].childNodes[1];
+      let progressbar = tbb.childNodes[0].childNodes[0].childNodes[0];
       if (!aOptions.progress) {
-        image.setAttribute("class", "iaextractor-image");
-        progressbar.style.width = 0;
+        image.setAttribute("class", "normal");
+        progressbar.style.height = 0;
       }
       else {
-        image.setAttribute("class", "iaextractor-counter");
-        progressbar.style.width = (8 * aOptions.progress) + "px";
+        image.setAttribute("class", "counter");
+        progressbar.style.height = (9 * aOptions.progress) + "px";
       }
     }, options.id);
     return aOptions.progress;
   }
   function setSaturate(aOptions) {
     getToolbarButtons(function(tbb) {
-      let img = tbb.childNodes[0].childNodes[0];
       if (!aOptions.value) {
-        img.setAttribute("type", "gray");
+        tbb.setAttribute("type", "gray");
       }
       else {
-        img.removeAttribute("type");
+        tbb.removeAttribute("type");
       }
     }, options.id);
     options.saturate = aOptions.value;
@@ -238,9 +231,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
       }, options.id);
       return value;
     },
-    setIcon: setIcon,
-    get image() options.image,
-    set image(value) setIcon({image: value}),
     set progress(value) setProgress({progress: value}),
     set saturate(value) setSaturate({value: value}),
     get saturate() options.saturate,
