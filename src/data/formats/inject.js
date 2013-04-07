@@ -4,8 +4,15 @@ var $ = function (id) {
 
 var mMake = function (doSize) {
   var sets = [], numberOfItems, activeSet = 0, title;
-  //Position
-  var players = document.getElementsByTagName("embed");
+  //Flash player
+  var players = document.getElementsByTagName("embed"); 
+  //HTML5 player
+  if (!players.length) {
+    tmp = document.getElementsByTagName("video");
+    if (tmp.length) {
+      players = [tmp[0].parentNode.parentNode];
+    }
+  }
   if (players.length) {
     var rect = players[0].getBoundingClientRect ();
     document.body.insertAdjacentHTML("afterbegin", 

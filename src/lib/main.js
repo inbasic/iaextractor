@@ -197,9 +197,14 @@ function urlExtractor (url, callback, pointer) {
         var id = /video\_id\=([^\&]*)/.exec(str);
         return id[1];
       }
-      catch (e) {
-        return null
+      catch (e) {}
+      try {
+        var video = document.getElementsByTagName("video")[0];
+        return video.getAttribute("data-youtube-id");
       }
+      catch (e) {}
+      
+      return null
     }
     fetchId(tmp + "");
   }

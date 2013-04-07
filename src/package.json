@@ -37,8 +37,8 @@
       {"value": "4", "label": "Small"},
       {"value": "3", "label": "Medium"},
       {"value": "2", "label": "High"},
-      {"value": "1", "label": "hd720"},
-      {"value": "0", "label": "hd1080"}
+      {"value": "1", "label": "HD720p"},
+      {"value": "0", "label": "HD1080p"}
     ]
   },
   {
