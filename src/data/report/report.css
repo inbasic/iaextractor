@@ -202,22 +202,23 @@ label {
   border-radius: 2px;
   border: 1px solid transparent;
   background-repeat: no-repeat;
-  background-position: center 8px;
-  width: 128px;
-  height: 131px;
+  background-position: center 5px;
+  width: 125px;
+  height: 133px;
   vertical-align: bottom;
   font-size: 14px;
+  transition: background-color 0.1s;
+  padding-bottom: 3px;
 }
 #download-button {
   background-image: url("open.png");
 }
+#download-button[type="active"] {
+  background-image: url("download.png");
+}
 #formats-button {
   background-image: url("list.png");
   opacity: 0.5;
-  transition: background-color 0.1s;
-}
-#download-button[type="active"] {
-  background-image: url("download.png");
 }
 #formats-button[type="active"] {
   opacity: 1;
