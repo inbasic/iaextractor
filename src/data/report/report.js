@@ -15,7 +15,6 @@ var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox"),
     sCheckbox = $("resolve-size-checkbox"),
-    downloadButtonLabel = $("download-button-label"),
     toolbar = $("download-manager-toolbar");
 
 var mList = function (name, el1, el2, value, func) {
@@ -298,12 +297,12 @@ self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, i
   if (isRed) {
     downloadButton.setAttribute("type", "active");
     formatsButton.setAttribute("type", "active");
-    downloadButtonLabel.textContent = _("quick-download");
+    downloadButton.textContent = _("quick-download");
   }
   else {
     downloadButton.removeAttribute("type");
     formatsButton.removeAttribute("type");
-    downloadButtonLabel.textContent = _("open-youtube");
+    downloadButton.textContent = _("open-youtube");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
   //If there is no download switch to download tab

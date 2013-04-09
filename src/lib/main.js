@@ -234,17 +234,17 @@ var cmds = {
    * no return output
    */
   onCommand: function (e, tbb, download, fIndex) {
+    if (tbb) {
+      return rPanel.show(tbb);
+    }
     let url = tabs.activeTab.url;
     urlExtractor(url, function (videoID) {
-      if (!videoID) {
-        tabs.open(config.youtube);
-        return;
-      };
-      if (tbb) {
-        rPanel.show(tbb);
-      }
-      if (download) {
+      if (download && videoID) {
         get(videoID, listener, fIndex);
+      }
+      else {
+        tabs.open(config.youtube);
+        rPanel.hide();
       }
     });
   },

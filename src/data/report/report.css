@@ -196,8 +196,19 @@ label {
 #tools-button:before {
   background-position: -16px center;
 }
-#formats-button,
 #download-button {
+  display: block;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  background-image: url("open.png");
+  background-repeat: no-repeat;
+  background-position: center 8px;
+  width: 128px;
+  height: 131px;
+  line-height: 238px;
+  margin-top: 4px;
+}
+#formats-button {
   opacity: 0.5;
   transition: background-color 0.1s;
   border-radius: 2px;
@@ -205,12 +216,14 @@ label {
   margin-bottom: -37px;
   padding: 5px 15px 30px;
 }
-#formats-button[type="active"],
 #download-button[type="active"] {
+  background-image: url("download.png");
+}
+#formats-button[type="active"] {
   opacity: 1;
 }
 #formats-button:hover[type="active"],
-#download-button:hover[type="active"] {
+#download-button:hover {
   background-color: #CCE0FF;
   border: 1px solid #5C9DFF;
 }
