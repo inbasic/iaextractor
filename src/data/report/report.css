@@ -196,25 +196,25 @@ label {
 #tools-button:before {
   background-position: -16px center;
 }
-#download-button {
-  display: block;
+#download-button,
+#formats-button {
+  display: table-cell;
   border-radius: 2px;
   border: 1px solid transparent;
-  background-image: url("open.png");
   background-repeat: no-repeat;
   background-position: center 8px;
   width: 128px;
   height: 131px;
-  line-height: 238px;
-  margin-top: 4px;
+  vertical-align: bottom;
+  font-size: 14px;
+}
+#download-button {
+  background-image: url("open.png");
 }
 #formats-button {
+  background-image: url("list.png");
   opacity: 0.5;
   transition: background-color 0.1s;
-  border-radius: 2px;
-  border: 1px solid transparent;
-  margin-bottom: -37px;
-  padding: 5px 15px 30px;
 }
 #download-button[type="active"] {
   background-image: url("download.png");
