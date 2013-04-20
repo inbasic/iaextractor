@@ -235,7 +235,13 @@ var cmds = {
    */
   onCommand: function (e, tbb, download, fIndex) {
     if (tbb) {
-      return rPanel.show(tbb);
+      rPanel.show(tbb);
+      if (prefs.oneClickDownload) {
+        download = true;
+      }
+      else {
+        return;
+      }
     }
     let url = tabs.activeTab.url;
     urlExtractor(url, function (videoID) {

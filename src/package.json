@@ -83,5 +83,12 @@
     "title": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "oneClickDownload",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": false
   }]
 }
