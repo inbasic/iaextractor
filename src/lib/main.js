@@ -489,7 +489,7 @@ var get = function (videoID, listener, fIndex) {
       return;
     }
     //Creating temporary files
-    var videoName = ((prefs.addUserInfo ? user + " - " : "") + title).replace(/[\:\\\/\?\*\"\>\<\|]/g, "_");
+    var videoName = ((prefs.addUserInfo ? user + " - " : "") + title).replace(/[:]/g, "").replace(/[\\\/]/g, "-").replace(/[?]/g, "").replace(/[*]/g, "^").replace(/["]/g, "'").replace(/[<]/g, "[").replace(/[>]/g, "]").replace(/[|]/g, "-");
     var audioName = videoName;
     var root, audioPath = [], videoPath = [];
     var iFile, oFile;
