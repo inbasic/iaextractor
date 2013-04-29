@@ -137,78 +137,93 @@ var iPanel = panel.Panel({
 });
 
 /** Get video id from URL **/
-function urlExtractor (url, callback, pointer) {
-  var id;
-  //Watch
-  var temp = /http.*:.*youtube.com\/watch\?.*v\=([^\=\&]*)/.exec(url);
-  id = temp ? temp[1]: null;
-  if (callback && id) {
-    return callback.apply(pointer, [id]);
+var IDExtractor = (function () {
+  var urls = [], IDs = [];
+  function cache(url, id) {
+    var index = urls.push(url) - 1;
+    IDs[index] = id;
   }
-  //Rest
-  function fetchId (script) {
-    var worker = tabs.activeTab.attach({
-      contentScript: "self.port.emit('response', (%s)())".replace("%s", script)
-    });
-    worker.port.on("response", function (id) {
-      if (callback) {
-        return callback.apply(pointer, [id]);
-      }
-    });
-  }
-  //User page
-  if (/http.*:.*youtube.com\/user/.test(url)) {
-    var tmp = function () {
-      try {
-        var divs = document.getElementsByClassName('channels-video-player');
-        if (!divs.length) {
-          divs = document.getElementsByClassName('c4-flexible-player-box');
+  
+  return function (url, callback, pointer) {
+    //Is it in the cache?
+    var index = urls.indexOf(url);
+    if (index !== -1) {
+      return callback.apply(pointer, [IDs[index]]);
+    }
+    var id;
+    //Watch page
+    var temp = /http.*:.*youtube.com\/watch\?.*v\=([^\=\&]*)/.exec(url);
+    id = temp ? temp[1]: null;
+    if (callback && id) {
+      cache(url, id);
+      return callback.apply(pointer, [id]);
+    }
+    //Rest
+    function fetchId (script) {
+      var worker = tabs.activeTab.attach({
+        contentScript: "self.port.emit('response', (%s)())".replace("%s", script)
+      });
+      worker.port.on("response", function (id) {
+        if (callback) {
+          cache(url, id);
+          return callback.apply(pointer, [id]);
         }
-        return divs.length ? divs[0].getAttribute('data-video-id') : null
+      });
+    }
+    //User page
+    if (/http.*:.*youtube.com\/user/.test(url)) {
+      var tmp = function () {
+        try {
+          var divs = document.getElementsByClassName('channels-video-player');
+          if (!divs.length) {
+            divs = document.getElementsByClassName('c4-flexible-player-box');
+          }
+          return divs.length ? divs[0].getAttribute('data-video-id') : null
+        }
+        catch(e){
+          return null
+        }
       }
-      catch(e){
+      fetchId(tmp + "");
+    }
+    //movie
+    else if (/http.*:.*youtube.com\/movie/.test(url)) {
+      var tmp = function () {
+        try {
+          var divs = document.getElementsByClassName('ux-thumb-wrap');
+          return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null
+        }
+        catch(e) {
+          return null
+        }
+      }
+      fetchId(tmp + "");
+    }
+    //Other YouTube pages
+    else if (/http.*:.*youtube.com/.test(url)) {
+      var tmp = function () {
+        try {
+          var embed = document.getElementsByTagName("embed")[0];
+          var str = decodeURIComponent(embed.getAttribute("flashvars"));
+          var id = /video\_id\=([^\&]*)/.exec(str);
+          return id[1];
+        }
+        catch (e) {}
+        try {
+          var video = document.getElementsByTagName("video")[0];
+          return video.getAttribute("data-youtube-id");
+        }
+        catch (e) {}
+        
         return null
       }
+      fetchId(tmp + "");
     }
-    fetchId(tmp + "");
-  }
-  //movie
-  else if (/http.*:.*youtube.com\/movie/.test(url)) {
-    var tmp = function () {
-      try {
-        var divs = document.getElementsByClassName('ux-thumb-wrap');
-        return divs.length ? /v\=([^\=\&]*)/.exec(divs[0].getAttribute('href'))[1] : null
-      }
-      catch(e) {
-        return null
-      }
+    else {
+      return callback.apply(pointer, [null]);
     }
-    fetchId(tmp + "");
   }
-  //Other YouTube pages
-  else if (/http.*:.*youtube.com/.test(url)) {
-    var tmp = function () {
-      try {
-        var embed = document.getElementsByTagName("embed")[0];
-        var str = decodeURIComponent(embed.getAttribute("flashvars"));
-        var id = /video\_id\=([^\&]*)/.exec(str);
-        return id[1];
-      }
-      catch (e) {}
-      try {
-        var video = document.getElementsByTagName("video")[0];
-        return video.getAttribute("data-youtube-id");
-      }
-      catch (e) {}
-      
-      return null
-    }
-    fetchId(tmp + "");
-  }
-  else {
-    return callback.apply(pointer, [null]);
-  }
-}
+})();
 
 /** Initialize **/
 var yButton;
@@ -234,7 +249,7 @@ var cmds = {
       }
     }
     let url = tabs.activeTab.url;
-    urlExtractor(url, function (videoID) {
+    IDExtractor(url, function (videoID) {
       if (download && videoID) {
         get(videoID, listener, fIndex);
       }
@@ -246,7 +261,7 @@ var cmds = {
   },
   onMiddleClick: function (e, tbb) {
     let url = tabs.activeTab.url;
-    urlExtractor(url, function (videoID) {
+    IDExtractor(url, function (videoID) {
       if (!videoID) return;
       iPanel.show(tbb);
       youtube.getInfo(videoID, function (vInfo, e) {
@@ -288,7 +303,7 @@ var cmds = {
   },
   onShiftClick: function () {
     let url = tabs.activeTab.url;
-    urlExtractor(url, function (videoID) {
+    IDExtractor(url, function (videoID) {
         if (videoID) {
         let worker = tabs.activeTab.attach({
           contentScriptFile: data.url("formats/inject.js"),
@@ -343,7 +358,7 @@ exports.main = function(options, callbacks) {
   yButton.moveTo(config.toolbar.move);
   //Monitor tab changes
   function monitor (tab) {
-    urlExtractor(tabs.activeTab.url, function (videoID) {
+    IDExtractor(tabs.activeTab.url, function (videoID) {
       if (videoID) {
         yButton.saturate = 1;
       }
