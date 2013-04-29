@@ -1,0 +1,10 @@
+{
+  "author": "InBasic <inb.cor@gmail.com>",
+  "name" : "iaextractor",
+  "version" : "0.2.0",
+  "dependencies" :
+    { 
+      "cli-color": "0.2",
+      "commander": "1.1"
+    }
+}

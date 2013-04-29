@@ -2,20 +2,26 @@
 A pure JavaScript AAC extractor for FLV format.
 
 ###General information
-To compile iaextractor project, following packages are required:
+To compile iaextractor project you need to have these softwares and libraries available:
 * [python](http://www.python.org/getit/)
 * [nodejs](http://nodejs.org/)
-
+* [Mozilla addon-sdk](https://addons.mozilla.org/en-US/developers/builder)
+  
 Folders description:
-* src: iaextractor source code
-* compile: nodejs auto-compiler
+* src: source code
+* compile: nodejs compiler
 * ../addon-sdk-*: latest version of [Mozilla addon-sdk](https://addons.mozilla.org/en-US/developers/builder).
 * preview: screenshots
 * template: bootstrap folder
 
-###How to compile iaextractor
-1. Open a new terminal in the root dir (directory contains src, addon-sdk-*, preview, and compile folders)
-2. Run "node compile\install.js" to run iaextractor in a new Firefox profile. To make xpi run "node compile\install.js --xpi". For more options use "--help"
+  > By default, the addon-sdk folder is assumed to be one directory above the project. This can be modified using the ``--sdk`` parameter.
+
+###How to compile this project
+1. Open a new terminal in the root dir (directory contains src, preview, template, and compile folders)
+2. Run ``npm install`` to acquire the necessary nodejs packages
+3. Run ``node compile/install.js`` to run ignotifier in a new Firefox profile  
+   To make the xpi run ``node compile/install.js --xpi``  
+   For more options use ``node compile/install.js --help``  
 
 ###How to try precompiled latest version
 1. Select the right branch
