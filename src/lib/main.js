@@ -28,10 +28,20 @@ var config = {
   youtube: "https://www.youtube.com/",
   tools: "chrome://iaextractor/content/tools.xul",
   //toolbar
-  move: {
-    toolbarID: "nav-bar", 
-    insertbefore: "home-button", 
-    forceMove: false
+  toolbar: {
+    id: "youtube-audio-converter",
+    move: {
+      toolbarID: "nav-bar", 
+      
+      get insertbefore () {
+        var id;
+        try {
+          id = _prefs.getCharPref("nextSibling");
+        } catch(e) {}
+        return id ? id : "home-button"
+      },
+      forceMove: false
+    }
   },
   //Timing
   desktopNotification: 3, //seconds
@@ -59,6 +69,8 @@ var _prefs = (function () {
   var pservice = Cc["@mozilla.org/preferences-service;1"].
     getService(Ci.nsIPrefService).getBranch(config.pref)
   return {
+    getCharPref: pservice.getCharPref,
+    setCharPref: pservice.setCharPref,
     getComplexValue: pservice.getComplexValue,
     setComplexValue: function (id, val) {
       var str = Cc["@mozilla.org/supports-string;1"]
@@ -329,7 +341,7 @@ exports.main = function(options, callbacks) {
   userstyles.load(data.url("overlay.css"));
   //Toolbar
   yButton = toolbarbutton.ToolbarButton({
-    id: "youtube-audio-converter",
+    id: config.toolbar.id,
     label: _("toolbar"),
     tooltiptext: config.tooltip,
     panel: rPanel,
@@ -350,9 +362,7 @@ exports.main = function(options, callbacks) {
       }
     }
   });
-  if (options.loadReason == "install") {
-    yButton.moveTo(config.move);
-  }
+  yButton.moveTo(config.toolbar.move);
   //Monitor tab changes
   function monitor (tab) {
     urlExtractor(tabs.activeTab.url, function (videoID) {
@@ -400,6 +410,14 @@ exports.main = function(options, callbacks) {
     }
   });
 }
+
+/** Store toolbar button position **/
+var activeBrowserWindow = windowutils.activeBrowserWindow;
+activeBrowserWindow.addEventListener("aftercustomization", function () {
+  let button = activeBrowserWindow.document.getElementById(config.toolbar.id);
+  if (!button) return;
+  _prefs.setCharPref("nextSibling", button.nextSibling.id);
+}, false); 
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
