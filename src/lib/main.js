@@ -4,35 +4,39 @@ var {Cc, Ci, Cu}  = require('chrome'),
     self          = require("sdk/self"),
     timer         = require("sdk/timers"),
     sp            = require("sdk/simple-prefs"),
-    prefs         = sp.prefs,
     panel         = require("sdk/panel"),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
     windowutils   = require("window-utils"),
-    window        = windowutils.activeBrowserWindow,
-    data          = self.data,
     toolbarbutton = require("./toolbarbutton"),
-    userstyles    = require("userstyles"),
+    userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
     download      = require("./download"),
     extract       = require("./extract"),
     tools         = require("./misc"),
+    data          = self.data,
+    window        = windowutils.activeBrowserWindow,
+    prefs         = sp.prefs,
     fileSize      = tools.fileSize,
-    format        = tools.format;
+    format        = tools.format,
+    _prefs        = tools.prefs;
+    prompts       = tools.prompts;
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
 
 /** Internal configurations **/
 var config = {
-  //Youtube
-  youtube: "https://www.youtube.com/",
-  tools: "chrome://iaextractor/content/tools.xul",
+  //URLs
+  urls: {
+    youtube: "https://www.youtube.com/",
+    tools: "chrome://iaextractor/content/tools.xul",
+    homepage: "http://add0n.com/youtube.html"
+  },
   //toolbar
   toolbar: {
     id: "youtube-audio-converter",
     move: {
       toolbarID: "nav-bar", 
-      
       get insertbefore () {
         var id;
         try {
@@ -57,29 +61,10 @@ var config = {
       width: 520,
       height: 520
     }
-  },
-  //pref
-  pref: "extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.",
-  //Homepage
-  homepage: "http://add0n.com/youtube.html"
+  }
 }
 
-/** Functions **/
-var _prefs = (function () {
-  var pservice = Cc["@mozilla.org/preferences-service;1"].
-    getService(Ci.nsIPrefService).getBranch(config.pref)
-  return {
-    getCharPref: pservice.getCharPref,
-    setCharPref: pservice.setCharPref,
-    getComplexValue: pservice.getComplexValue,
-    setComplexValue: function (id, val) {
-      var str = Cc["@mozilla.org/supports-string;1"]
-        .createInstance(Ci.nsISupportsString);
-      str.data = val;
-      pservice.setComplexValue(id, Ci.nsISupportsString, str);
-    }
-  }    
-})();
+var aWindow = windowutils.activeBrowserWindow;
 
 /** Panels **/
 var rPanel = panel.Panel({
@@ -121,7 +106,7 @@ rPanel.port.on("cmd", function (cmd) {
       break;
     case "tools":
       rPanel.hide();
-      window.open(config.tools, 'iaextractor', 'chrome,minimizable=yes,all,resizable=false');
+      window.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all,resizable=false');
       break;
     case "cancel":
       listener.cancel(parseInt(arguments[1]));
@@ -225,13 +210,6 @@ function urlExtractor (url, callback, pointer) {
   }
 }
 
-/** Welcome page **/
-var welcome = function () {
-  timer.setTimeout(function () {
-    tabs.open({url: config.homepage, inBackground : false});
-  }, 3000);
-}
-
 /** Initialize **/
 var yButton;
 var cmds = {
@@ -261,7 +239,7 @@ var cmds = {
         get(videoID, listener, fIndex);
       }
       else {
-        tabs.open(config.youtube);
+        tabs.open(config.urls.youtube);
         rPanel.hide();
       }
     });
@@ -299,7 +277,7 @@ var cmds = {
           });
           var obj = prompts(_("prompt1"), _("prompt2"), arr);
           if (obj[0] && obj[1] != -1) {
-            tabs.open(config.youtube + "watch?v=" + arr[obj[1]]);
+            tabs.open(config.urls.youtube + "watch?v=" + arr[obj[1]]);
           }
         }
         else {
@@ -381,10 +359,13 @@ exports.main = function(options, callbacks) {
   tabs.on('activate', monitor);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
-    welcome();
+    timer.setTimeout(function () {
+      tabs.open({url: config.urls.homepage, inBackground : false});
+    }, 3000);
   }
-  //Close tools window
+  //Onunload
   if (options.loadReason) {
+    //Close tools window
     let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
       .getService(Ci.nsIWindowMediator);   
     let enumerator = wm.getEnumerator("iaextractor:tools");
@@ -392,32 +373,18 @@ exports.main = function(options, callbacks) {
       let win = enumerator.getNext();
       win.close();
     }
+    //Remove
+    aWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
   }
-  // Pref listener
-  sp.on("dFolder", function () {
-    if (prefs.dFolder == "5" && !prefs.userFolder) {
-      rPanel.hide();
-      var nsIFilePicker = Ci.nsIFilePicker;
-      var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      fp.init(window, _("msg13"), nsIFilePicker.modeGetFolder);
-      var res = fp.show();
-      if (res != nsIFilePicker.returnCancel){
-        _prefs.setComplexValue("userFolder", fp.file.path);
-      }
-      else {
-        prefs.dFolder = 2;
-      }
-    }
-  });
 }
 
 /** Store toolbar button position **/
-var activeBrowserWindow = windowutils.activeBrowserWindow;
-activeBrowserWindow.addEventListener("aftercustomization", function () {
-  let button = activeBrowserWindow.document.getElementById(config.toolbar.id);
+var aftercustomizationListener = function () {
+  let button = aWindow.document.getElementById(config.toolbar.id);
   if (!button) return;
   _prefs.setCharPref("nextSibling", button.nextSibling.id);
-}, false); 
+}
+aWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
@@ -431,6 +398,23 @@ pageMod.PageMod({
   }
 });
 
+/** Pref listener **/
+sp.on("dFolder", function () {
+  if (prefs.dFolder == "5" && !prefs.userFolder) {
+    rPanel.hide();
+    var nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fp.init(window, _("msg13"), nsIFilePicker.modeGetFolder);
+    var res = fp.show();
+    if (res != nsIFilePicker.returnCancel){
+      _prefs.setComplexValue("userFolder", fp.file.path);
+    }
+    else {
+      prefs.dFolder = 2;
+    }
+  }
+});
+  
 /** Detect a Youtube download link, download it and extract the audio**/
 var listener = (function () {
   var objs = [];
@@ -666,15 +650,5 @@ var notify = (function () {
           notification.close();
       }, config.desktopNotification * 1000);
     }
-  }
-})();
-
-/** Prompt **/
-var prompts = (function () {
-  let prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
-  return function (title, content, items) {
-    var selected = {};
-    var result = prompts.select(null, title, content, items.length, items, selected);
-    return [result, selected.value];
   }
 })();

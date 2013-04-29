@@ -59,3 +59,33 @@ var calculate = function (url, callback, pointer) {
   req.send(null);
 }
 exports.fileSize = calculate;
+
+var prefs = (function () {
+  var pservice = Cc["@mozilla.org/preferences-service;1"].
+    getService(Ci.nsIPrefService).
+    getBranch("extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.");
+  return {
+    getCharPref: pservice.getCharPref,
+    setCharPref: pservice.setCharPref,
+    getComplexValue: pservice.getComplexValue,
+    setComplexValue: function (id, val) {
+      var str = Cc["@mozilla.org/supports-string;1"]
+        .createInstance(Ci.nsISupportsString);
+      str.data = val;
+      pservice.setComplexValue(id, Ci.nsISupportsString, str);
+    }
+  }    
+})();
+exports.prefs = prefs;
+
+/** Prompt **/
+var prompts = (function () {
+  let prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"].
+    getService(Ci.nsIPromptService);
+  return function (title, content, items) {
+    var selected = {};
+    var result = prompts.select(null, title, content, items.length, items, selected);
+    return [result, selected.value];
+  }
+})();
+exports.prompts = prompts;
