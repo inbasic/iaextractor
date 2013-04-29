@@ -2,11 +2,84 @@ const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const NS_SVG = "http://www.w3.org/2000/svg";
 const NS_XLINK = "http://www.w3.org/1999/xlink";
 
-const {unload} = require("unload+");
-const {listen} = require("listen");
 const winUtils = require("window-utils");
 const browserURL = "chrome://browser/content/browser.xul";
 
+/** unload+.js **/
+var unload = (function () {
+  var unloaders = [];
+
+  function unloadersUnlaod() {
+    unloaders.slice().forEach(function(unloader) unloader());
+    unloaders.length = 0;
+  }
+
+  require("unload").when(unloadersUnlaod);
+
+  function removeUnloader(unloader) {
+    let index = unloaders.indexOf(unloader);
+    if (index != -1)
+      unloaders.splice(index, 1);
+  }
+
+  return {
+    unload: function unload(callback, container) {
+      // Calling with no arguments runs all the unloader callbacks
+      if (callback == null) {
+        unloadersUnlaod();
+        return null;
+      }
+
+      var remover = removeUnloader.bind(null, unloader);
+
+      // The callback is bound to the lifetime of the container if we have one
+      if (container != null) {
+        // Remove the unloader when the container unloads
+        container.addEventListener("unload", remover, false);
+
+        // Wrap the callback to additionally remove the unload listener
+        let origCallback = callback;
+        callback = function() {
+          container.removeEventListener("unload", remover, false);
+          origCallback();
+        }
+      }
+
+      // Wrap the callback in a function that ignores failures
+      function unloader() {
+        try {
+          callback();
+        }
+        catch(ex) {}
+      }
+      unloaders.push(unloader);
+
+      // Provide a way to remove the unloader
+      return remover;
+    }
+  };
+})().unload;
+
+/** listen.js **/
+var listen = function listen(window, node, event, func, capture) {
+  // Default to use capture
+  if (capture == null)
+    capture = true;
+
+  node.addEventListener(event, func, capture);
+  function undoListen() {
+    node.removeEventListener(event, func, capture);
+  }
+
+  // Undo the listener on unload and provide a way to undo everything
+  let undoUnload = unload(undoListen, window);
+  return function() {
+    undoListen();
+    undoUnload();
+  };
+}
+
+/** **/
 exports.ToolbarButton = function ToolbarButton(options) {
   var unloaders = [],
       toolbarID = "",

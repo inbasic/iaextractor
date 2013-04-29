@@ -23,6 +23,10 @@ var {Cc, Ci, Cu}  = require('chrome'),
     prompts       = tools.prompts;
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
+/** Load style **/
+userstyles.load(data.url("overlay.css"));
+
+var aWindow = windowutils.activeBrowserWindow;
 
 /** Internal configurations **/
 var config = {
@@ -63,8 +67,6 @@ var config = {
     }
   }
 }
-
-var aWindow = windowutils.activeBrowserWindow;
 
 /** Panels **/
 var rPanel = panel.Panel({
@@ -330,8 +332,6 @@ var cmds = {
   }
 }
 exports.main = function(options, callbacks) {
-  //Load style
-  userstyles.load(data.url("overlay.css"));
   //Toolbar
   yButton = toolbarbutton.ToolbarButton({
     id: config.toolbar.id,
