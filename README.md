@@ -19,7 +19,7 @@ Folders description:
 ###How to compile this project
 1. Open a new terminal in the root dir (directory contains src, preview, template, and compile folders)
 2. Run ``npm install`` to acquire the necessary nodejs packages
-3. Run ``node compile/install.js`` to run ignotifier in a new Firefox profile  
+3. Run ``node compile/install.js`` to run iaextractor in a new Firefox profile  
    To make the xpi run ``node compile/install.js --xpi``  
    For more options use ``node compile/install.js --help``  
 
