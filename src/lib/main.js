@@ -26,8 +26,6 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 
-var aWindow = windowutils.activeBrowserWindow;
-
 /** Internal configurations **/
 var config = {
   //URLs
@@ -385,28 +383,28 @@ exports.main = function(options, callbacks) {
       tabs.open({url: config.urls.homepage, inBackground : false});
     }, 3000);
   }
-  //Onunload
-  if (options.loadReason) {
-    //Close tools window
-    let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
-      .getService(Ci.nsIWindowMediator);   
-    let enumerator = wm.getEnumerator("iaextractor:tools");
-    while (enumerator.hasMoreElements()) {
-      let win = enumerator.getNext();
-      win.close();
-    }
-    //Remove
-    aWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
-  }
 }
 
 /** Store toolbar button position **/
+var aWindow = windowutils.activeBrowserWindow;
 var aftercustomizationListener = function () {
   let button = aWindow.document.getElementById(config.toolbar.id);
   if (!button) return;
   _prefs.setCharPref("nextSibling", button.nextSibling.id);
 }
 aWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
+exports.onUnload = function (reason) {
+  //Remove toolbar listener
+  aWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
+  //Close tools window
+  let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+    .getService(Ci.nsIWindowMediator);   
+  let enumerator = wm.getEnumerator("iaextractor:tools");
+  while (enumerator.hasMoreElements()) {
+    let win = enumerator.getNext();
+    win.close();
+  }
+}
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
