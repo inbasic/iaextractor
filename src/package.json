@@ -90,5 +90,11 @@
     "description": "",
     "type": "bool",
     "value": false
+  },
+  {
+    "name": "forceVisible",
+    "title": "Always try to keep toolbar button visible:",
+    "type": "bool",
+    "value": true
   }]
 }

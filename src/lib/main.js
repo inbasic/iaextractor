@@ -355,7 +355,14 @@ exports.main = function(options, callbacks) {
       }
     }
   });
-  yButton.moveTo(config.toolbar.move);
+  
+  //Install
+  if (options.loadReason == "install" || prefs.forceVisible) {
+    //If adjacent button is restartless wait for its creation
+    timer.setTimeout(function (){
+      yButton.moveTo(config.toolbar.move);
+    }, 800);
+  }
   //Monitor tab changes
   function monitor (tab) {
     IDExtractor(tabs.activeTab.url, function (videoID) {
