@@ -92,6 +92,13 @@
     "value": false
   },
   {
+    "name": "silentOneClickDownload",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "forceVisible",
     "title": "Always try to keep toolbar button visible:",
     "type": "bool",

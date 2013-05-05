@@ -240,7 +240,14 @@ var cmds = {
    */
   onCommand: function (e, tbb, download, fIndex) {
     if (tbb) {
-      rPanel.show(tbb);
+      if (!prefs.oneClickDownload || !prefs.silentOneClickDownload) {
+        try {
+          rPanel.show(tbb);
+        }
+        catch (e) {
+          rPanel.show(null, tbb);
+        }
+      }
       if (prefs.oneClickDownload) {
         download = true;
       }
@@ -263,7 +270,12 @@ var cmds = {
     let url = tabs.activeTab.url;
     IDExtractor(url, function (videoID) {
       if (!videoID) return;
-      iPanel.show(tbb);
+      try {
+        iPanel.show(tbb);
+      }
+      catch (e) {
+        iPanel.show(null, tbb);
+      }
       youtube.getInfo(videoID, function (vInfo, e) {
         iPanel.port.emit('info', vInfo);
       });
