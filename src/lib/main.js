@@ -423,15 +423,7 @@ exports.onUnload = function (reason) {
 /** Hotkeys **/
 var hotkey = {
   _key: null,
-  register: function () {
-    //
-    this._key = Hotkey({
-      combo: prefs.downloadHKey.replace(/\ \+\ /g, "-").toLowerCase(),
-      onPress: function() {
-        cmds.onCommand(null, null, true, null);
-      }
-    });
-    //
+  initialization: function () {
     var observer = {
       observe: function(doc, aTopic, aData) {
         if (aTopic == "addon-options-displayed" && aData == self.id) {
@@ -441,6 +433,7 @@ var hotkey = {
             return elem.getAttribute("pref-name") == "downloadHKey"
           });
           var textbox = list[0];
+          textbox.setAttribute("readonly", true);
           textbox.addEventListener("keydown", function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -450,14 +443,7 @@ var hotkey = {
               if (e.shiftKey) comb.push("Shift");
               if (e.altKey) comb.push("Alt");
               comb.push(String.fromCharCode(e.keyCode));
-              textbox.value = comb.join(" + ");
-              timer.setTimeout(function () {
-                prefs.downloadHKey = comb.join(" + ");
-                if (hotkey._key) {
-                  hotkey._key.destroy();
-                }
-                hotkey.register();
-              }, 500);
+              prefs.downloadHKey = comb.join(" + ");
             }
             else {
               textbox.value = _("err8");
@@ -467,9 +453,32 @@ var hotkey = {
       }
     };
     Services.obs.addObserver(observer, "addon-options-displayed", false);
+    //
+    sp.on("downloadHKey", function () {
+      if (hotkey._key) {
+        hotkey._key.destroy();
+      }
+      hotkey.register();
+    });
+    return this;
+  },
+  register: function () {
+    if (prefs.downloadHKey == _("err8") || !prefs.downloadHKey) {
+      return;
+    }
+    var key = prefs.downloadHKey.replace(/\ \+\ /g, "-").toLowerCase();
+    key = key.split("-");
+    key[key.length - 1] = key[key.length - 1][0];
+    key = key.join("-");
+    this._key = Hotkey({
+      combo: key,
+      onPress: function() {
+        cmds.onCommand(null, null, true, null);
+      }
+    });
   }
 }
-hotkey.register();
+hotkey.initialization().register();
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
