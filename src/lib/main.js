@@ -1,5 +1,6 @@
 ﻿/** Require **/
 var {Cc, Ci, Cu}  = require('chrome'),
+    {Hotkey}      = require("sdk/hotkeys"),
     tabs          = require("sdk/tabs"),
     self          = require("sdk/self"),
     timer         = require("sdk/timers"),
@@ -62,6 +63,17 @@ var config = {
     iPanel: {
       width: 520,
       height: 520
+    }
+  },
+  //Hotkeys
+  hotkeys: {
+    get download () {
+      switch (prefs.hotkeyDownload) {
+        case 0:
+          return _("hotkeyDownload_options.accel_shift_y");
+        case 1:
+          return _("hotkeyDownload_options.f9");
+      }
     }
   }
 }
@@ -417,6 +429,14 @@ exports.onUnload = function (reason) {
     win.close();
   }
 }
+console.error(config.hotkeys.download);
+/** **/
+Hotkey({
+  combo: config.hotkeys.download,
+  onPress: function() {
+    cmds.onCommand(null, null, true, null);
+  }
+});
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({

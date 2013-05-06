@@ -85,6 +85,17 @@
     "value": true
   },
   {
+    "name": "hotkeyDownload",
+    "title": "",
+    "description": "",
+    "type": "menulist",
+    "value": 0,
+    "options": [
+      {"value": "0", "label": "accel_shift_y"},
+      {"value": "1", "label": "f9"}
+    ]
+  },
+  {
     "name": "oneClickDownload",
     "title": "",
     "description": "",
