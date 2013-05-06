@@ -431,12 +431,6 @@ var hotkey = {
         cmds.onCommand(null, null, true, null);
       }
     });
-    sp.on("downloadHKey", function () {
-      if (hotkey._key) {
-        hotkey._key.destroy();
-      }
-      hotkey.register();
-    });
     //
     var observer = {
       observe: function(doc, aTopic, aData) {
@@ -457,7 +451,13 @@ var hotkey = {
               if (e.altKey) comb.push("Alt");
               comb.push(String.fromCharCode(e.keyCode));
               textbox.value = comb.join(" + ");
-              prefs.downloadHKey = textbox.value;
+              timer.setTimeout(function () {
+                prefs.downloadHKey = comb.join(" + ");
+                if (hotkey._key) {
+                  hotkey._key.destroy();
+                }
+                hotkey.register();
+              }, 500);
             }
             else {
               textbox.value = _("err8");
