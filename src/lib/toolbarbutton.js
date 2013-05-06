@@ -132,7 +132,12 @@ exports.ToolbarButton = function ToolbarButton(options) {
         tbb.addEventListener("contextmenu", function (e) {
           e.stopPropagation();
           e.preventDefault();
-          options.panel.show(tbb);
+          try {
+            options.panel.show(tbb);
+          }
+          catch (e) {
+            options.panel.show(null, tbb);
+          }
         }, true);
       }
       // add toolbarbutton to palette
