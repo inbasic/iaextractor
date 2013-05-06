@@ -24,6 +24,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     prompts       = tools.prompts;
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 
@@ -63,17 +64,6 @@ var config = {
     iPanel: {
       width: 520,
       height: 520
-    }
-  },
-  //Hotkeys
-  hotkeys: {
-    get download () {
-      switch (prefs.hotkeyDownload) {
-        case 0:
-          return _("hotkeyDownload_options.accel_shift_y");
-        case 1:
-          return _("hotkeyDownload_options.f9");
-      }
     }
   }
 }
@@ -429,14 +419,57 @@ exports.onUnload = function (reason) {
     win.close();
   }
 }
-console.error(config.hotkeys.download);
-/** **/
-Hotkey({
-  combo: config.hotkeys.download,
-  onPress: function() {
-    cmds.onCommand(null, null, true, null);
+
+/** Hotkeys **/
+var hotkey = {
+  _key: null,
+  register: function () {
+    //
+    this._key = Hotkey({
+      combo: prefs.downloadHKey.replace(/\ \+\ /g, "-").toLowerCase(),
+      onPress: function() {
+        cmds.onCommand(null, null, true, null);
+      }
+    });
+    sp.on("downloadHKey", function () {
+      if (hotkey._key) {
+        hotkey._key.destroy();
+      }
+      hotkey.register();
+    });
+    //
+    var observer = {
+      observe: function(doc, aTopic, aData) {
+        if (aTopic == "addon-options-displayed" && aData == self.id) {
+          var list = doc.getElementsByTagName("setting");
+          list = Array.prototype.slice.call(list);
+          list = list.filter(function (elem) {
+            return elem.getAttribute("pref-name") == "downloadHKey"
+          });
+          var textbox = list[0];
+          textbox.addEventListener("keydown", function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var comb = [];
+            if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
+              if (e.ctrlKey) comb.push("Accel");
+              if (e.shiftKey) comb.push("Shift");
+              if (e.altKey) comb.push("Alt");
+              comb.push(String.fromCharCode(e.keyCode));
+              textbox.value = comb.join(" + ");
+              prefs.downloadHKey = textbox.value;
+            }
+            else {
+              textbox.value = _("err8");
+            }
+          });
+        }
+      }
+    };
+    Services.obs.addObserver(observer, "addon-options-displayed", false);
   }
-});
+}
+hotkey.register();
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
