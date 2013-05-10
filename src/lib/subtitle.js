@@ -8,20 +8,19 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 
 function xmlToSrt (str) {
   var parser = new window.DOMParser();
-  var getContent = function (node) {
-   return node.textContent.replace(/\&amp\;/g, "&").replace(/\&gt\;/g, ">").replace(/\&lt\;/g, "<").replace(/\&quot\;/g, '"');
-  }
+
   var getTimes = function (node) {
     var start = parseFloat(node.getAttribute("start"));
     var end = start + parseFloat(node.getAttribute("dur"));
     function toTime (secs) {
       var mil = (secs % 1).toFixed(3).replace("0.", "");
-      secs = parseInt(secs);
-      var hours = Math.ceil(secs / (60 * 60));
-      var divisor_for_minutes = secs % (60 * 60);
-      var minutes = Math.floor(divisor_for_minutes / 60);
-      var divisor_for_seconds = divisor_for_minutes % 60;
-      var seconds = Math.ceil(divisor_for_seconds);
+      var sec_numb    = parseInt(secs, 10);
+      var hours   = Math.floor(sec_numb / 3600);
+      var minutes = Math.floor((sec_numb - (hours * 3600)) / 60);
+      var seconds = sec_numb - (hours * 3600) - (minutes * 60);
+      if (hours   < 10) {hours   = "0" + hours;}
+      if (minutes < 10) {minutes = "0" + minutes;}
+      if (seconds < 10) {seconds = "0" + seconds;}
       
       return hours + ":" + minutes + ":" + seconds + "," + mil;
     }
@@ -34,7 +33,7 @@ function xmlToSrt (str) {
   var srt = "";
   for (var i = 0; i < texts.length; i++) {
     var times = getTimes(texts[i]);
-    srt += (i+1) + "\n" + times.start + " --> " + times.end + "\n" + getContent(texts[i]) + "\n\n";
+    srt += (i+1) + "\n" + times.start + " --> " + times.end + "\n" + texts[i].textContent + "\n\n";
   }
   return srt;
 }

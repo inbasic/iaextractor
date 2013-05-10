@@ -155,6 +155,7 @@ self.port.on("info", function(vInfo) {
 });
 self.port.on("file-size-response", function(url, size, index) {
   var a = $("iaextractor-items").childNodes[index];
+  if (!a) return;
   var p = a.childNodes[0];
   //Reject wrong file size
   if (a.getAttribute("href") != url) {

@@ -54,6 +54,7 @@ var config = {
   },
   //Timing
   desktopNotification: 3, //seconds
+  noAudioExtraction: 4,
   //Tooltip
   tooltip: _("name") + "\n\n" + _("tooltip1") + "\n" + _("tooltip2"),
   //Panels
@@ -601,7 +602,10 @@ var getVideo = (function () {
     function onFile (vInfo, title, user) {
       // Do not generate audio file if video format is not FLV
       if (vInfo.container.toLowerCase() != "flv" && doExtract) {
-        notify(_('name'), _('msg5'));
+        //Prevent conflict with video info notification
+        timer.setTimeout(function (){
+          notify(_('name'), _('msg5'))
+        }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
       var name = ((prefs.addUserInfo ? user + " - " : "") + title)
