@@ -107,8 +107,35 @@
   },
   {
     "name": "forceVisible",
-    "title": "Always try to keep toolbar button visible:",
+    "title": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "doSubtitle",
+    "title": "",
+    "type": "bool",
+    "value": false
+  },
+  {
+    "name": "subtitleLang",
+    "title": "",
+    "type": "menulist",
+    "value": 0,
+    "options": [
+      {"value": "0", "label": "en"},
+      {"value": "1", "label": "ar"},
+      {"value": "2", "label": "zh"},
+      {"value": "3", "label": "nl"},
+      {"value": "4", "label": "fr"},
+      {"value": "5", "label": "de"},
+      {"value": "6", "label": "it"},
+      {"value": "7", "label": "ja"},
+      {"value": "8", "label": "ko"},
+      {"value": "9", "label": "pl"},
+      {"value": "10", "label": "ru"},
+      {"value": "11", "label": "es"},
+      {"value": "12", "label": "tr"}
+    ]
   }]
 }

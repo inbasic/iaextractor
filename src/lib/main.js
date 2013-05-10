@@ -12,6 +12,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     toolbarbutton = require("./toolbarbutton"),
     userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
+    subtitle      = require("./subtitle"),
     download      = require("./download"),
     extract       = require("./extract"),
     tools         = require("./misc"),
@@ -260,7 +261,7 @@ var cmds = {
     let url = tabs.activeTab.url;
     IDExtractor(url, function (videoID) {
       if (download && videoID) {
-        get(videoID, listener, fIndex);
+        new getVideo(videoID, listener, fIndex);
       }
       else {
         tabs.open(config.urls.youtube);
@@ -580,144 +581,190 @@ var listener = (function () {
     }
   }
 })();
+/** Call this with new **/
+var getVideo = (function () {
+  return function (videoID, listener, fIndex) {
+    var doExtract = prefs.doExtract;
+  
+    function onDetect () {
+      listener.onDetectStart();
+      youtube.getLink(videoID, fIndex, function (vInfo, title, user, e) {
+        listener.onDetectDone();
+        if (e) {
+          notify(_('name'), e);
+        }
+        else {
+          onFile (vInfo, title, user);
+        }
+      });
+    }
+    function onFile (vInfo, title, user) {
+      // Do not generate audio file if video format is not FLV
+      if (vInfo.container.toLowerCase() != "flv" && doExtract) {
+        notify(_('name'), _('msg5'));
+        doExtract = false;
+      }
+      var name = ((prefs.addUserInfo ? user + " - " : "") + title)
+        .replace(/[:\?\¿]/g, "")
+        .replace(/[\\\/]/g, "-")
+        .replace(/[\*]/g, "^")
+        .replace(/[\"]/g, "'")
+        .replace(/[\<]/g, "[")
+        .replace(/[\>]/g, "]")
+        .replace(/[|]/g, "-");
+      var vFile;
+      //Select folder by nsIFilePicker
+      if (prefs.dFolder == 4) {
+        let nsIFilePicker = Ci.nsIFilePicker;
+        let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+        fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
+        fp.appendFilter(_("msg14"), "*." + vInfo.container);
+        fp.defaultString = name + "." + vInfo.container;
+        let res = fp.show();
+        if (res == nsIFilePicker.returnCancel) return;
+        vFile = fp.file;
+      }
+      //Select folder by userFolder
+      else if (prefs.dFolder == 5) {
+        try {
+          //Simple-prefs doesnt support complex type
+          vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
+          vFile.append(name + "." + vInfo.container);
+          vFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+        }
+        catch (e) {
+          notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
+          return;
+        }
+      }
+      else {
+        var videoPath = [];
+        switch(prefs.dFolder) {
+          case 2:
+            root = "TmpD";
+            let folder = Math.random().toString(36).substr(2,16);
+            videoPath.push("iaextractor");
+            videoPath.push(folder);
+            break;
+          case 0:
+            root = "DfltDwnld"
+            break;
+          case 1:
+            root = "Home";
+            break;
+          case 3:
+            root = "Desk";
+            break;
+        }
+        videoPath.push(name + "." + vInfo.container);
+        vFile = FileUtils.getFile(root, videoPath);
+      }
+      var aFile, sFile;
+      var vFile_first = true, aFile_first = true, sFile_first = true;
+      onDownload(vInfo, {
+        get vFile () {
+          if (vFile_first) {
+            vFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+            vFile_first = false;
+          }
+          return vFile;
+        },
+        get aFile () {
+          if (aFile_first) {
+            let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
+            aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+            aFile.initWithPath(vFile.parent.path);
+            aFile.append(name + ".aac");
+            aFile_first = false;
+          }
+          return aFile;
+        },
+        get sFile () {
+          if (aFile_first) {
+            let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
+            sFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+            sFile.initWithPath(vFile.parent.path);
+            sFile.append(name + ".srt");
+            sFile_first = false;
+          }
+          return sFile;
+        }
+      });
+    }
+    function onDownload (vInfo, obj) {
+      var dr = new download.get({
+        progress: listener.onProgress,
+        paused: listener.onDownloadPaused,
+        done: function (dl) {
+          listener.onDownloadDone(dl, !doExtract);
+          onExtract (vInfo, dl, obj);
+        },
+        error: function (dl) {
+          listener.onError(dl);
+          listener.onDownloadDone(dl, true);
+        }
+      });
+      listener.onDownloadStart(dr(vInfo.url, obj.vFile));
+      notify(
+        _('name'), 
+        _('msg3').replace("%1", vInfo.quality)
+          .replace("%2", vInfo.container)
+          .replace("%3", vInfo.resolution)
+          .replace("%4", vInfo.encoding)
+          .replace("%5", vInfo.bitrate)
+          .replace("%6", vInfo.audioEncoding)
+          .replace("%7", vInfo.audioBitrate)
+      );
+    }
+    function onExtract (vInfo, dl, obj) {
+      var id = dl.id;
 
-var get = function (videoID, listener, fIndex) {
-  //Detect
-  listener.onDetectStart();
-  youtube.getLink(videoID, fIndex, function (vInfo, title, user, e) {
-    listener.onDetectDone();
-    if (e) {
-      notify(_('name'), e);
-      return;
-    }
-    //Creating temporary files
-    var videoName = ((prefs.addUserInfo ? user + " - " : "") + title)
-      .replace(/[:\?\¿]/g, "")
-      .replace(/[\\\/]/g, "-")
-      .replace(/[\*]/g, "^")
-      .replace(/[\"]/g, "'")
-      .replace(/[\<]/g, "[")
-      .replace(/[\>]/g, "]")
-      .replace(/[|]/g, "-");
-    var audioName = videoName;
-    var root, audioPath = [], videoPath = [];
-    var iFile, oFile;
-    if (prefs.dFolder == 4) { //Select folder by user
-      let nsIFilePicker = Ci.nsIFilePicker;
-      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
-      fp.appendFilter(_("msg14"), "*." + vInfo.container);
-      fp.defaultString = videoName + "." + vInfo.container;
-      let res = fp.show();
-      if (res == nsIFilePicker.returnCancel) return;
-      iFile = fp.file;
-      if (prefs.doExtract) {
-        audioName = iFile.leafName.replace(/\.+[^\.]*$/, ".aac");
-        audioName += /\./.test(audioName) ? "" : ".aac";
-        oFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-        oFile.initWithPath(iFile.parent.path);
-        oFile.append(audioName);
-      }
-    }
-    else if (prefs.dFolder == 5) { //Select folder by user
-      try {
-        //Simple-prefs doesnt support complex type
-        iFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-        iFile.append(videoName + "." + vInfo.container);
-        iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
-        if (prefs.doExtract) {
-          oFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-          oFile.append(audioName + ".aac");
-        }
-      }
-      catch (e) {
-        notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
-        return;
-      }
-    }
-    else {
-      switch(prefs.dFolder) {
-        case 2:
-          root = "TmpD";
-          let folder = Math.random().toString(36).substr(2,16);
-          videoPath = ["iaextractor", folder];
-          audioPath = ["iaextractor", folder];
-          break;
-        case 0:
-          root = "DfltDwnld"
-          videoPath = [];
-          audioPath = [];
-          break;
-        case 1:
-          root = "Home";
-          videoPath = [];
-          audioPath = [];
-          break;
-        case 3:
-          root = "Desk";
-          videoPath = [];
-          audioPath = [];
-          break;
-      }
-      videoPath.push(videoName + "." + vInfo.container);
-      audioPath.push(audioName + ".aac");
-      
-      iFile = FileUtils.getFile(root, videoPath);
-      iFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
-      if (prefs.doExtract) {
-        oFile = FileUtils.getFile(root, audioPath);
-      }
-    }
-    //Download
-    var dr = new download.get({
-      progress: listener.onProgress,
-      paused: listener.onDownloadPaused,
-      done: function (dl) {
-        var id = dl.id;
-        listener.onDownloadDone(dl);
-        function afterExtract (e) {
-          if (prefs.open) {
-            try {
-              iFile.reveal();
-            }
-            catch(_e) {
-              tabs.open(iFile.parent.path);
-            }
+      function afterExtract (e) {
+        if (e) notify(_('name'), e);
+        if (prefs.open) {
+          try {
+            obj.vFile.reveal();
           }
-          if (e) notify(_('name'), e);
-        }
-        if (!prefs.doExtract) {
-          return afterExtract();
-        }
-        listener.onExtractStart(id);
-        
-        oFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
-        extract.perform(id, iFile, oFile, function (id, e) {
-          if (prefs.extension != "0") { //
-            notify(_("name"), _("msg5"));
+          catch(_e) {
+            tabs.open(obj.vFile.parent.path);
           }
-          listener.onExtractDone(id);
-          afterExtract(prefs.extension == "0" ? e : null);
-        });
-      },
-      error: function (dl) {
-        listener.onError(dl);
-        listener.onDownloadDone(dl, true);
+        }
+        onSubtitle(obj);
       }
-    });
-    listener.onDownloadStart(dr(vInfo.url, iFile));
-    notify(
-      _('name'), 
-      _('msg3').replace("%1", vInfo.quality)
-        .replace("%2", vInfo.container)
-        .replace("%3", vInfo.resolution)
-        .replace("%4", vInfo.encoding)
-        .replace("%5", vInfo.bitrate)
-        .replace("%6", vInfo.audioEncoding)
-        .replace("%7", vInfo.audioBitrate)
-    );
-  });
-}
+      if (!doExtract) {
+        return afterExtract();
+      }
+      listener.onExtractStart(id);
+      extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
+        listener.onExtractDone(id);
+        afterExtract(prefs.extension == "0" ? e : null);
+      });
+    }
+    function onSubtitle (obj) {
+      if (!prefs.doSubtitle) return;
+      var lang = "en";
+      switch (prefs.subtitleLang) {
+        case 1: lang = "ar"; break;
+        case 2: lang = "zh"; break;
+        case 3: lang = "nl"; break;
+        case 4: lang = "fr"; break;
+        case 5: lang = "de"; break;
+        case 6: lang = "it"; break;
+        case 7: lang = "ja"; break;
+        case 8: lang = "ko"; break;
+        case 9: lang = "pl"; break;
+        case 10: lang = "ru"; break;
+        case 11: lang = "es"; break;
+        case 12: lang = "tr"; break;
+      }
+      subtitle.get(videoID, lang, obj.sFile, function (e) {
+        if (e) notify(_('name'), e);
+      });
+    }
+    //
+    onDetect();
+  }
+})();
 
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
