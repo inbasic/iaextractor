@@ -453,6 +453,9 @@ var hotkey = {
             }
             else {
               textbox.value = _("err8");
+              if (hotkey._key) {
+                hotkey._key.destroy();
+              }
             }
           });
         }
@@ -469,7 +472,7 @@ var hotkey = {
     return this;
   },
   register: function () {
-    if (prefs.downloadHKey == _("err8") || !prefs.downloadHKey) {
+    if (prefs.downloadHKey.split("+").length == 1 || !prefs.downloadHKey) {
       return;
     }
     var key = prefs.downloadHKey.replace(/\ \+\ /g, "-").toLowerCase();
