@@ -381,6 +381,7 @@ exports.main = function(options, callbacks) {
       yButton.moveTo(config.toolbar.move);
     }, 800);
   }
+  hotkey.initialization().register();
   //Monitor tab changes
   function monitor (tab) {
     IDExtractor(tabs.activeTab.url, function (videoID) {
@@ -424,43 +425,53 @@ exports.onUnload = function (reason) {
     let win = enumerator.getNext();
     win.close();
   }
+  //Remove observer
+  if (observer.textbox) {
+    observer.textbox.removeEventListener("keydown", observer.listen);
+  }
+  try {
+    Services.obs.removeObserver(observer, "addon-options-displayed");
+  }
+  catch (e) {}
 }
 
 /** Hotkeys **/
+var observer = {
+  observe: function(doc, aTopic, aData) {
+    if (aTopic == "addon-options-displayed" && aData == self.id) {
+      var list = doc.getElementsByTagName("setting");
+      list = Array.prototype.slice.call(list);
+      list = list.filter(function (elem) {
+        return elem.getAttribute("pref-name") == "downloadHKey"
+      });
+      var textbox = list[0];
+      textbox.setAttribute("readonly", true);
+      textbox.addEventListener("keydown", observer.listen);
+      observer.textbox = textbox;
+    }
+  },
+  listen: function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var comb = [];
+    if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
+      if (e.ctrlKey) comb.push("Accel");
+      if (e.shiftKey) comb.push("Shift");
+      if (e.altKey) comb.push("Alt");
+      comb.push(String.fromCharCode(e.keyCode));
+      prefs.downloadHKey = comb.join(" + ");
+    }
+    else {
+      observer.textbox.value = _("err8");
+      if (hotkey._key) {
+        hotkey._key.destroy();
+      }
+    }
+  }
+};
 var hotkey = {
   _key: null,
   initialization: function () {
-    var observer = {
-      observe: function(doc, aTopic, aData) {
-        if (aTopic == "addon-options-displayed" && aData == self.id) {
-          var list = doc.getElementsByTagName("setting");
-          list = Array.prototype.slice.call(list);
-          list = list.filter(function (elem) {
-            return elem.getAttribute("pref-name") == "downloadHKey"
-          });
-          var textbox = list[0];
-          textbox.setAttribute("readonly", true);
-          textbox.addEventListener("keydown", function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            var comb = [];
-            if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
-              if (e.ctrlKey) comb.push("Accel");
-              if (e.shiftKey) comb.push("Shift");
-              if (e.altKey) comb.push("Alt");
-              comb.push(String.fromCharCode(e.keyCode));
-              prefs.downloadHKey = comb.join(" + ");
-            }
-            else {
-              textbox.value = _("err8");
-              if (hotkey._key) {
-                hotkey._key.destroy();
-              }
-            }
-          });
-        }
-      }
-    };
     Services.obs.addObserver(observer, "addon-options-displayed", false);
     //
     sp.on("downloadHKey", function () {
@@ -487,7 +498,6 @@ var hotkey = {
     });
   }
 }
-hotkey.initialization().register();
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
