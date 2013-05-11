@@ -404,6 +404,12 @@ exports.main = function(options, callbacks) {
       tabs.open({url: config.urls.homepage, inBackground : false});
     }, 3000);
   }
+  //Reload about:addons to set new observer.
+  for each (var tab in tabs) {
+    if (tab.url == "about:addons") {
+      tab.reload();
+    }
+  }
 }
 
 /** Store toolbar button position **/
@@ -426,53 +432,20 @@ exports.onUnload = function (reason) {
     win.close();
   }
   //Remove observer
-  if (observer.textbox) {
-    observer.textbox.removeEventListener("keydown", observer.listen);
+  if (hotkey.textbox) {
+    hotkey.textbox.removeEventListener("keydown", hotkey.listen);
   }
   try {
-    Services.obs.removeObserver(observer, "addon-options-displayed");
+    Services.obs.removeObserver(hotkey.observer, "addon-options-displayed");
   }
   catch (e) {}
 }
 
 /** Hotkeys **/
-var observer = {
-  observe: function(doc, aTopic, aData) {
-    if (aTopic == "addon-options-displayed" && aData == self.id) {
-      var list = doc.getElementsByTagName("setting");
-      list = Array.prototype.slice.call(list);
-      list = list.filter(function (elem) {
-        return elem.getAttribute("pref-name") == "downloadHKey"
-      });
-      var textbox = list[0];
-      textbox.setAttribute("readonly", true);
-      textbox.addEventListener("keydown", observer.listen);
-      observer.textbox = textbox;
-    }
-  },
-  listen: function (e) {
-    e.stopPropagation();
-    e.preventDefault();
-    var comb = [];
-    if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
-      if (e.ctrlKey) comb.push("Accel");
-      if (e.shiftKey) comb.push("Shift");
-      if (e.altKey) comb.push("Alt");
-      comb.push(String.fromCharCode(e.keyCode));
-      prefs.downloadHKey = comb.join(" + ");
-    }
-    else {
-      observer.textbox.value = _("err8");
-      if (hotkey._key) {
-        hotkey._key.destroy();
-      }
-    }
-  }
-};
 var hotkey = {
   _key: null,
   initialization: function () {
-    Services.obs.addObserver(observer, "addon-options-displayed", false);
+    Services.obs.addObserver(hotkey.observer, "addon-options-displayed", false);
     //
     sp.on("downloadHKey", function () {
       if (hotkey._key) {
@@ -496,6 +469,39 @@ var hotkey = {
         cmds.onCommand(null, null, true, null);
       }
     });
+  },
+  observer: {
+    observe: function(doc, aTopic, aData) {
+      if (aTopic == "addon-options-displayed" && aData == self.id) {
+        var list = doc.getElementsByTagName("setting");
+        list = Array.prototype.slice.call(list);
+        list = list.filter(function (elem) {
+          return elem.getAttribute("pref-name") == "downloadHKey"
+        });
+        var textbox = list[0];
+        textbox.setAttribute("readonly", true);
+        textbox.addEventListener("keydown", hotkey.listen);
+        hotkey.textbox = textbox;
+      }
+    }
+  },
+  listen: function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var comb = [];
+    if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
+      if (e.ctrlKey) comb.push("Accel");
+      if (e.shiftKey) comb.push("Shift");
+      if (e.altKey) comb.push("Alt");
+      comb.push(String.fromCharCode(e.keyCode));
+      prefs.downloadHKey = comb.join(" + ");
+    }
+    else {
+      hotkey.textbox.value = _("err8");
+      if (hotkey._key) {
+        hotkey._key.destroy();
+      }
+    }
   }
 }
 
