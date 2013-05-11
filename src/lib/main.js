@@ -105,6 +105,9 @@ rPanel.port.on("cmd", function (cmd) {
     case "do-extract":
       prefs.doExtract = arguments[1];
       break;
+    case "do-subtitle":
+      prefs.doSubtitle = arguments[1];
+      break;
     case "do-size":
       prefs.getFileSize = arguments[1];
       break;
@@ -121,6 +124,7 @@ rPanel.on("show", function() {
   rPanel.port.emit(
     "update", 
     prefs.doExtract, 
+    prefs.doSubtitle, 
     prefs.getFileSize, 
     prefs.dFolder, 
     prefs.quality, 

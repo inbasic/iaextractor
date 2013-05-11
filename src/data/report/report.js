@@ -14,6 +14,7 @@ var _ = function (id) {
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox"),
+    subCheckbox = $("subtitle-checkbox"),
     sCheckbox = $("resolve-size-checkbox"),
     toolbar = $("download-manager-toolbar");
 
@@ -267,6 +268,9 @@ $("embed-button").addEventListener("click", function () {
 aCheckbox.addEventListener("change", function () {
   self.port.emit("cmd", "do-extract", aCheckbox.checked);
 });
+subCheckbox.addEventListener("change", function () {
+  self.port.emit("cmd", "do-subtitle", subCheckbox.checked);
+});
 sCheckbox.addEventListener("change", function () {
   self.port.emit("cmd", "do-size", sCheckbox.checked);
 });
@@ -277,7 +281,7 @@ toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
 //Onload
-self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, isRed) {
+self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
   //Resizing tabs
   var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
   if (navigator.userAgent.indexOf("Mac OS X") != -1) {
@@ -290,6 +294,7 @@ self.port.on("update", function(doExtract, doFileSize, dIndex, vIndex, fIndex, i
   }
   //
   aCheckbox.checked = doExtract;
+  subCheckbox.checked = doSubtitle;
   sCheckbox.checked = doFileSize;
   download.value = dIndex;
   quality.value = vIndex;

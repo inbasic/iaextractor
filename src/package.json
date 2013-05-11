@@ -108,6 +108,7 @@
   {
     "name": "forceVisible",
     "title": "",
+    "description": "",
     "type": "bool",
     "value": true
   },
