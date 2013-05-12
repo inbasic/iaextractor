@@ -4,6 +4,7 @@ body {
   font-size: 15px;
   background-color: white;
   margin: 0;
+  -moz-user-select: none;
 }
 table {
   font-size: 13px;
