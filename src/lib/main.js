@@ -489,6 +489,7 @@ var hotkey = {
     e.stopPropagation();
     e.preventDefault();
     var comb = [];
+    prefs.downloadHKey = "";  //Fire listener
     if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
       if (e.ctrlKey) comb.push("Accel");
       if (e.shiftKey) comb.push("Shift");
