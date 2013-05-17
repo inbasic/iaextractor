@@ -43,16 +43,16 @@ var get = function (callback, pointer) {
     }
   }
 
-  return function (url, file) {
+  return function (url, file, aPrivacyContext, aIsPrivate) {
     // Create URI
     var urlURI = ioService.newURI(url, null, null),
         fileURI = ioService.newFileURI(file);   
-    // Start download
-    dl = dm.addDownload(dm.DOWNLOAD_TYPE_DOWNLOAD, urlURI, fileURI, null, null, null, null, persist, false);
+    // Start download, Currently the extension is not available on private mode due to panel module incompatibility
+    dl = dm.addDownload(dm.DOWNLOAD_TYPE_DOWNLOAD, urlURI, fileURI, null, null, null, null, persist, aIsPrivate || false);
     listener = new mListener(dl);
     dm.addListener(listener);
     persist.progressListener = dl.QueryInterface(Ci.nsIWebProgressListener);
-    persist.saveURI(dl.source, null, null, null, null, file, null);
+    persist.saveURI(dl.source, null, null, null, null, file, aPrivacyContext);
     
     return dl;
   }
