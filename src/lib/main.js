@@ -153,6 +153,20 @@ var IDExtractor = (function () {
   }
   
   return function (url, callback, pointer) {
+    //Cache XMLHttpRequest of non YouTube pages
+    if (typeof(url) == "object" && url.origin) {
+      var obj = url;
+      var index = urls.indexOf(obj.origin);
+      if (index == -1) {
+        index = urls.push(obj.origin) - 1;
+      }
+      if (!IDs[index]) {
+        IDs[index] = [];
+      }
+      IDs[index].push(obj);
+      
+      return;
+    }
     //Is it in the cache?
     var index = urls.indexOf(url);
     if (index !== -1) {
@@ -382,22 +396,8 @@ exports.main = function(options, callbacks) {
     }, 800);
   }
   hotkey.initialization().register();
-  //Monitor tab changes
-  function monitor (tab) {
-    IDExtractor(tabs.activeTab.url, function (videoID) {
-      if (videoID) {
-        yButton.saturate = 1;
-      }
-      else {
-        yButton.saturate = 0;
-      }
-    });
-  }
+  // Check current page
   monitor(tabs.activeTab);
-  tabs.on('ready', function () {
-    timer.setTimeout(monitor, 500);
-  });
-  tabs.on('activate', monitor);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
     timer.setTimeout(function () {
@@ -411,6 +411,22 @@ exports.main = function(options, callbacks) {
     }
   }
 }
+
+/** Monitor **/
+function monitor (tab) {
+  IDExtractor(tabs.activeTab.url, function (videoID) {
+    if (videoID) {
+      yButton.saturate = 1;
+    }
+    else {
+      yButton.saturate = 0;
+    }
+  });
+}
+tabs.on('ready', function () {
+  timer.setTimeout(monitor, 500);
+});
+tabs.on('activate', monitor);
 
 /** Store toolbar button position **/
 var aWindow = windowutils.activeBrowserWindow;
@@ -432,13 +448,8 @@ exports.onUnload = function (reason) {
     win.close();
   }
   //Remove observer
-  if (hotkey.textbox) {
-    hotkey.textbox.removeEventListener("keydown", hotkey.listen);
-  }
-  try {
-    Services.obs.removeObserver(hotkey.observer, "addon-options-displayed");
-  }
-  catch (e) {}
+  hotkey.destroy();
+  http.destroy();
 }
 
 /** Hotkeys **/
@@ -503,8 +514,84 @@ var hotkey = {
         hotkey._key.destroy();
       }
     }
-  }
+  },
+  destroy: function () {
+    if (hotkey.textbox) {
+      hotkey.textbox.removeEventListener("keydown", hotkey.listen);
+    }
+    try {
+      Services.obs.removeObserver(hotkey.observer, "addon-options-displayed");
+    }
+    catch (e) {}
+  } 
 }
+
+/** HTTP Observer **/
+var http = (function () {
+  var cache = [];
+  return {
+    initialize: function () {
+      Services.obs.addObserver(http.observer, "http-on-examine-response", false);
+      Services.obs.addObserver(http.observer, "http-on-examine-cached-response", false);
+    },
+    destroy: function () {
+      try {
+        Services.obs.removeObserver(http.observer, "http-on-examine-response");
+      }
+      catch (e) {}
+      try {
+        Services.obs.removeObserver(http.observer, "http-on-examine-cached-response");
+      }
+      catch (e) {}
+    },
+    observer: {
+      observe: function(doc, aTopic, aData) {
+        var channel = doc.QueryInterface(Ci.nsIHttpChannel);
+        if(channel.requestMethod != "GET") {
+          return;
+        }
+        channel.visitResponseHeaders({
+          visitHeader: function ( aHeader, aValue ) {
+            if ( aHeader.indexOf( "Content-Type" ) != -1 ) {
+              if ( aValue.indexOf("audio") != -1 || aValue.indexOf("video") != -1 ) {
+                var request = doc.QueryInterface(Ci.nsIRequest);
+                var url = request.name
+                  .replace(/signature\=[^\&]*\&/, "")
+                  .replace(/range\=[^\&]*\&/, "")
+                  .replace(/expire\=[^\&]*\&/, "");
+                if (cache.indexOf(url) == -1) {
+                  cache.push(url);
+                  var notificationCallbacks =
+                    channel.notificationCallbacks ? 
+                      channel.notificationCallbacks : channel.loadGroup.notificationCallbacks;
+               
+                  if (notificationCallbacks) {
+                    var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
+                    IDExtractor({
+                      origin: domWin.top.document.URL,
+                      title: aValue.split("/")[0] + "_" + domWin.top.document.title,
+                      vInfo: {
+                        url: request.name,
+                        container: aValue.split("/")[1],
+                        audioBitrate: "",
+                        audioEncoding: "",
+                        resolution: "",
+                        quality: ""
+                      }
+                    });
+                    monitor(tabs.activeTab);
+                    //gBrowser.getBrowserForDocument(doc)
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  }
+})();
+//http.initialize ();
 
 /** Inject foramts menu into Youtube pages **/
 pageMod.PageMod({
@@ -632,7 +719,7 @@ var getVideo = (function () {
         }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
-      var name = ((prefs.addUserInfo ? user + " - " : "") + title)
+      var name = ((prefs.addUserInfo && user ? user + " - " : "") + title)
         .replace(/[:\?\¿]/g, "")
         .replace(/[\\\/]/g, "-")
         .replace(/[\*]/g, "^")
@@ -732,14 +819,13 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
+      console.error(vInfo.url);
       listener.onDownloadStart(dr(vInfo.url, obj.vFile));
       notify(
         _('name'), 
         _('msg3').replace("%1", vInfo.quality)
           .replace("%2", vInfo.container)
           .replace("%3", vInfo.resolution)
-          .replace("%4", vInfo.encoding)
-          .replace("%5", vInfo.bitrate)
           .replace("%6", vInfo.audioEncoding)
           .replace("%7", vInfo.audioBitrate)
       );
@@ -790,7 +876,14 @@ var getVideo = (function () {
       });
     }
     //
-    onDetect();
+    if (typeof(videoID) == "object") {
+      var obj = videoID[0];
+      console.error(videoID.length);
+      onFile (obj.vInfo, obj.title);
+    }
+    else {
+      onDetect();
+    }
   }
 })();
 

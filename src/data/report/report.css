@@ -226,6 +226,7 @@ label {
 }
 #formats-button:hover[type="active"],
 #download-button:hover {
+  cursor: pointer;
   background-color: #CCE0FF;
   border: 1px solid #5C9DFF;
 }
