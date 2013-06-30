@@ -109,7 +109,10 @@ exports.ToolbarButton = function ToolbarButton(options) {
       box.appendChild(progressmeter);
       let img = doc.createElementNS(NS_XUL, "image");
       img.setAttribute("class", "normal");
-      let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
+      let tbb = doc.createElementNS(NS_XUL, "toolbaritem");
+      tbb.setAttribute("pack", "center");
+      tbb.setAttribute("align", "center");
+      tbb.setAttribute("removable", "true"); 
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
       tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional iaextractor");
@@ -119,7 +122,8 @@ exports.ToolbarButton = function ToolbarButton(options) {
       stack.appendChild(img);
       tbb.appendChild(stack);
 
-      tbb.addEventListener("command", function(e) {
+      tbb.addEventListener("click", function(e) {
+        if (e.button != 0 || e.ctrlKey) return; 
         if (options.onCommand)
           options.onCommand(e, tbb); // TODO: provide something?
       }, true);
