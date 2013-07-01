@@ -1,5 +1,5 @@
 var prefs       = require("sdk/simple-prefs").prefs,
-   {Cc, Ci, Cu} = require('chrome');
+    Request     = require("sdk/request").Request;
 // https://github.com/fent/node-ytdl
 function _getInfo (videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
@@ -45,70 +45,67 @@ function _getInfo (videoID, callback, pointer) {
     return temp;
   }
   //Fetch data
-  var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-    .createInstance(Ci.nsIXMLHttpRequest);
-  req.open('GET', INFO_URL + videoID, true);
-  req.onreadystatechange = function () {
-    if (req.readyState != 4) return;
-    if (req.status != 200) throw 'Error: Cannot connect to Youtube server.';
-    
-    var info = quary(req.responseText)
-    //Clean keys
-    KEYS_TO_SPLIT.forEach(function(key) {
-      if (!info[key]) return;
-      info[key] = info[key].split(',').filter(function(v) { return v !== ''; });
-    });
-    // convert some strings to javascript numbers and booleans
-    for (var i in info) {
-      var val = info[i],
-          intVal = parseInt(val, 10),
-          floatVal = parseFloat(val, 10);
+  Request({
+    url: INFO_URL + videoID,
+    onComplete: function (response) {
+      if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
+      var info = quary(response.text);
+      //Clean keys
+      KEYS_TO_SPLIT.forEach(function(key) {
+        if (!info[key]) return;
+        info[key] = info[key].split(',').filter(function(v) { return v !== ''; });
+      });
+      // convert some strings to javascript numbers and booleans
+      for (var i in info) {
+        var val = info[i],
+            intVal = parseInt(val, 10),
+            floatVal = parseFloat(val, 10);
 
-      if (intVal.toString() === val) {
-        info[i] = intVal;
-      } else if (floatVal.toString() === val) {
-        info[i] = floatVal;
-      } else if (val === 'True') {
-        info[i] = true;
-      } else if (val === 'False') {
-        info[i] = false;
-      }
-    }
-    for (var i in info.fmt_list) {
-      info.fmt_list[i] = info.fmt_list[i].split('/');
-    }
-    info.formats = (function () {
-      var tmp = (info.url_encoded_fmt_stream_map || "").split(',');
-      for (var i in tmp) {
-        var format = tmp[i];
-        var data = quary(format);
-        if (data.sig) {
-          data.url += '&signature=' + data.sig;
+        if (intVal.toString() === val) {
+          info[i] = intVal;
+        } else if (floatVal.toString() === val) {
+          info[i] = floatVal;
+        } else if (val === 'True') {
+          info[i] = true;
+        } else if (val === 'False') {
+          info[i] = false;
         }
-        format = FORMATS[data.itag];
+      }
+      for (var i in info.fmt_list) {
+        info.fmt_list[i] = info.fmt_list[i].split('/');
+      }
+      info.formats = (function () {
+        var tmp = (info.url_encoded_fmt_stream_map || "").split(',');
+        for (var i in tmp) {
+          var format = tmp[i];
+          var data = quary(format);
+          if (data.sig) {
+            data.url += '&signature=' + data.sig;
+          }
+          format = FORMATS[data.itag];
 
-        if (!format) {
-          err = new Error('No such format for itag ' + data.itag + ' found');
+          if (!format) {
+            err = new Error('No such format for itag ' + data.itag + ' found');
+          }
+          for (var j in format) {
+            data[j] = format[j]
+          }
+          tmp[i] = data;
         }
-        for (var j in format) {
-          data[j] = format[j]
-        }
-        tmp[i] = data;
+        return tmp
+      })();
+      delete info.url_encoded_fmt_stream_map;
+      info.video_verticals = (info.video_verticals ? info.video_verticals : "")
+        .slice(1, -1)
+        .split(',')
+        .filter(function(val) { return val !== ''; });
+      for (var i in info.video_verticals) {
+        info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
       }
-      return tmp
-    })();
-    delete info.url_encoded_fmt_stream_map;
-    info.video_verticals = (info.video_verticals ? info.video_verticals : "")
-      .slice(1, -1)
-      .split(',')
-      .filter(function(val) { return val !== ''; });
-    for (var i in info.video_verticals) {
-      info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
+      
+      if (callback) callback.apply(pointer, [info]);
     }
-    
-    if (callback) callback.apply(pointer, [info]);
-  }
-  req.send();
+  }).get();
 }
 //Do not localize
 var getFormat = function (value) {
