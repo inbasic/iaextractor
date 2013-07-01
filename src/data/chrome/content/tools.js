@@ -87,7 +87,7 @@ var drag1 = {
             break;
         }
         if (err) {
-          alert(msg);
+          alert(err);
         }
       });
     }
