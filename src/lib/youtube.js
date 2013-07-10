@@ -1,6 +1,9 @@
-var prefs = require("sdk/simple-prefs").prefs,
-  Request = require("sdk/request").Request;
-// https://github.com/fent/node-ytdl
+var prefs   = require("sdk/simple-prefs").prefs,
+    _prefs  = require("./misc").prefs,
+    Request = require("sdk/request").Request,
+    {Cc, Ci, Cu}  = require('chrome');
+
+
 
 function _getInfo(videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
@@ -235,14 +238,16 @@ function _getInfo(videoID, callback, pointer) {
       var val = info[i],
         intVal = parseInt(val, 10),
         floatVal = parseFloat(val, 10);
-
       if (intVal.toString() === val) {
         info[i] = intVal;
-      } else if (floatVal.toString() === val) {
+      } 
+      else if (floatVal.toString() === val) {
         info[i] = floatVal;
-      } else if (val === 'True') {
+      } 
+      else if (val === 'True') {
         info[i] = true;
-      } else if (val === 'False') {
+      } 
+      else if (val === 'False') {
         info[i] = false;
       }
     }
@@ -279,69 +284,12 @@ function _getInfo(videoID, callback, pointer) {
         itag = videoFormatsPair['itag'];
         if (videoFormatsPair['sig']) {
           videoFormatsPair['url'] = url + '&signature=' + videoFormatsPair['sig'];
-        } else if (videoFormatsPair['s']) {
+        } 
+        else if (videoFormatsPair['s']) {
           var sig = videoFormatsPair['s'];
-
-          function swap(a, b) {
-            var c = a[0];
-            a[0] = a[b % a.length];
-            a[b] = c;
-            return a
-          };
-          if (sig.length == 88) {
-            var sigA = sig.split("");
-            sigA = sigA.slice(2);
-            sigA = swap(sigA, 1);
-            sigA = swap(sigA, 10);
-            sigA = sigA.reverse();
-            sigA = sigA.slice(2);
-            sigA = swap(sigA, 23);
-            sigA = sigA.slice(3);
-            sigA = swap(sigA, 15);
-            sigA = swap(sigA, 34);
-            sig = sigA.join("");
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 87) {
-            var sigA = sig.substr(44, 40).split('').reverse().join('');
-            var sigB = sig.substr(3, 40).split('').reverse().join('');
-            sig = sigA.substr(21, 1) + sigA.substr(1, 20) + sigA.substr(0, 1) + sigB.substr(22, 9) +
-              sig.substr(0, 1) + sigA.substr(32, 8) + sig.substr(43, 1) + sigB;
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 86) { /* */
-            var sigA = sig.substr(2, 40);
-            var sigB = sig.substr(43, 40);
-            sig = sigA + sig.substr(42, 1) + sigB.substr(0, 20) + sigB.substr(39, 1) + sigB.substr(21, 18) + sigB.substr(20, 1);
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 85) {
-            var sigA = sig.substr(44, 40).split('').reverse().join('');
-            var sigB = sig.substr(3, 40).split('').reverse().join('');
-            sig = sigA.substr(7, 1) + sigA.substr(1, 6) + sigA.substr(0, 1) + sigA.substr(8, 15) + sig.substr(0, 1) +
-              sigA.substr(24, 9) + sig.substr(1, 1) + sigA.substr(34, 6) + sig.substr(43, 1) + sigB;
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 84) {
-            var sigA = sig.substr(44, 40).split('').reverse().join('');
-            var sigB = sig.substr(3, 40).split('').reverse().join('');
-            sig = sigA + sig.substr(43, 1) + sigB.substr(0, 6) + sig.substr(2, 1) + sigB.substr(7, 9) +
-              sigB.substr(39, 1) + sigB.substr(17, 22) + sigB.substr(16, 1);
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 83) {
-            var sigA = sig.substr(43, 40).split('').reverse().join('');
-            var sigB = sig.substr(2, 40).split('').reverse().join('');
-            sig = sigA.substr(30, 1) + sigA.substr(1, 26) + sigB.substr(39, 1) +
-              sigA.substr(28, 2) + sigA.substr(0, 1) + sigA.substr(31, 9) + sig.substr(42, 1) +
-              sigB.substr(0, 5) + sigA.substr(27, 1) + sigB.substr(6, 33) + sigB.substr(5, 1);
-            url = url + '&signature=' + sig;
-          } else if (sig.length == 82) {
-            var sigA = sig.substr(34, 48).split('').reverse().join('');
-            var sigB = sig.substr(0, 33).split('').reverse().join('');
-            sig = sigA.substr(45, 1) + sigA.substr(2, 12) + sigA.substr(0, 1) + sigA.substr(15, 26) +
-              sig.substr(33, 1) + sigA.substr(42, 1) + sigA.substr(43, 1) + sigA.substr(44, 1) +
-              sigA.substr(41, 1) + sigA.substr(46, 1) + sigB.substr(32, 1) + sigA.substr(14, 1) +
-              sigB.substr(0, 32) + sigA.substr(47, 1);
-            url = url + '&signature=' + sig;
-          }
-
-          videoFormatsPair.url = url;
+          var sandbox = new Cu.Sandbox("http://www.add0n.com/");
+          var decoder = Cu.evalInSandbox(_prefs.getCharPref("decoder_function"), sandbox);
+          videoFormatsPair.url = decoder(url, sig);
         }
         var format = FORMATS[videoFormatsPair.itag];
         if (!format) {
@@ -385,13 +333,15 @@ function _getInfo(videoID, callback, pointer) {
             var tmp = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
             if (!tmp || !tmp.length) {
               throw 'Error: Cannot detect url_encoded_fmt_stream_map from HTML file.';
-            } else {
+            } 
+            else {
               info.url_encoded_fmt_stream_map = tmp[1];
               parser(info);
             }
           }
         }).get();
-      } else {
+      } 
+      else {
         parser(info);
       }
     }
@@ -458,7 +408,8 @@ var getLink = function (videoID, fIndex, callback, pointer) {
         }
         if (!detected && tmp.length) detected = tmp[0]
         if (!detected) detected = info.formats[0]; //Get highest quality
-      } else {
+      } 
+      else {
         detected = info.formats[fIndex];
       }
       if (!detected && tmp.length) detected = tmp[0];

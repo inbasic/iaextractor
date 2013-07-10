@@ -65,6 +65,8 @@ var prefs = (function () {
     getService(Ci.nsIPrefService).
     getBranch("extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.");
   return {
+    getIntPref: pservice.getIntPref,
+    setIntPref: pservice.setIntPref,
     getCharPref: pservice.getCharPref,
     setCharPref: pservice.setCharPref,
     getComplexValue: pservice.getComplexValue,
