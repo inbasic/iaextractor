@@ -771,7 +771,6 @@ var getVideo = (function () {
           //Simple-prefs doesnt support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
           vFile.append(name + "." + vInfo.container);
-          vFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
         }
         catch (e) {
           notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
