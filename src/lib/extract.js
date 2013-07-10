@@ -45,9 +45,9 @@ function extract(stream, callback, pointer) {
      throw Error(_("err1"));
   }
   
-  var readInt =    function () {return stream[++pointer].charCodeAt(0)}
-  var readByte =   function () {return readInt().toString(16);}
-  var read3Bytes = function () {return readInt() * 65536 + readInt() * 256 + readInt();}
+  var readInt =    function () { return stream[++pointer].charCodeAt(0);}
+  var readByte =   function () { return readInt().toString(16); }
+  var read3Bytes = function () { return readInt() * 65536 + readInt() * 256 + readInt();}
   
   pointer = 2;
   var version = readByte();
@@ -59,9 +59,21 @@ function extract(stream, callback, pointer) {
   
   pointer = 8
   var _aacProfile, _sampleRateIndex, _channelConfig;
-  function oneChunk (){
+  function oneChunk () {
     pointer += 4; // PreviousTagSize0 skipping
 
+    if (pointer >= stream.length - 1) {
+Cc['@mozilla.org/consoleservice;1']
+            .getService(Ci.nsIConsoleService)
+            .logStringMessage("ooo");
+            
+            
+      if (callback && callback.done) {
+        callback.done.apply(pointer, [audio]);
+      }
+      return;
+    }
+    
     var tagType = readByte();
     while (tagType != 8) {
       var skip = read3Bytes() + 11;    
