@@ -19,26 +19,16 @@ var downloadButton = $("download-button"),
     toolbar = $("download-manager-toolbar");
 
 var mList = function (name, el1, el2, value, func) {
-  var isHidden = true;
   var radios = document.getElementsByName(name);
   
   function set (soft) {
-    el1.textContent = el2.children[value].childNodes[1].textContent;
     radios[parseInt(value)].checked = true;
     if (!soft) func(value);
   }
   set(true);
-  el1.addEventListener("click", function () {
-    el2.style.display = isHidden ? 'block' : 'none';
-    isHidden = !isHidden;
-    window.scrollTo(0, document.body.scrollHeight);
-  }, false);
   window.addEventListener("click", function (e) {
     if (e.button != 0) return;
-    if (e.originalTarget == el1 || e.originalTarget.parent == el1) return;
-    isHidden = true;
-    el2.style.display = 'none';
-    if (e.originalTarget.localName != "label" && e.originalTarget.localName != "input")
+    if (e.originalTarget.localName != "input")
       return;
     for (var i = 0; i < radios.length; i++) {
       if (radios[i].checked) {
@@ -56,6 +46,7 @@ var mList = function (name, el1, el2, value, func) {
     }
   }
 }
+
 
 var download = new mList (
   "dinput", 
@@ -84,6 +75,19 @@ var format = new mList (
     self.port.emit("cmd", "format", value);
   }
 );
+
+function toggleClass(el, class1) {
+  var obj = $(el);
+  if (!obj.classList.contains(class1)) {
+     obj.setAttribute("class", class1);
+  } else {
+     obj.setAttribute("class", "");
+  }
+}
+$("quality-preferences").addEventListener("click", function() {toggleClass("quality-preferences", "slide")}, false);
+$("folder-preferences").addEventListener("click", function() {toggleClass("folder-preferences", "slide2")}, false);
+
+
 
 function tabSelector (e) {
   var n;
@@ -282,16 +286,6 @@ toolbar.addEventListener("click", function () {
 }, true);
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
-  //Resizing tabs
-  var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
-  if (navigator.userAgent.indexOf("Mac OS X") != -1) {
-    width -= 1;
-  }
-  width = (width - 24)/3;
-  var tab = document.getElementsByClassName("tab");
-  for (var i = 0; i < tab.length; i++) {
-    tab[i].style.width = width + "px";
-  }
   //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;

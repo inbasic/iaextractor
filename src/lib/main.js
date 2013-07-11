@@ -87,7 +87,7 @@ var config = {
   panels: {
     rPanel: {
       width: 387,
-      height: 247
+      height: 200
     },
     iPanel: {
       width: 520,
@@ -920,7 +920,7 @@ var notify = (function () {
       let alertServ = Cc["@mozilla.org/alerts-service;1"].
                       getService(Ci.nsIAlertsService);
       //In linux config.image does not work properly!
-      alertServ.showAlertNotification(data.url("notification.png"), title, text);
+      alertServ.showAlertNotification(data.url("report/open.png"), title, text);
     }
     catch(e) {
       let browser = windowutils.activeBrowserWindow.gBrowser,
