@@ -192,11 +192,11 @@ label {
   transition: margin-left 250ms, background-color 150ms;
 }
 #format-addition {
-  width: 137px;
+  width: 134px;
   border-left: 1px solid white;
 }
 #video-addition {
-  width: 146px;
+  width: 148px;
   background-color: #E36C09;
 }
 #format-addition,
@@ -213,11 +213,11 @@ label {
   float: left;
 }
 .format-title {
-  padding-left: 13px;
+  padding-left: 11px;
   line-height: 110px;
 }
 .quality-title {
-  padding-left: 7px;
+  padding-left: 11px;
   line-height: 110px;
 }
 .fcontainer,
@@ -411,7 +411,7 @@ label {
   width: 319px;
   background-color: #E36C09;
   padding-top: 3px;
-  padding-left: 13px;
+  padding-left: 14px;
 }
 #folder-preferences {
   background-color: #E36C09;
