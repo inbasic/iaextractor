@@ -40,8 +40,8 @@ var mList = function (name, value, func) {
   }
   set(true);
   window.addEventListener("click", function (e) {
-    if (e.target.id == "qradio") toggleClass("video-preferences", "slide");
-    if (e.target.id == "fradio") toggleClass("folder-preferences", "slide2");
+    if (e.target.id == "qradio" || e.target.className == "checked") toggleClass("video-preferences", "slide");
+    if (e.target.id == "fradio" || e.target.className == "checked") toggleClass("folder-preferences", "slide2");
     if (e.button != 0) return;
     if (e.originalTarget.localName != "input")
       return;
