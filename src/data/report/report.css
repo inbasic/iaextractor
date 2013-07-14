@@ -15,19 +15,12 @@ body {
 table {
   font-size: 14px;
 }
-label {
-  display: inline-block;
-  width: 100%;
-  text-align: left;
-}
 .tabs {
   position: relative;
   float:left;
   z-index: 2;
   width: 67px;
   height: 100%;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
 }
 .tab {
   -moz-user-select: none;
@@ -48,13 +41,6 @@ label {
   background-position: center;
   background-repeat: no-repeat;
 }
-/*#home[selected],
-#downloads[selected],
-#preferences[selected] {
-  background-position: 17px center;
-  border-left: 5px solid #1C93F6;
-  -moz-box-sizing: border-box;
-}*/
 #home[selected] .selected {
   display: block;
 }
@@ -74,12 +60,14 @@ label {
 }
 #home {
   background-image: url("home24.png");
+  border-top-left-radius: 1px;
 }
 #downloads {
   background-image: url("download24.png");
 }
 #preferences {
   background-image: url("preferences24.png");
+  border-bottom-left-radius: 1px;
 }
 .tabpanels {
   position: relative;
@@ -97,8 +85,52 @@ label {
 .tabpanel[selected] {
   display: block;
 }
-
-
+input[type="radio"] {
+  display: none;
+}
+input[type="radio"] + span {
+  display: inline-block;
+  border: 2px solid white;
+  width: 10px;
+  height: 10px;
+  border-radius: 100px;
+  margin-right: 5px;
+  margin-left: 4px;
+  margin-top: 1px;
+  transition: background-color 110ms;
+}
+label:hover > span:not(.text) {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+label:active > span:not(.text) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+input[type="radio"]:checked + span div {
+  visibility: visible;
+}
+.checked {
+  width: 6px; 
+  height: 6px;
+  margin-left: 2px;
+  margin-top: 2px;
+  border-radius: 100px;
+  background-color: white;
+  visibility: collapse;
+}
+.text {
+  display: inline-block;
+  position: relative;
+  top: -2px;
+}
+label {
+  display: inline-block;
+  width: 100%;
+  text-align: left;
+}
+input,
+span {
+  cursor: pointer;
+}
 
 
 /* First Tab */
@@ -112,7 +144,7 @@ label {
   border: none;
   border-bottom: 1px solid white;
   font-family: Open Sans;
-  width: 319px;
+  width: 284px;
   height: 23px;
   background-color: #E36C09;
   color: white;
@@ -168,8 +200,9 @@ label {
   position: fixed;
   bottom: 0;
   -moz-user-select: none;
+  border-bottom-right-radius: 1px;
 }
-#quality-preferences {
+#video-preferences {
   width: 319px;
   height: 111px;
   background-color: red;
@@ -183,7 +216,7 @@ label {
   text-align: center;  
   transition: margin-left 250ms, background-color 150ms;  
 }
-#quality-preferences:hover {
+#video-preferences:hover {
   background-color: #FF6C09;
   cursor: pointer;
 }
@@ -191,19 +224,20 @@ label {
   margin-left: -320px !important;
   transition: margin-left 250ms, background-color 150ms;
 }
-#format-addition {
-  width: 134px;
-  border-left: 1px solid white;
-}
-#video-addition {
-  width: 148px;
-  background-color: #E36C09;
-}
 #format-addition,
-#video-addition {
+#quality-addition {
   float: right;
   font-size: 12px;
   height: 111px;
+  background-color: #E36C09;
+}
+#format-addition {
+  width: 135px;
+  border-left: 1px solid white;
+  border-top-right-radius: 1px;
+}
+#quality-addition {
+  width: 149px;
   background-color: #E36C09;
 }
 .format-title,
@@ -221,16 +255,16 @@ label {
   line-height: 110px;
 }
 .fcontainer,
-.vcontainer {
+.qcontainer {
   float: right;
   height: 111px;
 }
 .fcontainer {
-  padding-top: 14px;
+  padding-top: 19px;
   width: 70px;
 }
-.vcontainer {
-  padding-top: 5px;
+.qcontainer {
+  padding-top: 9px;
   width: 85px;
 }
 
@@ -301,6 +335,7 @@ label {
   padding: 16% 0;
   text-align: center;
   line-height: 0;
+  border-top-right-radius: 1px;
 }
 .d-footer {
   position: fixed;
@@ -314,6 +349,7 @@ label {
   cursor: pointer;
   -moz-user-select: none;
   transition: background-color 150ms;
+  border-bottom-right-radius: 1px;
 }
 .d-footer:hover {
   background-color: #FF6C09;
@@ -336,7 +372,7 @@ label {
 
 
 
-#third-panel {
+#preferences-panel {
   background-color: #E36C09;
   height: 200px;
   width: 319px;
@@ -400,19 +436,6 @@ label {
 #tools-button {
   background-position: -19px center;
 }
-#download-addition {
-  text-align: center;
-  float: right;
-  position: absolute;
-  bottom: 0;
-  display: block;
-  font-size: 11px;
-  height: 62px;
-  width: 319px;
-  background-color: #E36C09;
-  padding-top: 3px;
-  padding-left: 14px;
-}
 #folder-preferences {
   background-color: #E36C09;
   padding-top: 3px;
@@ -428,6 +451,19 @@ label {
   background-color: #FF6C09;
   cursor: pointer;
 }
+#download-addition {
+  text-align: center;
+  float: right;
+  position: absolute;
+  bottom: 0;
+  display: block;
+  font-size: 12px;
+  height: 60px;
+  width: 319px;
+  background-color: #E36C09;
+  padding-top: 6px;
+  padding-left: 12px;
+}
 .slide2 {
   top: 108px !important;
 }
@@ -435,8 +471,4 @@ label {
   display: block;
   float: left;
   width: 159px;
-}
-input,
-span {
-  cursor: pointer;
 }

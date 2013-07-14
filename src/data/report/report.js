@@ -1,6 +1,7 @@
 var $ = function (id) { 
   return document.getElementById(id);
 } 
+
 var _ = function (id) {
   var items = $("locale").getElementsByTagName("span");
   for (var i = 0; i < items.length; i++) {
@@ -11,6 +12,18 @@ var _ = function (id) {
   return id;
 }
 
+function toggleClass(el, cl) {
+  var obj = $(el);
+  if (!obj.classList.contains(cl)) {
+     obj.setAttribute("class", cl);
+  } else {
+     obj.setAttribute("class", "");
+  }
+}
+
+$("video-preferences").addEventListener("click", function() {toggleClass("video-preferences", "slide")}, false);
+$("folder-preferences").addEventListener("click", function() {toggleClass("folder-preferences", "slide2")}, false);
+
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox"),
@@ -18,15 +31,17 @@ var downloadButton = $("download-button"),
     sCheckbox = $("resolve-size-checkbox"),
     toolbar = $("download-manager-toolbar");
 
-var mList = function (name, el1, el2, value, func) {
+var mList = function (name, value, func) {
   var radios = document.getElementsByName(name);
-  
+
   function set (soft) {
     radios[parseInt(value)].checked = true;
     if (!soft) func(value);
   }
   set(true);
   window.addEventListener("click", function (e) {
+    if (e.target.id == "qradio") toggleClass("video-preferences", "slide");
+    if (e.target.id == "fradio") toggleClass("folder-preferences", "slide2");
     if (e.button != 0) return;
     if (e.originalTarget.localName != "input")
       return;
@@ -50,8 +65,6 @@ var mList = function (name, el1, el2, value, func) {
 
 var download = new mList (
   "dinput", 
-  $('download-list'), 
-  $('download-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "destination", value);
@@ -59,35 +72,18 @@ var download = new mList (
 );
 var quality = new mList (
   "vinput", 
-  $('video-list'), 
-  $('video-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "quality", value);
   }
 );
 var format = new mList (
-  "finput", 
-  $('format-list'), 
-  $('format-addition'),
+  "finput",
   0,
   function (value) {
     self.port.emit("cmd", "format", value);
   }
 );
-
-function toggleClass(el, class1) {
-  var obj = $(el);
-  if (!obj.classList.contains(class1)) {
-     obj.setAttribute("class", class1);
-  } else {
-     obj.setAttribute("class", "");
-  }
-}
-$("quality-preferences").addEventListener("click", function() {toggleClass("quality-preferences", "slide")}, false);
-$("folder-preferences").addEventListener("click", function() {toggleClass("folder-preferences", "slide2")}, false);
-
-
 
 function tabSelector (e) {
   var n;

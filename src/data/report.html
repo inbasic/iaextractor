@@ -25,24 +25,24 @@
               <input id="video-url" type="text" placeholder="PASTE YOUR URL HERE" onfocus="this.blur()"/>
               <p id="download-button"></p>
             </td>
-            <td id="quality-preferences">
+            <td id="video-preferences">
               <span id="format-addition">
                 <span class="format-title">Format:</span>
                 <span class="fcontainer">
-                <label><input type="radio" name="finput" value="0" onfocus="this.blur()"><span data-l10n-id="extension_options.FLV"/></label>
-                <label><input type="radio" name="finput" value="1" onfocus="this.blur()"><span data-l10n-id="extension_options.3GP"/></label>
-                <label><input type="radio" name="finput" value="2" onfocus="this.blur()"><span data-l10n-id="extension_options.MP4"/></label>
-                <label><input type="radio" name="finput" value="3" onfocus="this.blur()"><span data-l10n-id="extension_options.WebM"/></label>
+                <label><input type="radio" name="finput" value="0" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.FLV"/></label>
+                <label><input type="radio" name="finput" value="1" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.3GP"/></label>
+                <label><input type="radio" name="finput" value="2" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.MP4"/></label>
+                <label><input type="radio" name="finput" value="3" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.WebM"/></label>
                 </span>
               </span>
-              <span id="video-addition">
+              <span id="quality-addition">
                 <span class="quality-title">Quality:</span>
-                <span class="vcontainer">
-                <label><input type="radio" name="vinput" value="0" onfocus="this.blur()"><span data-l10n-id="quality_options.HD1080p"/></label>
-                <label><input type="radio" name="vinput" value="1" onfocus="this.blur()"><span data-l10n-id="quality_options.HD720p"/></label>
-                <label><input type="radio" name="vinput" value="2" onfocus="this.blur()"><span data-l10n-id="quality_options.High"/></label>
-                <label><input type="radio" name="vinput" value="3" onfocus="this.blur()"><span data-l10n-id="quality_options.Medium"/></label>
-                <label><input type="radio" name="vinput" value="4" onfocus="this.blur()"><span data-l10n-id="quality_options.Small"/></label>
+                <span class="qcontainer">
+                <label><input type="radio" name="vinput" value="0" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
+                <label><input type="radio" name="vinput" value="1" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.HD720p"/></label>
+                <label><input type="radio" name="vinput" value="2" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.High"/></label>
+                <label><input type="radio" name="vinput" value="3" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.Medium"/></label>
+                <label><input type="radio" name="vinput" value="4" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.Small"/></label>
                 </span>              
               </span>
             </td>
@@ -82,7 +82,7 @@
           <span id="download-manager-toolbar-label"/>
         </div>
       </div>
-      <div id="third-panel" class="tabpanel">
+      <div id="preferences-panel" class="tabpanel">
         <table id="container" cellspacing="0" cellpadding="0">
             <tr>
               <td class="title" data-l10n-id="conversion-tool"></td>
@@ -110,12 +110,12 @@
             <td id="folder-preferences">
               <p>Download Destination</p>
               <div id="download-addition">
-                <label class="dlabel"><input type="radio" name="dinput" value="0" onfocus="this.blur()"><span data-l10n-id="dFolder_options.dft_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="1" onfocus="this.blur()"><span data-l10n-id="dFolder_options.hm_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="2" onfocus="this.blur()"><span data-l10n-id="dFolder_options.tmp_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="3" onfocus="this.blur()"><span data-l10n-id="dFolder_options.dsk_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="4" onfocus="this.blur()"><span data-l10n-id="dFolder_options.slt_fdr"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="5" onfocus="this.blur()"><span data-l10n-id="dFolder_options.urs_fdr"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="0" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="1" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="2" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="3" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="4" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
+                <label class="dlabel"><input type="radio" name="dinput" value="5" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
               </div>
             </td>
           </tr>
