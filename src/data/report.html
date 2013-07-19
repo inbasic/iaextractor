@@ -11,115 +11,118 @@
       <span data-l10n-id="open-youtube"></span>
     </div>
     
-    <div id="tabs" class="tabs">
-      <span id="home" class="tab" selected="true"><div class="selected"></div></span>
-      <span id="downloads"class="tab"><div class="selected"></div></span>
-      <span id="preferences"class="tab"><div class="selected"></div></span>      
-    </div>
+    <div id="global-container">
 
-    <div id="tabpanels" class="tabpanels">
-      <div class="tabpanel" selected="true">
-        <table cellspacing="0" cellpadding="0">
-          <tr>
-            <td id="qd-button">
-              <input id="video-url" type="text" placeholder="PASTE YOUR URL HERE" onfocus="this.blur()"/>
-              <p id="download-button"></p>
-            </td>
-            <td id="video-preferences">
-              <span id="format-addition">
-                <span class="format-title">Format:</span>
-                <span class="fcontainer">
-                <label><input type="radio" name="finput" value="0" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.FLV"/></label>
-                <label><input type="radio" name="finput" value="1" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.3GP"/></label>
-                <label><input type="radio" name="finput" value="2" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.MP4"/></label>
-                <label><input type="radio" name="finput" value="3" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="extension_options.WebM"/></label>
-                </span>
-              </span>
-              <span id="quality-addition">
-                <span class="quality-title">Quality:</span>
-                <span class="qcontainer">
-                <label><input type="radio" name="vinput" value="0" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
-                <label><input type="radio" name="vinput" value="1" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.HD720p"/></label>
-                <label><input type="radio" name="vinput" value="2" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.High"/></label>
-                <label><input type="radio" name="vinput" value="3" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.Medium"/></label>
-                <label><input type="radio" name="vinput" value="4" onfocus="this.blur()"><span id="qradio"><div class="checked"></div></span><span class="text" data-l10n-id="quality_options.Small"/></label>
-                </span>              
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td id="dl-button">
-              <p id="formats-button" data-l10n-id="download-links"></p>
-            </td>
-          </tr>
-        </table>
+      <div id="click-handler"></div>
+      <div id="tabs" class="tabs">
+        <span id="home" class="tab ui-color" selected="true"><div class="selected"></div></span>
+        <span id="downloads"class="tab ui-color"><div class="selected"></div></span>
+        <span id="preferences"class="tab ui-color"><div class="selected"></div></span>      
       </div>
-      <div class="tabpanel">
-        <div id="no-download-manager" class="nd-content">
-          <img src="report/no-active-download.png"/>
-          <p data-l10n-id="no-download"></p>
-        </div>
-        <div id="download-manager" class="d-content">
-          <table id="download-item" class="download-item" style="display:none;" cellspacing="0" cellpadding="0">
+
+      <div id="tabpanels" class="tabpanels">
+        <div class="tabpanel" selected="true">
+          <table cellspacing="0" cellpadding="0">
             <tr>
-              <td>
-                <img class="d-icon" src="report/download24-2.png"/>
+              <td id="qd-button">
+                <p id="download-button" class="ui-color"></p>
               </td>
-              <td width="100%">
-                <span id="top-text">-</span>
-                <div class="progress-outer">
-                 <div class="progress-inner"></div>
-                </div>
-                <span id="bottom-text">...</span>
+              <td id="video-preferences" class="ui-color">
+                <span id="quality-addition">
+                  <span class="quality-title">Quality:</span>
+                  <span class="qcontainer">
+                  <label class="radio"><input type="radio" name="vinput" value="0" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
+                  <label class="radio"><input type="radio" name="vinput" value="1" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="quality_options.HD720p"/></label>
+                  <label class="radio"><input type="radio" name="vinput" value="2" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="quality_options.High"/></label>
+                  <label class="radio"><input type="radio" name="vinput" value="3" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="quality_options.Medium"/></label>
+                  <label class="radio"><input type="radio" name="vinput" value="4" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="quality_options.Small"/></label>
+                  </span>              
+                </span>
+                <span id="format-addition">
+                  <span class="format-title">Format:</span>
+                  <span class="fcontainer">
+                  <label class="radio"><input type="radio" name="finput" value="0" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="extension_options.FLV"/></label>
+                  <label class="radio"><input type="radio" name="finput" value="1" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="extension_options.3GP"/></label>
+                  <label class="radio"><input type="radio" name="finput" value="2" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="extension_options.MP4"/></label>
+                  <label class="radio"><input type="radio" name="finput" value="3" onfocus="this.blur()"><span id="qradio"><div class="qchecked"></div></span><span class="text" data-l10n-id="extension_options.WebM"/></label>
+                  </span>
+                </span>
               </td>
-              <td>
-                <img class="cancel" src="report/cancel.png"/>
+            </tr>
+            <tr>
+              <td id="dl-button">
+                <p id="formats-button" data-l10n-id="download-links"></p>
               </td>
             </tr>
           </table>
         </div>
-        <div id="download-manager-toolbar" class="d-footer">
-          <span id="download-manager-toolbar-label"/>
+        <div class="tabpanel">
+          <div id="no-download-manager" class="nd-content ui-color">
+            <img src="report/no-active-download.png"/>
+            <p data-l10n-id="no-download"></p>
+          </div>
+          <div id="download-manager" class="d-content">
+            <table id="download-item" class="download-item ui-color" style="display:none;" cellspacing="0" cellpadding="0">
+              <tr>
+                <td>
+                  <img class="d-icon" src="report/download24-2.png"/>
+                </td>
+                <td width="100%">
+                  <span id="top-text">-</span>
+                  <div class="progress-outer">
+                   <div class="progress-inner"></div>
+                  </div>
+                  <span id="bottom-text">...</span>
+                </td>
+                <td>
+                  <img class="cancel" src="report/cancel.png"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div id="download-manager-toolbar" class="d-footer ui-color">
+            <span id="download-manager-toolbar-label"/>
+          </div>
         </div>
-      </div>
-      <div id="preferences-panel" class="tabpanel">
-        <table id="container" cellspacing="0" cellpadding="0">
+        <div id="preferences-panel" class="tabpanel ui-color">
+          <table id="container" cellspacing="0" cellpadding="0">
+              <tr>
+                <td class="title" data-l10n-id="conversion-tool"></td>
+                <td id="tools-button" class="button"></td>
+              </tr>
+              <tr>
+                <td class="title" data-l10n-id="resolve-links"></td>
+                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="resolve-size-checkbox"/><span></span></label></td>
+              </tr>
+              <tr>
+                <td class="title" data-l10n-id="extract-embed"></td>
+                <td id="embed-button" class="button"></td>
+              </tr>
+              <tr>
+                <td class="title" data-l10n-id="extract-audio"></td>
+                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></td>
+              </tr>
+              <tr>
+                <td class="title" data-l10n-id="extract-subtitle"></td>
+                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="subtitle-checkbox"/><span></span></label></td>
+              </tr>
+          </table>
+          <table cellspacing="0" cellpadding="0">
             <tr>
-              <td class="title" data-l10n-id="conversion-tool"></td>
-              <td id="tools-button" class="button"></td>
+              <td id="folder-preferences" class="ui-color">
+                <p>Download Destination</p>
+                <div id="download-addition">
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="0" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="1" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="2" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="3" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="4" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
+                  <label class="radio dlabel"><input type="radio" name="dinput" value="5" onfocus="this.blur()"><span id="fradio"><div class="fchecked"></div></span><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
+                </div>
+              </td>
             </tr>
-            <tr>
-              <td class="title" data-l10n-id="resolve-links"></td>
-              <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="resolve-size-checkbox"/><span></span></label></td>
-            </tr>
-            <tr>
-              <td class="title" data-l10n-id="extract-embed"></td>
-              <td id="embed-button" class="button"></td>
-            </tr>
-            <tr>
-              <td class="title" data-l10n-id="extract-audio"></td>
-              <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></td>
-            </tr>
-            <tr>
-              <td class="title" data-l10n-id="extract-subtitle"></td>
-              <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="subtitle-checkbox"/><span></span></label></td>
-            </tr>
-        </table>
-        <table cellspacing="0" cellpadding="0">
-          <tr>
-            <td id="folder-preferences">
-              <p>Download Destination</p>
-              <div id="download-addition">
-                <label class="dlabel"><input type="radio" name="dinput" value="0" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="1" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="2" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="3" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="4" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
-                <label class="dlabel"><input type="radio" name="dinput" value="5" onfocus="this.blur()"><span id="fradio"><div class="checked"></div></span><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
-              </div>
-            </td>
-          </tr>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   </body>

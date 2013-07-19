@@ -2,6 +2,10 @@ var $ = function (id) {
   return document.getElementById(id);
 }
 
+if (document.getElementById("iaextractor-menu") != null) {
+ document.body.removeChild(document.getElementById("iaextractor-menu"));
+} else {
+
 var mMake = function (doSize) {
   var sets = [], numberOfItems, activeSet = 0, title;
   //Flash player
@@ -163,3 +167,5 @@ self.port.on("file-size-response", function(url, size, index) {
   }
   p.textContent += " - " + size;
 });
+
+};

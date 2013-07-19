@@ -12,17 +12,36 @@ var _ = function (id) {
   return id;
 }
 
-function toggleClass(el, cl) {
-  var obj = $(el);
-  if (!obj.classList.contains(cl)) {
-     obj.setAttribute("class", cl);
-  } else {
-     obj.setAttribute("class", "");
-  }
-}
+var videop = $("video-preferences");
+var folderp = $("folder-preferences");
+var handler = $("click-handler");
 
-$("video-preferences").addEventListener("click", function() {toggleClass("video-preferences", "slide")}, false);
-$("folder-preferences").addEventListener("click", function() {toggleClass("folder-preferences", "slide2")}, false);
+function autohide(el, cl) {
+  document.onclick = function() {
+    if (el.classList.contains(cl)) {
+      handler.style.display = "block";
+      el.style.zIndex = "4";
+    } else {
+      handler.style.display = "none";
+      el.style.zIndex = "2";
+    }
+    handler.onclick = function() {
+      el.classList.toggle(cl)
+    }
+  } 
+} 
+
+videop.addEventListener("click", function() {
+  videop.classList.toggle("slide");
+  autohide(videop, "slide");
+}, false);
+
+folderp.addEventListener("click", function() {
+  folderp.classList.toggle("slide2");
+  autohide(folderp, "slide2");
+}, false);
+
+
 
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
@@ -40,8 +59,8 @@ var mList = function (name, value, func) {
   }
   set(true);
   window.addEventListener("click", function (e) {
-    if (e.target.id == "qradio" || e.target.className == "checked") toggleClass("video-preferences", "slide");
-    if (e.target.id == "fradio" || e.target.className == "checked") toggleClass("folder-preferences", "slide2");
+    if (e.target.id == "qradio" || e.target.className == "qchecked") videop.classList.toggle("slide");
+    if (e.target.id == "fradio" || e.target.className == "fchecked") folderp.classList.toggle("slide2");
     if (e.button != 0) return;
     if (e.originalTarget.localName != "input")
       return;
@@ -280,8 +299,21 @@ $("tools-button").addEventListener("click", function () {
 toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
+
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
+  // Resizing tabs
+  var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
+      width = gcwidth - 320; // Difference between normal panel size (387px) and normal tabs size (67px) 
+  
+  if (navigator.userAgent.indexOf("Mac OS X") != -1) {
+    width -= 1;
+  }
+
+  var tabs = document.getElementsByClassName("tabs");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].style.width = width + "px" ;
+  } 
   //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
@@ -305,6 +337,18 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
     tabSelector(0);
   }
 });
+
+self.port.on("autohide", function() {
+  if (videop.classList.contains("slide")) {
+    videop.classList.remove("slide");
+    handler.style.display = "none";
+    videop.style.zIndex = "2";
+  } else if (folderp.classList.contains("slide2")) {
+    folderp.classList.remove("slide2");
+    handler.style.display = "none";
+    folderp.style.zIndex = "2";
+  }
+});  
 
 window.addEventListener("load", function () {
   dmUI.checkState();
