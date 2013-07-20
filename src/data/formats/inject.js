@@ -14,44 +14,75 @@ var mMake = function (doSize) {
     }
   }
   if (players.length) {
-    var rect = players[0].getBoundingClientRect ();
-    document.body.insertAdjacentHTML("afterbegin", 
-    '<div id="iaextractor-menu" class="iaextractor-div">' +
-    '  <span class="iaextractor-title">Download Video</span> ' +
-    '  <input type="submit" id="iaextractor-close" ' + 
-    '    style="position: absolute; top: 0px; right: 0px;" value="">' +
+    var player = players[0];
+    var rect = player.getBoundingClientRect();
+    player.insertAdjacentHTML("afterend", 
+    '<div id="iaextractor-menu">' +
+    '  <span type="title">Download Video</span> ' +
+    '  <span id="iaextractor-close" class="iaextractor-button" ' + 
+    '    style="top: 0px; right: 0px;" value=""><i></i></span>' +
+    '  <span id="iaextractor-sort" class="iaextractor-button" ' + 
+    '    style="bottom: 0px; right: 0px;" value=""><i></i></span>' +
+    '  <span id="iaextractor-icon" class="iaextractor-button" disabled="true" ' + 
+    '    style="top: 0px; left: 0px;" value=""><i></i></span>' +
+    '  <span id="iaextractor-settings" class="iaextractor-button" ' + 
+    '    style="bottom: 0px; left: 0px;" value=""><i></i></span>' +
     '  <div id="iaextractor-items"></div> ' +
-    '  <div class="iaextractor-bottom"> ' +
-    '    <input type="submit" id="iaextractor-previous" disabled="true" value="">' +
-    '    <input type="submit" id="iaextractor-next" value="">' +
-    '  </div>' +
+    '  <span type="footer"> ' +
+    '    <span id="iaextractor-previous" class="iaextractor-button" ' + 
+    '      disabled="true" value=""><i></i></span>' +
+    '    <span id="iaextractor-next" class="iaextractor-button" ' +
+    '      value=""><i></i></span>' +
+    '  </span>' +
+    '  <ul id="iaextractor-downloader"><li>Firefox downloader</li><li>Flashgot</li><li>DownThemAll</li></ul>' +
     '</div>');
-    var width = 320 + (doSize ? 40 : 0);
+    var width = 350 + (doSize ? 40 : 0);
     $("iaextractor-menu").setAttribute("style", 
-      'top: ' + (rect.top + window.scrollY) + 'px;' + 
-      'left: ' + (rect.left + (rect.width - width)) + 'px;' + 
-      'width: ' + width + 'px;' + 
-      'height: ' + (rect.height) + 'px;">'
+      ' top: -' + (rect.height + 2) + 'px;' + 
+      ' left: ' + (rect.width - width) + 'px;' + 
+      ' width: ' + width + 'px;">'
     );
     $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
     $("iaextractor-items").addEventListener('click', function (e) {
-      var p = e.originalTarget;
-      if (p.localName != "p") {
+      var elem = e.originalTarget;
+      //Dropdown
+      var dropdown = (elem.localName == "span") ? elem : elem.parentNode;
+      if (dropdown.className.indexOf("iaextractor-dropdown") !== -1) {
+        var downloader = document.getElementById("iaextractor-downloader");
+        var tmp = dropdown.getBoundingClientRect();
+        downloader.style.left = tmp.left + "px";
+        downloader.style.top = (tmp.top + 30) + "px";
+        downloader.style.display = "block";
+      
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      //Direct Download
+      if (elem.localName != "span" || !elem.hasAttribute("fIndex")) {
         return true;
       }
       e.preventDefault();
-      e.stopPropagation ();
-      self.port.emit("download", p.getAttribute("fIndex"));
+      e.stopPropagation();
+      self.port.emit("download", elem.getAttribute("fIndex"));
       return false;
-    });
+    }, false);
     $("iaextractor-close").addEventListener('click', function (e) {
-      e.originalTarget.parentNode.parentNode.removeChild(e.originalTarget.parentNode);
-    });
+      var elem = document.getElementById("iaextractor-menu");
+      elem.parentNode.removeChild(elem);
+    }, false);
     $('iaextractor-previous').addEventListener('click', function () {
       make.previous();
-    });
+    }, false);
     $('iaextractor-next').addEventListener('click', function () {
       make.next();
+    }, false);
+    window.addEventListener("click", function (e) {
+      var elem = e.originalTarget;
+      var downloader = document.getElementById("iaextractor-downloader");
+      if (elem != downloader && elem.parentNode != downloader) {
+        downloader.style.display = "none";
+      }
     });
     
     numberOfItems = Math.floor((rect.height - 62 - 10) / 51);
@@ -63,15 +94,17 @@ var mMake = function (doSize) {
        * @param {Number} index of YouTube link in vInfo object
        */
       function item (fIndex, txt, url) {
-        var a = document.createElement("a");
-        a.setAttribute("class", "iaextractor-link");
-        a.setAttribute("href", url);
-        var p = document.createElement("p");
-        p.setAttribute("class", "iaextractor-item");
-        p.setAttribute("fIndex", fIndex);
-        p.textContent = txt;
-        a.appendChild(p);
-        $("iaextractor-items").appendChild(a);
+        $("iaextractor-items").insertAdjacentHTML("beforeend", 
+          '<a class="iaextractor-link" href="' + url + '">' + 
+          '  <div>' +
+          '    <span class="iaextractor-button iaextractor-download-icon" disabled="true"><i></i></span>' + 
+          '    <span style="margin-left: 40px;" fIndex="' + fIndex + '">' +
+                txt +
+          '    </span>' +
+          '    <span class="iaextractor-button iaextractor-dropdown"><i></i></span>' +
+          '  </div>' +
+          '</a>'
+        );
       }
       // Split formats into lists
       if (vInfo) {
@@ -105,28 +138,32 @@ var mMake = function (doSize) {
           format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
           url
         );
-        if (doSize) {
-          self.port.emit("file-size-request", url, index);
-        }
       });
+      if (doSize) {
+        window.setTimeout(function () {
+          sets[activeSet].forEach(function (format, index) {
+            self.port.emit("file-size-request", format.url, index);
+          });
+        }, 400);
+      }
       if (sets.length == 1) {
-        $('iaextractor-next').disabled = true;
+        $('iaextractor-next').setAttribute("disabled", true);
       }
     },
     next: function () {
       activeSet += 1;
       this.init();
-      $('iaextractor-previous').disabled = false;
+      $('iaextractor-previous').removeAttribute("disabled");
       if (activeSet + 1 == sets.length) {
-        $('iaextractor-next').disabled = true;
+        $('iaextractor-next').setAttribute("disabled", true)
       }
     },
     previous: function () {
       activeSet -= 1;
       this.init();
-      $('iaextractor-next').disabled = false;
+      $('iaextractor-next').removeAttribute("disabled");
       if (activeSet == 0) { 
-        $('iaextractor-previous').disabled = true;
+        $('iaextractor-previous').setAttribute("disabled", true);
       }
     }
   }
@@ -156,10 +193,10 @@ self.port.on("info", function(vInfo) {
 self.port.on("file-size-response", function(url, size, index) {
   var a = $("iaextractor-items").childNodes[index];
   if (!a) return;
-  var p = a.childNodes[0];
-  //Reject wrong file size
-  if (a.getAttribute("href") != url) {
+  var span = a.children[0].children[1];
+  //Rejecting wrong file size
+  if (a.getAttribute("href").indexOf(url) === -1) {
     return;
   }
-  p.textContent += " - " + size;
+  span.textContent += " - " + size;
 });

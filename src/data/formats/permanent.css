@@ -1,89 +1,137 @@
-.iaextractor-div {
+/** Menu **/
+#iaextractor-menu {
+  position: relative;
   font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
-  position: absolute;
-  background: #31859B !important;
-  color: white;
-  z-index: 2147483647 !important;
+  background: #FAC08F !important;
 }
-.iaextractor-title,
-.iaextractor-bottom {
+#iaextractor-menu a {
+  color: #FFF !important;
+}
+#iaextractor-menu span[type=title],
+#iaextractor-menu span[type=footer] {
   display: block;
-  background-color: #3BA0BA !important;
+  background-color: #E36C09 !important;
   font-size: 16px !important;
   text-align: center;
   height: 30px;
+  line-height: 28px;
 }
-.iaextractor-title {
-  line-height: 27px;
-  padding-right: 1px !important;
+/** Buttons **/
+.iaextractor-button {
+  position: absolute;
+  display: inline-block;
+  width: 32px;
+  height: 30px;
+  line-height: 36px;
+  text-align: center;
 }
-.iaextractor-bottom {
-  line-height: 29px;
+.iaextractor-button:not([disabled=true]) {
+  cursor: pointer;
 }
+.iaextractor-button:not([disabled=true]):hover {
+  background-color: #D66508 !important;
+}
+.iaextractor-button i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png) !important;
+  background-repeat: no-repeat;
+}
+#iaextractor-previous,
+#iaextractor-next {
+  position: relative;
+  width: 62px;
+}
+#iaextractor-previous[disabled=true],
+#iaextractor-next[disabled=true] {
+  display: none;
+}
+#iaextractor-previous i {
+  background-position: -32px !important;
+}
+#iaextractor-next i {
+  background-position: -48px !important;
+}
+#iaextractor-sort,
+#iaextractor-close {
+  border-left: solid 1px #FFF !important;
+}
+#iaextractor-sort i {
+  background-position: -64px !important;
+}
+#iaextractor-icon,
+#iaextractor-settings {
+  border-right: solid 1px #FFF !important;
+}
+#iaextractor-icon i {
+  background-position: -96px !important;
+}
+#iaextractor-settings i {
+  background-position: -80px !important;
+}
+.iaextractor-dropdown {
+  border-left: solid 1px #FFF !important;
+  right: 30px;
+}
+.iaextractor-dropdown i {
+  background-position: -112px !important;
+}
+.iaextractor-download-icon {
+  border-right: solid 1px #FFF !important;
+}
+.iaextractor-download-icon i{
+  background-position: -16px !important;
+  
+}
+/** Menu Items **/
 #iaextractor-items {
   margin-top: 25px !important;
 }
-.iaextractor-item {
-  background: #17365D url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) 10px center no-repeat !important;
-  cursor: pointer;
-  padding-left: 36px !important;
-  line-height: 29px !important;
-  margin: 20px 30px !important;
+#iaextractor-items a {
+  display: block;
+  background: #A3171E !important;
   height: 30px;
+  margin: 20px 30px !important;
+  text-decoration: none !important;
 }
-.iaextractor-item:hover {
-  background: #275AA3 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) 10px center no-repeat !important;
+#iaextractor-items a:hover {
+  text-decoration: none !important;
 }
-.iaextractor-link {
-  color: white !important;
-  text-decoration:none !important;
+#iaextractor-items span:not(.iaextractor-button) {
+  display: inline-block;
+  position: absolute;
+  height: inherit;
+  line-height: 30px;
 }
-.iaextractor-link:hover {
-  text-decoration:none !important;
-}
-.iaextractor-div input {
-  -moz-appearance: none;
-  border: none !important;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  margin: 8px 14px;
-}
-#iaextractor-previous,
-#iaextractor-next,
-#iaextractor-close {
-  width: 42px;
-  height: 18px;
-  margin: 0;
-}
-#iaextractor-previous {
-  background: #17365D url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/back.png) center no-repeat !important;
-}
-#iaextractor-previous:hover {
- background: #275AA3 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/back.png) center no-repeat !important;
-}
-#iaextractor-next {
-  background: #17365D url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/forward.png) center no-repeat !important;
-}
-#iaextractor-next:hover {
-  background: #275AA3 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/forward.png) center no-repeat !important;
-}
-#iaextractor-close {
-  background: #8D0100 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/close.png) center no-repeat !important;
-}
-#iaextractor-close:hover {
-  background: #C90200 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/close.png)  center no-repeat !important;
-}
-#iaextractor-previous:disabled,
-#iaextractor-next:disabled {
+
+#iaextractor-downloader {
   display: none;
+  z-index: 2147483647;
+  position: fixed; 
+  background: white !important;
+  color: black !important;
+  border: solid 1px black !important;
 }
+#iaextractor-downloader li {
+  display: block;
+  height: 24px;
+  line-height: 20px;
+  padding: 0 20px !important;
+}
+#iaextractor-downloader li:hover {
+  background: black !important;
+  color: white !important;
+  cursor: pointer;
+}
+
+
 #formats-button-small {
   position: absolute; 
   right: 5px; 
   top: 5px;
   z-index: 2147483647; 
-  cursor: pointer;  
+  cursor: pointer;
   transition: background-color 0.1s !important;
   padding: 3px 2px 0 !important;
   border: 1px solid transparent !important;

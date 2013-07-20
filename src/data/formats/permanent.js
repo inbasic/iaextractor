@@ -12,7 +12,8 @@ if (iaextractor_parent) {
   );
   button.addEventListener("click", function () {
    if (document.getElementById("iaextractor-menu") != null) {
-    document.body.removeChild(document.getElementById("iaextractor-menu"));
+    var elem = document.getElementById("iaextractor-menu");
+    elem.parentNode.removeChild(elem);
    } else {
     self.port.emit("formats");
   }});
