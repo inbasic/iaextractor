@@ -15,10 +15,16 @@ body {
 table {
   font-size: 14px;
 }
-label {
-  display: inline-block;
+#global-container {
   width: 100%;
-  text-align: left;
+  height: 100%;
+}
+.ui-color {
+  background-color: #EC6C09;
+  transition: background-color 150ms;
+}
+.ui-color:hover:not(.nd-content):not(#preferences-panel) {
+  background-color: #FF6C09;
 }
 .tabs {
   position: relative;
@@ -26,20 +32,15 @@ label {
   z-index: 2;
   width: 67px;
   height: 100%;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
 }
 .tab {
   -moz-user-select: none;
   display: block;
-  width: 67px;
+  width: 100%;
   height: 66px;
   margin-bottom: 1px;
-  background-color: #E36C09;
-  transition: background-color 150ms;
 }
 .tab:hover {
-  background-color: #FF6C09;
   cursor: pointer;
 }
 #home,
@@ -48,13 +49,6 @@ label {
   background-position: center;
   background-repeat: no-repeat;
 }
-/*#home[selected],
-#downloads[selected],
-#preferences[selected] {
-  background-position: 17px center;
-  border-left: 5px solid #1C93F6;
-  -moz-box-sizing: border-box;
-}*/
 #home[selected] .selected {
   display: block;
 }
@@ -66,10 +60,10 @@ label {
 }
 .selected {
   top: 22px;
-  width: 4px;
+  width: 5px;
   height: 24px;
   position: relative;
-  background-color: #FFFFFF;
+  background-color: white;
   display: none;
 }
 #home {
@@ -86,8 +80,6 @@ label {
   float:right;
   width: 319px;
   height: 100%;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
 }
 .tabpanel {
   display: none;
@@ -97,46 +89,81 @@ label {
 .tabpanel[selected] {
   display: block;
 }
-
-
-
+input[type="radio"] {
+  display: none;
+}
+input[type="radio"] + span {
+  display: inline-block;
+  border: 2px solid white;
+  width: 10px;
+  height: 10px;
+  border-radius: 100px;
+  margin-right: 5px;
+  margin-left: 4px;
+  margin-top: 1px;
+}
+.radio:hover > span:not(.text) {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+input[type="radio"]:checked + span div {
+  visibility: visible;
+}
+input[type="radio"]:checked + span:not(.text) {
+  background-color: transparent;
+}
+.qchecked,
+.fchecked {
+  width: 6px; 
+  height: 6px;
+  margin-left: 2px;
+  margin-top: 2px;
+  border-radius: 100px;
+  background-color: white;
+  visibility: collapse;
+}
+.text {
+  display: inline-block;
+  position: relative;
+  top: -2px;
+}
+label {
+  display: inline-block;
+  width: 100%;
+  text-align: left;
+}
+input,
+span {
+  cursor: pointer;
+}
+#click-handler {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 3;
+  -moz-user-select: none;
+  display: none;
+}
 
 /* First Tab */
 
 
 
 
-#video-url {
-  -moz-appearance: none;
-  cursor: pointer;
-  border: none;
-  border-bottom: 1px solid white;
-  font-family: Open Sans;
-  width: 319px;
-  height: 23px;
-  background-color: #E36C09;
-  color: white;
-  padding-left: 3px;
-  transition: background-color 150ms;
-}
-#video-url:hover {
-  background-color: #FF6C09;
-}
 #download-button,
 #formats-button {
   display: table-cell;
   vertical-align: middle;
   background-repeat: no-repeat;
-  background-position: 20px center;
+  background-position: 25px center;
   font-size: 15px;
   color: white;
   width: 319px;
-  height: 88px;
   text-align: center;
-  transition: background-color 150ms;
 }
 #download-button {
   background-image: url("open48.png");
+  cursor: pointer;
+  height: 102px;
 }
 #download-button[type="active"] {
   background-image: url("download48.png");
@@ -145,91 +172,84 @@ label {
   background-image: url("list48.png");
   opacity: 0.5;
   padding-bottom: 2px;
-}
-#formats-button:hover[type="active"],
-#download-button:hover {
-  cursor: pointer;
-  background-color: #FF6C09;
+  height: 97px;
+  transition: background-color 150ms;
 }
 #formats-button[type="active"] {
   opacity: 1;
 }
+#formats-button:hover[type="active"] {
+  cursor: pointer;
+  background-color: #FF6C09;
+}
 #qd-button,
 #dl-button {
   width: 319px;
-  background-color: #E36C09;
   font-size: 15px;
 }
 #qd-button {
-  height: 111px;
+  height: 102px;
 }
 #dl-button {
-  height: 88px;
+  height: 97px;
   position: fixed;
   bottom: 0;
   -moz-user-select: none;
+  background-color: #EC6C09;
 }
-#quality-preferences {
+#video-preferences {
   width: 319px;
-  height: 111px;
-  background-color: red;
+  height: 102px;
   position: absolute;
   margin-left: -35px;
-  background-color: #E36C09;
   border-left: 1px solid white;
   background-image: url("preferences24-2.png");
   background-repeat: no-repeat;
   background-position: 5px center;
   text-align: center;  
-  transition: margin-left 250ms, background-color 150ms;  
+  transition: margin-left 180ms, background-color 150ms;
 }
-#quality-preferences:hover {
-  background-color: #FF6C09;
+#video-preferences:hover {
   cursor: pointer;
 }
 .slide {
   margin-left: -320px !important;
-  transition: margin-left 250ms, background-color 150ms;
+  transition: margin-left 200ms;
+  background-color: #FF6C09;
+}
+#format-addition,
+#quality-addition {
+  float: right;
+  font-size: 12px;
+  height: 102px;
 }
 #format-addition {
   width: 134px;
+}
+#quality-addition {
+  width: 149px;
   border-left: 1px solid white;
-}
-#video-addition {
-  width: 148px;
-  background-color: #E36C09;
-}
-#format-addition,
-#video-addition {
-  float: right;
-  font-size: 12px;
-  height: 111px;
-  background-color: #E36C09;
+  margin-right: 4px;
 }
 .format-title,
 .quality-title {
   font-size: 13px;
-  height: 111px;
+  height: 102px;
   float: left;
-}
-.format-title {
   padding-left: 11px;
-  line-height: 110px;
-}
-.quality-title {
-  padding-left: 11px;
-  line-height: 110px;
+  line-height: 99px;
 }
 .fcontainer,
-.vcontainer {
+.qcontainer {
   float: right;
-  height: 111px;
+  height: 102px;
+  -moz-box-sizing: border-box;
 }
 .fcontainer {
   padding-top: 14px;
-  width: 70px;
+  width: 69px;
 }
-.vcontainer {
+.qcontainer {
   padding-top: 5px;
   width: 85px;
 }
@@ -242,16 +262,13 @@ label {
 .download-item {
   height: 57px;
   width: 319px;
-  background-color: #E36C09;
   color: white;
   margin-left: 0px;
   border: none;
-  margin-bottom: 1px;
+  border-bottom: 1px solid white;
+  -moz-box-sizing: content-box;
   cursor: pointer;
-  transition: background-color 150ms;
-}
-.download-item:hover {
-  background-color: #FF6C09;
+  font-family: Segoe UI;
 }
 .download-item span {
   display: block; 
@@ -282,19 +299,16 @@ label {
   margin-bottom: -5px;
   margin-top: 5px;
 }
-#bottom-text {
-  font-size: 11px;
-}
 .d-icon {
   margin-top: 6px;
   margin-left: 11px;
 }
 .d-content {
   display: none;
-  font-family: Open Sans;
+  background-color: #FAC08F;
+  height: 173px;
 }
 .nd-content {
-  background-color: #E36C09;
   color: white;
   height: 71px;
   background-position: center;
@@ -306,17 +320,13 @@ label {
   position: fixed;
   bottom: 0;
   color: white; 
-  background-color: #E36C09;
   width: 319px; 
   height: 26px; 
-  line-height: 25px; 
+  line-height: 24px; 
   text-align: center;
   cursor: pointer;
   -moz-user-select: none;
-  transition: background-color 150ms;
-}
-.d-footer:hover {
-  background-color: #FF6C09;
+  font-size: 14px;
 }
 .cancel {
   margin-top: 3px;
@@ -336,8 +346,7 @@ label {
 
 
 
-#third-panel {
-  background-color: #E36C09;
+#preferences-panel {
   height: 200px;
   width: 319px;
 }
@@ -386,7 +395,7 @@ label {
   cursor: pointer;
   border: 1px solid white;
   text-align: center;
-  transition: background-color 110ms;
+  transition: background-color 100ms;
 }
 .button:hover {
   background-color: rgba(255, 255, 255, 0.4);
@@ -400,43 +409,36 @@ label {
 #tools-button {
   background-position: -19px center;
 }
-#download-addition {
-  text-align: center;
-  float: right;
-  position: absolute;
-  bottom: 0;
-  display: block;
-  font-size: 11px;
-  height: 62px;
-  width: 319px;
-  background-color: #E36C09;
-  padding-top: 3px;
-  padding-left: 14px;
-}
 #folder-preferences {
-  background-color: #E36C09;
   padding-top: 3px;
   position: absolute;
   width: 319px;
   height: 88px;
   text-align: center;
   top: 173px;
-  transition: top 250ms, background-color 150ms;
+  transition: top 200ms, background-color 150ms;
   border-top: 1px solid white;
 }
 #folder-preferences:hover {
-  background-color: #FF6C09;
   cursor: pointer;
+}
+#download-addition {
+  text-align: center;
+  float: right;
+  position: absolute;
+  bottom: 0;
+  display: block;
+  font-size: 12px;
+  height: 60px;
+  width: 319px;
+  padding-left: 12px;
 }
 .slide2 {
   top: 108px !important;
+  background-color: #FF6C09;
 }
 .dlabel {
   display: block;
   float: left;
   width: 159px;
-}
-input,
-span {
-  cursor: pointer;
 }

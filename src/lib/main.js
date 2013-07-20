@@ -160,6 +160,10 @@ rPanel.on("show", function() {
   );
 });
 
+rPanel.on("hide", function() {
+  rPanel.port.emit("autohide")
+});
+
 var iPanel = panel.Panel({
   width: config.panels.iPanel.width,
   height: config.panels.iPanel.height,
@@ -930,7 +934,7 @@ var notify = (function () {
       notification = notificationBox.appendNotification(
         text, 
         'jetpack-notification-box',
-        data.url("notification.png"), 
+        data.url("report/open.png"), 
         notificationBox.PRIORITY_INFO_MEDIUM, 
         []
       );

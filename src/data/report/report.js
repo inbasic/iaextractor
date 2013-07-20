@@ -1,6 +1,7 @@
 var $ = function (id) { 
   return document.getElementById(id);
 } 
+
 var _ = function (id) {
   var items = $("locale").getElementsByTagName("span");
   for (var i = 0; i < items.length; i++) {
@@ -11,6 +12,37 @@ var _ = function (id) {
   return id;
 }
 
+var videop = $("video-preferences");
+var folderp = $("folder-preferences");
+var handler = $("click-handler");
+
+function autohide(el, cl) {
+  document.onclick = function() {
+    if (el.classList.contains(cl)) {
+      handler.style.display = "block";
+      el.style.zIndex = "4";
+    } else {
+      handler.style.display = "none";
+      el.style.zIndex = "2";
+    }
+    handler.onclick = function() {
+      el.classList.toggle(cl)
+    }
+  } 
+} 
+
+videop.addEventListener("click", function() {
+  videop.classList.toggle("slide");
+  autohide(videop, "slide");
+}, false);
+
+folderp.addEventListener("click", function() {
+  folderp.classList.toggle("slide2");
+  autohide(folderp, "slide2");
+}, false);
+
+
+
 var downloadButton = $("download-button"),
     formatsButton = $("formats-button"),
     aCheckbox = $("audio-checkbox"),
@@ -18,15 +50,17 @@ var downloadButton = $("download-button"),
     sCheckbox = $("resolve-size-checkbox"),
     toolbar = $("download-manager-toolbar");
 
-var mList = function (name, el1, el2, value, func) {
+var mList = function (name, value, func) {
   var radios = document.getElementsByName(name);
-  
+
   function set (soft) {
     radios[parseInt(value)].checked = true;
     if (!soft) func(value);
   }
   set(true);
   window.addEventListener("click", function (e) {
+    if (e.target.id == "qradio" || e.target.className == "qchecked") videop.classList.toggle("slide");
+    if (e.target.id == "fradio" || e.target.className == "fchecked") folderp.classList.toggle("slide2");
     if (e.button != 0) return;
     if (e.originalTarget.localName != "input")
       return;
@@ -50,8 +84,6 @@ var mList = function (name, el1, el2, value, func) {
 
 var download = new mList (
   "dinput", 
-  $('download-list'), 
-  $('download-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "destination", value);
@@ -59,35 +91,18 @@ var download = new mList (
 );
 var quality = new mList (
   "vinput", 
-  $('video-list'), 
-  $('video-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "quality", value);
   }
 );
 var format = new mList (
-  "finput", 
-  $('format-list'), 
-  $('format-addition'),
+  "finput",
   0,
   function (value) {
     self.port.emit("cmd", "format", value);
   }
 );
-
-function toggleClass(el, class1) {
-  var obj = $(el);
-  if (!obj.classList.contains(class1)) {
-     obj.setAttribute("class", class1);
-  } else {
-     obj.setAttribute("class", "");
-  }
-}
-$("quality-preferences").addEventListener("click", function() {toggleClass("quality-preferences", "slide")}, false);
-$("folder-preferences").addEventListener("click", function() {toggleClass("folder-preferences", "slide2")}, false);
-
-
 
 function tabSelector (e) {
   var n;
@@ -284,8 +299,21 @@ $("tools-button").addEventListener("click", function () {
 toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
+
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
+  // Resizing tabs
+  var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
+      width = gcwidth - 320; // Difference between normal panel size (387px) and normal tabs size (67px) 
+  
+  if (navigator.userAgent.indexOf("Mac OS X") != -1) {
+    width -= 1;
+  }
+
+  var tabs = document.getElementsByClassName("tabs");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].style.width = width + "px" ;
+  } 
   //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
@@ -309,6 +337,18 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
     tabSelector(0);
   }
 });
+
+self.port.on("autohide", function() {
+  if (videop.classList.contains("slide")) {
+    videop.classList.remove("slide");
+    handler.style.display = "none";
+    videop.style.zIndex = "2";
+  } else if (folderp.classList.contains("slide2")) {
+    folderp.classList.remove("slide2");
+    handler.style.display = "none";
+    folderp.style.zIndex = "2";
+  }
+});  
 
 window.addEventListener("load", function () {
   dmUI.checkState();
