@@ -198,24 +198,6 @@ var mMake = function (doSize) {
   }
 }
 
-//Deactivate old workers
-function destroy() {
-  //Remove old elements
-  while (document.getElementById("iaextractor-menu")) {
-    var elem = document.getElementById("iaextractor-menu");
-    elem.parentNode.removeChild(elem);
-  }
-}
-var event = document.createEvent('CustomEvent');
-event.initCustomEvent('detach', true, true, {});
-document.documentElement.dispatchEvent(event);
-document.documentElement.addEventListener("detach", destroy, true);
-
-var make = new mMake(self.options.doSize);
-self.port.on("info", function(vInfo) {
-  if (!$("iaextractor-items")) return;
-  make.init(vInfo);
-});
 self.port.on("file-size-response", function(url, size, index) {
   var a = $("iaextractor-items").childNodes[index];
   if (!a) return;
@@ -226,3 +208,19 @@ self.port.on("file-size-response", function(url, size, index) {
   }
   span.textContent += " - " + size;
 });
+
+var make;
+// Do not use $ here
+if (document.getElementById("iaextractor-menu")) {
+  while (document.getElementById("iaextractor-menu")) {
+    var elem = document.getElementById("iaextractor-menu");
+    elem.parentNode.removeChild(elem);
+  }
+}
+else {
+  make = new mMake(self.options.doSize);
+  self.port.on("info", function(vInfo) {
+    if (!document.getElementById("iaextractor-items")) return;
+    make.init(vInfo);
+  });
+}

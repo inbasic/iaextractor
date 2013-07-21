@@ -974,7 +974,6 @@ var downThemAll = (function () {
       }
     }
     else {
-      console.error(0);
       notify(_("name"), _("err13"));
     }
   }
