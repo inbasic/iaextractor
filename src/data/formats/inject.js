@@ -62,7 +62,7 @@ var mMake = function (doSize) {
         downloader.style.left = tmp.left + "px";
         downloader.style.top = (tmp.top + 30) + "px";
         downloader.style.display = "block";
-        currentIndex = parseInt(dropdown.parentNode.children[1].getAttribute("fIndex"));
+        currentIndex = parseInt(dropdown.parentNode.children[1].getAttribute("fIndex")) - activeSet * numberOfItems;
       
         e.preventDefault();
         e.stopPropagation();
