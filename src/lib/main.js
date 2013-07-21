@@ -926,23 +926,28 @@ var getVideo = (function () {
 
 /** Flashgot **/
 var flashgot = (function () {
+  var flashgot;
+  try {
+    flashgot = Cc["@maone.net/flashgot-service;1"]
+      .getService(Ci.nsISupports).wrappedJSObject;
+  }
+  catch (e) {}
   return function (title, link) {
-    try {
-      var flashgot_service = Cc["@maone.net/flashgot-service;1"].getService(Ci.nsISupports).wrappedJSObject;
-        flashgot_service.DMS[flashgot_service.defaultDM].download([{
+    if (flashgot) {
+      var links = [{
         href: link,
-        fname : title,
-        noRedir: false
-      }], flashgot_service.OP_ONE);
+        fname : title
+      }];
+      links.document = window.document;
+      flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
     }
-    catch (e) {
+    else {
       notify(_("name"), _("err12"));
     }
   }
 })();
 /** DownThemAll **/
 var downThemAll = (function () {
-
   var DTA = {};
   try {
     Cu.import("resource://dta/api.jsm", DTA);
