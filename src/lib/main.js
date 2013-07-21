@@ -27,6 +27,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 /** Internal Preferences **/
@@ -387,6 +388,12 @@ var cmds = {
         youtube.getInfo(videoID, function (vInfo) {
           worker.port.emit('info', vInfo);
         });
+        worker.port.on("flashgot", function (title, link) {
+          flashgot(title, link);
+        });
+        worker.port.on("downThemAll", function (title, link) {
+          downThemAll(title, link);
+        });        
       }
       else {
         notify(_('name'), _('msg4'));
@@ -917,6 +924,37 @@ var getVideo = (function () {
   }
 })();
 
+/** Flashgot **/
+var flashgot = (function () {
+  return function (title, link) {
+    try {
+      var flashgot_service = Cc["@maone.net/flashgot-service;1"].getService(Ci.nsISupports).wrappedJSObject;
+        flashgot_service.DMS[flashgot_service.defaultDM].download([{
+        href: link,
+        fname : title,
+        noRedir: false
+      }], flashgot_service.OP_ONE);
+    }
+    catch (e) {
+      notify(_("name"), _("err12"));
+    }
+  }
+})();
+/** DownThemAll **/
+var downThemAll = (function () {
+  var DTA = {};
+  try {
+    Cu.import("resource://dta/api.jsm", DTA);
+  } catch (e) {}
+  return function (link) {
+    if (DTA.saveSingleLink) {
+      DTA.saveSingleLink(window, true, link);
+    }
+    else {
+      notify(_("name"), _("err13"));
+    }
+  }
+})();
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
 var notify = (function () {

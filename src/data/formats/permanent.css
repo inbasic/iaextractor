@@ -57,6 +57,14 @@
 #iaextractor-close {
   border-left: solid 1px #FFF !important;
 }
+#iaextractor-close {
+  top: 0;
+  right: 0;
+}
+#iaextractor-sort {
+  bottom: 0;
+  right: 0;
+}
 #iaextractor-sort i {
   background-position: -64px !important;
 }
@@ -64,8 +72,16 @@
 #iaextractor-settings {
   border-right: solid 1px #FFF !important;
 }
+#iaextractor-icon {
+  top: 0;
+  left: 0;
+}
 #iaextractor-icon i {
   background-position: -96px !important;
+}
+#iaextractor-settings {
+  bottom: 0;
+  left: 0;
 }
 #iaextractor-settings i {
   background-position: -80px !important;
