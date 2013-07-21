@@ -24,7 +24,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     format        = tools.format,
     _prefs        = tools.prefs,
     prompts       = tools.prompts;
-    
+
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
@@ -942,13 +942,26 @@ var flashgot = (function () {
 })();
 /** DownThemAll **/
 var downThemAll = (function () {
+
   var DTA = {};
   try {
     Cu.import("resource://dta/api.jsm", DTA);
-  } catch (e) {}
+  } 
+  catch (e) {
+    try {
+      var glue = {}
+      Cu.import("chrome://dta-modules/content/glue.jsm", glue);
+      DTA = glue["require"]("api");
+    }
+    catch (e) {}
+  }
   return function (link) {
-    if (DTA.saveSingleLink) {
-      DTA.saveSingleLink(window, true, link);
+    if (DTA.saveSingleItem) {
+      DTA.saveSingleItem(window, true, {
+        url: link,
+        referrer: null,
+        description: ""
+      });
     }
     else {
       notify(_("name"), _("err13"));
