@@ -957,7 +957,7 @@ var downThemAll = (function () {
   }
   return function (link) {
     if (DTA.saveSingleItem) {
-      DTA.saveSingleItem(window, true, {
+      DTA.saveSingleItem(window, false, {
         url: link,
         referrer: null,
         description: ""
