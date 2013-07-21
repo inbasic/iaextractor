@@ -391,8 +391,8 @@ var cmds = {
         worker.port.on("flashgot", function (link, title, user, container) {
           flashgot(link, title, user, container);
         });
-        worker.port.on("downThemAll", function (link) {
-          downThemAll(link);
+        worker.port.on("downThemAll", function (link, turbo) {
+          downThemAll(link, turbo);
         });        
       }
       else {
