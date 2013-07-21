@@ -89,10 +89,10 @@ var mMake = function (doSize) {
           self.port.emit("flashgot", href, title, author, container);
           break;
         case downloader.children[2]:
-          self.port.emit("downThemAll", href, false);
+          self.port.emit("downThemAll", href, title, author, container, false);
           break;
         case downloader.children[3]:
-          self.port.emit("downThemAll", href, true);
+          self.port.emit("downThemAll", href, title, author, container, true);
       }
       downloader.style.display = "none";
     }, false);

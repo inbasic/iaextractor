@@ -388,12 +388,8 @@ var cmds = {
         youtube.getInfo(videoID, function (vInfo) {
           worker.port.emit('info', vInfo);
         });
-        worker.port.on("flashgot", function (link, title, user, container) {
-          flashgot(link, title, user, container);
-        });
-        worker.port.on("downThemAll", function (link, turbo) {
-          downThemAll(link, turbo);
-        });        
+        worker.port.on("flashgot", flashgot);
+        worker.port.on("downThemAll", downThemAll);        
       }
       else {
         notify(_('name'), _('msg4'));
@@ -953,18 +949,20 @@ var downThemAll = (function () {
     }
     catch (e) {}
   }
-  return function (link, turbo) {
+  return function (link, title, user, container, turbo) {
+    var fname = (prefs.addUserInfo && user ? user + " - " : "") + title + "." + container;
     if (DTA.saveSingleItem) {
       try {
         DTA.saveSingleItem(window, turbo, {
           url: link,
           referrer: null,
-          description: _("msg15")
+          description: _("msg15"),
+          mask: fname
         });
       }
       catch (e) {
         if (turbo) {
-          downThemAll(link, false);
+          downThemAll(link, title, user, container, false);
         }
       }
     }
