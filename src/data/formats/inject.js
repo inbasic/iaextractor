@@ -40,8 +40,8 @@ var mMake = function (doSize) {
     '  <ul id="iaextractor-downloader">' + 
     '    <li>Firefox downloader</li>' + 
     '    <li>Flashgot</li>' + 
-    '    <li>DownThemAll</li>' + 
-    '    <li>DownThemAll (Turbo)</li>' + 
+    '    <li>DownThemAll!</li>' + 
+    '    <li>dTa! OneClick</li>' + 
     '  </ul>' +
     '</div>');
 
