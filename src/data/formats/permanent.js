@@ -11,13 +11,7 @@ if (iaextractor_parent) {
     "resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png"
   );
   button.addEventListener("click", function () {
-    var elem = document.getElementById("iaextractor-menu");
-    if (elem != null) {
-      elem.parentNode.removeChild(elem);
-    }
-    else {
-      self.port.emit("formats");
-    }
+    self.port.emit("formats");
   });
   button.appendChild(img);
   iaextractor_parent.appendChild(button);
