@@ -388,11 +388,11 @@ var cmds = {
         youtube.getInfo(videoID, function (vInfo) {
           worker.port.emit('info', vInfo);
         });
-        worker.port.on("flashgot", function (title, link) {
-          flashgot(title, link);
+        worker.port.on("flashgot", function (link, title, user, container) {
+          flashgot(link, title, user, container);
         });
-        worker.port.on("downThemAll", function (title, link) {
-          downThemAll(title, link);
+        worker.port.on("downThemAll", function (link) {
+          downThemAll(link);
         });        
       }
       else {
@@ -757,14 +757,7 @@ var getVideo = (function () {
         }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
-      var name = ((prefs.addUserInfo && user ? user + " - " : "") + title)
-        .replace(/[:\?\¿]/g, "")
-        .replace(/[\\\/]/g, "-")
-        .replace(/[\*]/g, "^")
-        .replace(/[\"]/g, "'")
-        .replace(/[\<]/g, "[")
-        .replace(/[\>]/g, "]")
-        .replace(/[|]/g, "-");
+      var name = (prefs.addUserInfo && user ? user + " - " : "") + title;
       var vFile;
       //Select folder by nsIFilePicker
       if (prefs.dFolder == 4) {
@@ -930,11 +923,13 @@ var flashgot = (function () {
       .getService(Ci.nsISupports).wrappedJSObject;
   }
   catch (e) {}
-  return function (title, link) {
+  return function (link, title, user, container) {
+    var fname = (prefs.addUserInfo && user ? user + " - " : "") + title + "." + container;
     if (flashgot) {
       var links = [{
         href: link,
-        fname : title
+        fname : fname,
+        description: _("msg15")
       }];
       links.document = window.document;
       flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
@@ -964,7 +959,7 @@ var downThemAll = (function () {
         DTA.saveSingleItem(window, turbo, {
           url: link,
           referrer: null,
-          description: ""
+          description: _("msg15")
         });
       }
       catch (e) {

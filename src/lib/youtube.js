@@ -1,4 +1,4 @@
-var prefs   = require("sdk/simple-prefs").prefs,
+﻿var prefs   = require("sdk/simple-prefs").prefs,
     _prefs  = require("./misc").prefs,
     Request = require("sdk/request").Request,
     {Cc, Ci, Cu}  = require('chrome');
@@ -215,9 +215,18 @@ function _getInfo(videoID, callback, pointer) {
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      if (pair[0] == "title") { //Issue #4, title problem
-        temp[pair[0]] = decodeURIComponent(pair[1]).replace(/\+/g, " ");
-      } else {
+      if (pair[0] == "title" || pair[0] == "author") { //Issue #4, title problem
+        temp[pair[0]] = decodeURIComponent(pair[1])
+          .replace(/\+/g, " ")
+          .replace(/[:\?\¿]/g, "")
+          .replace(/[\\\/]/g, "-")
+          .replace(/[\*]/g, "^")
+          .replace(/[\"]/g, "'")
+          .replace(/[\<]/g, "[")
+          .replace(/[\>]/g, "]")
+          .replace(/[|]/g, "-");
+      }
+      else {
         temp[pair[0]] = unescape(pair[1]);
       }
     }
@@ -415,7 +424,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       if (!detected && tmp.length) detected = tmp[0];
       if (!detected) detected = info.formats[0]; //Get highest quality
 
-      if (callback) callback.apply(pointer, [detected, info.title, info.author.replace(/\+/g, " "), null]);
+      if (callback) callback.apply(pointer, [detected, info.title, info.author, null]);
     });
   } catch (e) {
     if (callback) callback.apply(pointer, [null, null, e]);

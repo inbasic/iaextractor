@@ -11,7 +11,7 @@ var $ = (function() {
 
 // Make new menu
 var mMake = function (doSize) {
-  var sets = [], numberOfItems, activeSet = 0, title, currentIndex;
+  var sets = [], numberOfItems, activeSet = 0, title, author, currentIndex;
   //Flash player
   var players = document.getElementsByTagName("embed"); 
   //HTML5 player
@@ -79,20 +79,19 @@ var mMake = function (doSize) {
       return false;
     }, false);
     downloader.addEventListener('click', function (e) {
+      var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
+      var container = $("iaextractor-items").children[currentIndex].getAttribute("container");
       switch (e.originalTarget) {
         case downloader.children[0]:
           self.port.emit("download", currentIndex);
           break;
         case downloader.children[1]:
-          var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
-          self.port.emit("flashgot", title, href);
+          self.port.emit("flashgot", href, title, author, container);
           break;
         case downloader.children[2]:
-          var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
           self.port.emit("downThemAll", href, false);
           break;
         case downloader.children[3]:
-          var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
           self.port.emit("downThemAll", href, true);
       }
       downloader.style.display = "none";
@@ -122,9 +121,9 @@ var mMake = function (doSize) {
       /**
        * @param {Number} index of YouTube link in vInfo object
        */
-      function item (fIndex, txt, url) {
+      function item (fIndex, txt, url, container) {
         $("iaextractor-items").insertAdjacentHTML("beforeend", 
-          '<a class="iaextractor-link" href="' + url + '">' + 
+          '<a class="iaextractor-link" href="' + url + '" container="' + container + '">' + 
           '  <div>' +
           '    <span class="iaextractor-button iaextractor-download-icon" disabled="true"><i></i></span>' + 
           '    <span style="margin-left: 40px;" fIndex="' + fIndex + '">' +
@@ -141,6 +140,7 @@ var mMake = function (doSize) {
           sets.push(vInfo.formats.splice(0, numberOfItems));
         }
         title = vInfo.title;
+        author = vInfo.author;
       }
       // Clear old list
       while (document.getElementsByClassName("iaextractor-link").length) {
@@ -165,7 +165,8 @@ var mMake = function (doSize) {
           format.container.toUpperCase() + " " + map(format.quality) + 
           " - " + 
           format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
-          url
+          url,
+          format.container
         );
       });
       if (doSize) {
