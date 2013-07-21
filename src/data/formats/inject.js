@@ -9,12 +9,6 @@ var $ = (function() {
   }
 })();
 
-//Clear old menu (do not use $ function here)
-if (document.getElementById("iaextractor-menu") != null) {
-  document.getElementById("iaextractor-menu").parentNode.removeChild(
-    document.getElementById("iaextractor-menu")
-  );
-}
 // Make new menu
 var mMake = function (doSize) {
   var sets = [], numberOfItems, activeSet = 0, title, currentIndex;
@@ -47,6 +41,7 @@ var mMake = function (doSize) {
     '    <li>Firefox downloader</li>' + 
     '    <li>Flashgot</li>' + 
     '    <li>DownThemAll</li>' + 
+    '    <li>DownThemAll (Turbo)</li>' + 
     '  </ul>' +
     '</div>');
 
@@ -94,7 +89,11 @@ var mMake = function (doSize) {
           break;
         case downloader.children[2]:
           var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
-          self.port.emit("downThemAll", href);
+          self.port.emit("downThemAll", href, false);
+          break;
+        case downloader.children[3]:
+          var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
+          self.port.emit("downThemAll", href, true);
       }
       downloader.style.display = "none";
     }, false);

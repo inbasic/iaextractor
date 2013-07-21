@@ -856,7 +856,6 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
-      console.error(vInfo.url);
       listener.onDownloadStart(dr(vInfo.url, obj.vFile));
       notify(
         _('name'), 
@@ -915,7 +914,6 @@ var getVideo = (function () {
     //
     if (typeof(videoID) == "object") {
       var obj = videoID[0];
-      console.error(videoID.length);
       onFile (obj.vInfo, obj.title);
     }
     else {
@@ -960,15 +958,23 @@ var downThemAll = (function () {
     }
     catch (e) {}
   }
-  return function (link) {
+  return function (link, turbo) {
     if (DTA.saveSingleItem) {
-      DTA.saveSingleItem(window, false, {
-        url: link,
-        referrer: null,
-        description: ""
-      });
+      try {
+        DTA.saveSingleItem(window, turbo, {
+          url: link,
+          referrer: null,
+          description: ""
+        });
+      }
+      catch (e) {
+        if (turbo) {
+          downThemAll(link, false);
+        }
+      }
     }
     else {
+      console.error(0);
       notify(_("name"), _("err13"));
     }
   }
