@@ -957,7 +957,9 @@ var downThemAll = (function () {
           url: link,
           referrer: null,
           description: _("msg15"),
-          mask: fname
+          fileName: fname,
+          destinationName: fname,
+          mask: "*name*.*ext*"
         });
       }
       catch (e) {

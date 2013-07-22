@@ -3,6 +3,7 @@
   position: relative;
   font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
   background: #FAC08F !important;
+  z-index: 2147483647;
 }
 #iaextractor-menu a {
   color: #FFF !important;
