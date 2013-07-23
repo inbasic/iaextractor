@@ -31,24 +31,24 @@ Cu.import("resource://gre/modules/Services.jsm");
 userstyles.load(data.url("overlay.css"));
 /** Internal Preferences **/
 try {
-  _prefs.getIntPref("decoder_versn")
+  _prefs.getIntPref("decoder_ver")
 } catch (e) {
   // YouTube keeps changing signature decoding algorithm. These values will be updated accordingly.
-  _prefs.setIntPref("decoder_versn", 1);
-  _prefs.setCharPref("decoder_function", '(function(){return function(t,n){function r(e,t){var n="";t.forEach(function(t){if(!t[1])t[1]=t[0]+1;var r=e.substring(t[0],t[1]);if(t[3]==-1){r.reverse().join("")}n+=r});return n}if(n.length==88){t=t+"&signature="+r(n,[[48],[81,67,-1],[82],[66,62,-1],[85],[61,48,-1],[67],[47,12,-1],[3],[11,3,-1],[2],[12]])}else if(n.length==87){t=t+"&signature="+r(n,[[62],[82,62,-1],[83],[61,52,-1],[0],[51,2,-1]])}else if(n.length==86){t=t+"&signature="+r(n,[[2,63],[82],[64,82],[63]])}else if(n.length==85){t=t+"&signature="+r(n,[[76],[82,76,-1],[83],[75,60,-1],[0],[59,50,-1],[1],[49,2,-1]])}else if(n.length==84){t=t+"&signature="+r(n,[[83,36,-1],[2],[35,26,-1],[3],[25,3,-1],[26]])}else if(n.length==83){t=t+"&signature="+r(n,[[0,81]])}else if(n.length==82){t=t+"&signature="+r(n,[[36],[79,67,-1],[81],[66,40,-1],[33],[39,36,-1],[40],[35],[0],[67],[32,0,-1],[34]])}return t}})()');
+  _prefs.setIntPref("decoder_ver", 1);
+  _prefs.setCharPref("decoder_alg", '["r","s",2,"w",17,"w",61,"r","s",1,"w",7,"s",1]');
 }
 Request({ //Update signature decoder from server
-  url: "http://add0n.com/signature.php?request=version",
+  url: "http://add0n.com/signature.php?request=ver",
   onComplete: function (response) {
     if (response.status != 200) return;
     var version = parseInt(response.text);
-    if (version > _prefs.getIntPref("decoder_versn")) {
+    if (version > _prefs.getIntPref("decoder_ver")) {
       Request({
-        url: "http://add0n.com/signature.php?request=function",
+        url: "http://add0n.com/signature.php?request=alg",
         onComplete: function (response) {
           if (response.status != 200) return;
-          _prefs.setCharPref("decoder_function", response.text);
-          _prefs.setIntPref("decoder_versn", version);
+          _prefs.setCharPref("decoder_alg", response.text);
+          _prefs.setIntPref("decoder_ver", version);
         }
       }).get();
     }
