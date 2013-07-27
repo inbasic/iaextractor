@@ -295,10 +295,32 @@ function _getInfo(videoID, callback, pointer) {
           videoFormatsPair['url'] = url + '&signature=' + videoFormatsPair['sig'];
         } 
         else if (videoFormatsPair['s']) {
-          var sig = videoFormatsPair['s'];
-          var sandbox = new Cu.Sandbox("http://www.add0n.com/");
-          var decoder = Cu.evalInSandbox(_prefs.getCharPref("decoder_function"), sandbox);
-          videoFormatsPair.url = decoder(url, sig);
+          var sig = (videoFormatsPair['s'] + "").split("");
+          function swap(arr, b) {
+              l3 = arr[0];
+              l4 = arr[b % arr.length];
+              arr[0] = l4;
+              arr[b] = l3;
+              return arr
+          }
+          var cmd = JSON.parse(_prefs.getCharPref("decoder_alg"));
+          cmd.forEach(function (c, i) {
+            if (typeof c !== "string") {
+              return;
+            }
+            switch (c) {
+            case "r":
+              sig = sig.reverse();
+              break;
+            case "s":
+              sig = sig.slice(cmd[i+1]);
+              break;
+            case "w":
+              sig = swap(sig, cmd[i+1]);
+              break;
+            }
+          });
+          videoFormatsPair.url = url + "&signature=" + sig.join("");
         }
         var format = FORMATS[videoFormatsPair.itag];
         if (!format) {
