@@ -1,7 +1,14 @@
+/* Test cases:
+ * 1. http://www.youtube.com/watch?v=XraeBDMm2PM (Non English)
+ * 2. http://www.youtube.com/watch?v=0VJqrlH9cdI (English)
+ */
+
 var {Cc, Ci, Cu, components} = require('chrome'),
     _            = require("sdk/l10n").get,
     windowutils  = require("window-utils"),
-    window       = windowutils.activeBrowserWindow;
+    window       = windowutils.activeBrowserWindow,
+    Request      = require("sdk/request").Request,
+    youtube      = require("./youtube");
  
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -38,35 +45,44 @@ function xmlToSrt (str) {
   return srt;
 }
 
-var subtitle = function (id, lang, oFile, callback, pointer) {
-  var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-    .createInstance(Ci.nsIXMLHttpRequest);
-  req.open('GET', "http://video.google.com/timedtext?lang=" + (lang || "en") + "&v=" + id, true);
-  req.onreadystatechange = function () {
-    if (req.readyState != 4) return;
-    if (req.status != 200) {
-      if (callback) callback.apply(pointer, [_('err9')]);
-      return;
-    }
+var subtitle = function (video_id, langID, oFile, callback, pointer) {
+  var lang = "en", name = "";
+  switch (langID) {
+    case 1: lang = "fr"; name = "French (fr)"; break;
+    case 2: lang = "de"; name = "German (de)"; break;
+    case 3: lang = "it"; name = "Italian (it)"; break;
+    case 4: lang = "ja"; name = "Japanese"; break;
+    case 5: lang = "es"; name = "Spanish (es)"; break;
+  }
 
-    if (req.responseText.length) {
-      var ostream = FileUtils.openSafeFileOutputStream(oFile)
-      var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
-                      createInstance(Ci.nsIScriptableUnicodeConverter);
-      converter.charset = "UTF-8";
-      var istream = converter.convertToInputStream(xmlToSrt(req.responseText));
-      NetUtil.asyncCopy(istream, ostream, function(status) {
-        if (!components.isSuccessCode(status)) {
-          if (callback) callback.apply(pointer, [_('err10')]);
-          return;
+  youtube.getInfo(video_id, function (vInfo) {
+    if (vInfo.ttsurl) {
+      Request({
+        url: vInfo.ttsurl + "&kind=" + (vInfo.ttsurl.indexOf("asr") !== -1 ? "asr" : "") + "&lang=" + lang  + "&name=" + name,
+        onComplete: function (response) {
+          if (response.text.length && response.text.indexOf("Error 404") === -1) {
+            var ostream = FileUtils.openSafeFileOutputStream(oFile)
+            var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
+                            createInstance(Ci.nsIScriptableUnicodeConverter);
+            converter.charset = "UTF-8";
+            var istream = converter.convertToInputStream(xmlToSrt(response.text));
+            NetUtil.asyncCopy(istream, ostream, function(status) {
+              if (!components.isSuccessCode(status)) {
+                if (callback) callback.apply(pointer, [_('err10')]);
+                return;
+              }
+              callback.apply(pointer);
+            });
+          }
+          else {
+            if (callback) callback.apply(pointer, [_('err11')]);
+          }
         }
-        callback.apply(pointer);
-      });
+      }).get();
     }
     else {
       if (callback) callback.apply(pointer, [_('err11')]);
     }
-  }
-  req.send();
+  });
 }
 exports.get = subtitle;
