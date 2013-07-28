@@ -215,10 +215,11 @@ function _getInfo(videoID, callback, pointer) {
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      if (pair[0] == "title") { //Issue #4, title problem
-        temp[pair[0]] = decodeURIComponent(pair[1]).replace(/\+/g, " ");
-      } else {
+      if (pair[0] == "url_encoded_fmt_stream_map") { //Issue #4, title problem
         temp[pair[0]] = unescape(pair[1]);
+      }
+      else {
+        temp[pair[0]] = unescape(decodeURIComponent(pair[1]));
       }
     }
     return temp;
