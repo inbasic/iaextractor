@@ -881,22 +881,8 @@ var getVideo = (function () {
     }
     function onSubtitle (obj) {
       if (!prefs.doSubtitle) return;
-      var lang = "en";
-      switch (prefs.subtitleLang) {
-        case 1: lang = "ar"; break;
-        case 2: lang = "zh"; break;
-        case 3: lang = "nl"; break;
-        case 4: lang = "fr"; break;
-        case 5: lang = "de"; break;
-        case 6: lang = "it"; break;
-        case 7: lang = "ja"; break;
-        case 8: lang = "ko"; break;
-        case 9: lang = "pl"; break;
-        case 10: lang = "ru"; break;
-        case 11: lang = "es"; break;
-        case 12: lang = "tr"; break;
-      }
-      subtitle.get(videoID, lang, obj.sFile, function (e) {
+
+      subtitle.get(videoID, prefs.subtitleLang, obj.sFile, function (e) {
         if (e) notify(_('name'), e);
       });
     }
