@@ -216,15 +216,7 @@ function _getInfo(videoID, callback, pointer) {
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
       if (pair[0] == "title" || pair[0] == "author") { //Issue #4, title problem
-        temp[pair[0]] = decodeURIComponent(pair[1])
-          .replace(/\+/g, " ")
-          .replace(/[:\?\¿]/g, "")
-          .replace(/[\\\/]/g, "-")
-          .replace(/[\*]/g, "^")
-          .replace(/[\"]/g, "'")
-          .replace(/[\<]/g, "[")
-          .replace(/[\>]/g, "]")
-          .replace(/[|]/g, "-");
+        temp[pair[0]] = decodeURIComponent(pair[1]);
       }
       else {
         temp[pair[0]] = unescape(pair[1]);
@@ -446,10 +438,10 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       if (!detected && tmp.length) detected = tmp[0];
       if (!detected) detected = info.formats[0]; //Get highest quality
 
-      if (callback) callback.apply(pointer, [detected, info.title, info.author, null]);
+      if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
     });
   } catch (e) {
-    if (callback) callback.apply(pointer, [null, null, e]);
+    if (callback) callback.apply(pointer, [e]);
   }
 }
 exports.getLink = getLink;

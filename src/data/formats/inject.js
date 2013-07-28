@@ -11,7 +11,7 @@ var $ = (function() {
 
 // Make new menu
 var mMake = function (doSize) {
-  var sets = [], numberOfItems, activeSet = 0, title, author, currentIndex;
+  var sets = [], numberOfItems, activeSet = 0, title, author, video_id, currentIndex, fIndex;
   //Flash player
   var players = document.getElementsByTagName("embed"); 
   //HTML5 player
@@ -62,7 +62,8 @@ var mMake = function (doSize) {
         downloader.style.left = tmp.left + "px";
         downloader.style.top = (tmp.top + 30) + "px";
         downloader.style.display = "block";
-        currentIndex = parseInt(dropdown.parentNode.children[1].getAttribute("fIndex")) - activeSet * numberOfItems;
+        fIndex = parseInt(dropdown.parentNode.children[1].getAttribute("fIndex"));
+        currentIndex = fIndex - activeSet * numberOfItems;
       
         e.preventDefault();
         e.stopPropagation();
@@ -79,20 +80,20 @@ var mMake = function (doSize) {
       return false;
     }, false);
     downloader.addEventListener('click', function (e) {
-      var href = $("iaextractor-items").children[currentIndex].getAttribute("href");
-      var container = $("iaextractor-items").children[currentIndex].getAttribute("container");
+      var format = sets[activeSet][currentIndex];
+      
       switch (e.originalTarget) {
         case downloader.children[0]:
-          self.port.emit("download", currentIndex);
+          self.port.emit("download", fIndex);
           break;
         case downloader.children[1]:
-          self.port.emit("flashgot", href, title, author, container);
+          self.port.emit("flashgot", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate);
           break;
         case downloader.children[2]:
-          self.port.emit("downThemAll", href, title, author, container, false);
+          self.port.emit("downThemAll", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate, false);
           break;
         case downloader.children[3]:
-          self.port.emit("downThemAll", href, title, author, container, true);
+          self.port.emit("downThemAll", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate, true);
       }
       downloader.style.display = "none";
     }, false);
@@ -121,9 +122,9 @@ var mMake = function (doSize) {
       /**
        * @param {Number} index of YouTube link in vInfo object
        */
-      function item (fIndex, txt, url, container) {
+      function item (fIndex, txt, url) {
         $("iaextractor-items").insertAdjacentHTML("beforeend", 
-          '<a class="iaextractor-link" href="' + url + '" container="' + container + '">' + 
+          '<a class="iaextractor-link" href="' + url + '">' + 
           '  <div>' +
           '    <span class="iaextractor-button iaextractor-download-icon" disabled="true"><i></i></span>' + 
           '    <span style="margin-left: 40px;" fIndex="' + fIndex + '">' +
@@ -141,6 +142,7 @@ var mMake = function (doSize) {
         }
         title = vInfo.title;
         author = vInfo.author;
+        video_id = vInfo.video_id;
       }
       // Clear old list
       while (document.getElementsByClassName("iaextractor-link").length) {
@@ -165,8 +167,7 @@ var mMake = function (doSize) {
           format.container.toUpperCase() + " " + map(format.quality) + 
           " - " + 
           format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
-          url,
-          format.container
+          url
         );
       });
       if (doSize) {

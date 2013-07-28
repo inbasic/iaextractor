@@ -77,6 +77,13 @@
     ]
   },
   {
+    "name": "namePattern",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "[file_name].[extension]"
+  },
+  {
     "name": "dFolder",
     "title": "",
     "type": "menulist",
@@ -97,12 +104,6 @@
   },
   {
     "name": "getFileSize",
-    "title": "",
-    "type": "bool",
-    "value": true
-  },
-  {
-    "name": "addUserInfo",
     "title": "",
     "type": "bool",
     "value": true

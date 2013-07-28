@@ -734,17 +734,17 @@ var getVideo = (function () {
   
     function onDetect () {
       listener.onDetectStart();
-      youtube.getLink(videoID, fIndex, function (vInfo, title, user, e) {
+      youtube.getLink(videoID, fIndex, function (e, vInfo, title, author) {
         listener.onDetectDone();
         if (e) {
           notify(_('name'), e);
         }
         else {
-          onFile (vInfo, title, user);
+          onFile (vInfo, title, author);
         }
       });
     }
-    function onFile (vInfo, title, user) {
+    function onFile (vInfo, title, author) {
       // Do not generate audio file if video format is not FLV
       if (vInfo.container.toLowerCase() != "flv" && doExtract) {
         //Prevent conflict with video info notification
@@ -753,7 +753,6 @@ var getVideo = (function () {
         }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
-      var name = (prefs.addUserInfo && user ? user + " - " : "") + title;
       var vFile;
       //Select folder by nsIFilePicker
       if (prefs.dFolder == 4) {
@@ -761,7 +760,7 @@ var getVideo = (function () {
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
-        fp.defaultString = name + "." + vInfo.container;
+        fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
         let res = fp.show();
         if (res == nsIFilePicker.returnCancel) return;
         vFile = fp.file;
@@ -771,7 +770,7 @@ var getVideo = (function () {
         try {
           //Simple-prefs doesnt support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-          vFile.append(name + "." + vInfo.container);
+          vFile.append(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
         }
         catch (e) {
           notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
@@ -797,7 +796,7 @@ var getVideo = (function () {
             root = "Desk";
             break;
         }
-        videoPath.push(name + "." + vInfo.container);
+        videoPath.push(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
         vFile = FileUtils.getFile(root, videoPath);
       }
       var aFile, sFile;
@@ -812,6 +811,7 @@ var getVideo = (function () {
         },
         get aFile () {
           if (aFile_first) {
+            //To mach audio name with video name in case of duplication
             let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
             aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
             aFile.initWithPath(vFile.parent.path);
@@ -910,7 +910,25 @@ var getVideo = (function () {
     }
   }
 })();
-
+/** File naming **/
+var fileName = function (title, container, author, video_id, video_resolution, audio_biterate) {
+  return pattern = prefs.namePattern
+    .replace ("[file_name]", title)
+    .replace ("[extension]", container)
+    .replace ("[author]", author)
+    .replace ("[video_id]", video_id)
+    .replace ("[video_resolution]", video_resolution)
+    .replace ("[audio_bitrate]", audio_biterate + "K")
+    //
+    .replace(/\+/g, " ")
+    .replace(/[:\?\¿]/g, "")
+    .replace(/[\\\/]/g, "-")
+    .replace(/[\*]/g, "^")
+    .replace(/[\"]/g, "'")
+    .replace(/[\<]/g, "[")
+    .replace(/[\>]/g, "]")
+    .replace(/[|]/g, "-");
+}
 /** Flashgot **/
 var flashgot = (function () {
   var flashgot;
@@ -919,12 +937,11 @@ var flashgot = (function () {
       .getService(Ci.nsISupports).wrappedJSObject;
   }
   catch (e) {}
-  return function (link, title, user, container) {
-    var fname = (prefs.addUserInfo && user ? user + " - " : "") + title + "." + container;
+  return function (link, title, author, container, videoID, resolution, audioBitrate) {
     if (flashgot) {
       var links = [{
         href: link,
-        fname : fname,
+        fname : fileName(title, container, author, videoID, resolution, audioBitrate),
         description: _("msg15")
       }];
       links.document = window.document;
@@ -949,8 +966,8 @@ var downThemAll = (function () {
     }
     catch (e) {}
   }
-  return function (link, title, user, container, turbo) {
-    var fname = (prefs.addUserInfo && user ? user + " - " : "") + title + "." + container;
+  return function (link, title, author, container, videoID, resolution, audioBitrate, turbo) {
+    var fname = fileName(title, container, author, videoID, resolution, audioBitrate);
     if (DTA.saveSingleItem) {
       try {
         DTA.saveSingleItem(window, turbo, {
@@ -964,7 +981,7 @@ var downThemAll = (function () {
       }
       catch (e) {
         if (turbo) {
-          downThemAll(link, title, user, container, false);
+          downThemAll(link, title, author, container, false);
         }
       }
     }
