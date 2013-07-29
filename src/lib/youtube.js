@@ -221,6 +221,9 @@ function _getInfo(videoID, callback, pointer) {
       else {
         temp[pair[0]] = unescape(decodeURIComponent(pair[1]));
       }
+      if (pair[0] == "title" || pair[0] == "author") {
+        temp[pair[0]] = temp[pair[0]].replace(/\+/g, " ");
+      }
     }
     return temp;
   }

@@ -57,8 +57,10 @@ var subtitle = function (video_id, langID, oFile, callback, pointer) {
 
   youtube.getInfo(video_id, function (vInfo) {
     if (vInfo.ttsurl) {
+      var url = vInfo.ttsurl + "&kind=" + (vInfo.cc_asr ? "asr" : "") + "&lang=" + lang  + "&name=" + name;
+      console.error(url);
       Request({
-        url: vInfo.ttsurl + "&kind=" + (vInfo.ttsurl.indexOf("asr") !== -1 ? "asr" : "") + "&lang=" + lang  + "&name=" + name,
+        url: url,
         onComplete: function (response) {
           if (response.text.length && response.text.indexOf("Error 404") === -1) {
             var ostream = FileUtils.openSafeFileOutputStream(oFile)

@@ -844,7 +844,6 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
-      console.error(vInfo.url);
       listener.onDownloadStart(dr(vInfo.url, obj.vFile));
       notify(
         _('name'), 
@@ -889,7 +888,6 @@ var getVideo = (function () {
     //
     if (typeof(videoID) == "object") {
       var obj = videoID[0];
-      console.error(videoID.length);
       onFile (obj.vInfo, obj.title);
     }
     else {
