@@ -1,6 +1,7 @@
 /* Test cases:
- * 1. http://www.youtube.com/watch?v=XraeBDMm2PM (Non English)
- * 2. http://www.youtube.com/watch?v=0VJqrlH9cdI (English)
+ * 1. http://www.youtube.com/watch?v=XraeBDMm2PM (Non English) [okay]
+ * 2. http://www.youtube.com/watch?v=0VJqrlH9cdI (English) [okay]
+ * 3. http://www.youtube.com/watch?v=9kmUf3fflrA [Fail]
  */
 
 var {Cc, Ci, Cu, components} = require('chrome'),
@@ -53,34 +54,58 @@ var subtitle = function (video_id, langID, oFile, callback, pointer) {
     case 3: lang = "it"; name = "Italian (it)"; break;
     case 4: lang = "ja"; name = "Japanese"; break;
     case 5: lang = "es"; name = "Spanish (es)"; break;
+    case 6: lang = "ru"; name = "Russian (ru)"; break;
   }
-
   youtube.getInfo(video_id, function (vInfo) {
     if (vInfo.ttsurl) {
-      var url = vInfo.ttsurl + "&kind=" + (vInfo.cc_asr ? "asr" : "") + "&lang=" + lang  + "&name=" + name;
+      var url = vInfo.ttsurl + "&kind=" + (vInfo.cc_asr ? "asr" : "") + "&lang=" + lang  + "&name=";
       console.error(url);
       Request({
         url: url,
         onComplete: function (response) {
-          if (response.text.length && response.text.indexOf("Error 404") === -1) {
-            var ostream = FileUtils.openSafeFileOutputStream(oFile)
-            var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
-                            createInstance(Ci.nsIScriptableUnicodeConverter);
-            converter.charset = "UTF-8";
-            var istream = converter.convertToInputStream(xmlToSrt(response.text));
-            NetUtil.asyncCopy(istream, ostream, function(status) {
-              if (!components.isSuccessCode(status)) {
-                if (callback) callback.apply(pointer, [_('err10')]);
-                return;
-              }
-              callback.apply(pointer);
-            });
+          console.error(response.text);
+          analyse (response.text);
+        }
+      }).get();
+      url += name;
+      console.error(url);
+      Request({
+        url: url,
+        onComplete: function (response) {
+          console.error(response.text);
+          analyse (response.text);
+        }
+      }).get();
+
+      var responses = [];
+      function analyse (txt) {
+        responses.push(txt);
+        if (responses.length == 2) {
+          var tmp = "";
+          if (responses[0].length && responses[0].indexOf("Error 404") === -1) {
+            tmp = responses[0];
+          }
+          else if (responses[1].length && responses[1].indexOf("Error 404") === -1) {
+            tmp = responses[1];
           }
           else {
             if (callback) callback.apply(pointer, [_('err11')]);
+            return;
           }
+          var ostream = FileUtils.openSafeFileOutputStream(oFile)
+          var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
+                          createInstance(Ci.nsIScriptableUnicodeConverter);
+          converter.charset = "UTF-8";
+          var istream = converter.convertToInputStream(xmlToSrt(tmp));
+          NetUtil.asyncCopy(istream, ostream, function(status) {
+            if (!components.isSuccessCode(status)) {
+              if (callback) callback.apply(pointer, [_('err10')]);
+              return;
+            }
+            callback.apply(pointer);
+          });
         }
-      }).get();
+      }
     }
     else {
       if (callback) callback.apply(pointer, [_('err11')]);
