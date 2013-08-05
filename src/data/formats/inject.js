@@ -8,10 +8,35 @@ var $ = (function() {
     return cache[id];
   }
 })();
+var html = (function() {
+  var elems = {
+    a: document.createElement("a"),
+    span: document.createElement("span"),
+    i: document.createElement("i")
+  }
+  return function(tag) {
+    var tmp;
+    switch (tag) {
+    case "a":
+    case "span":
+    case "i":
+      return elems[tag].cloneNode(false);
+    default:
+      return document.createElement(tag);
+    }
+  }
+})();
+var remove = function (elem) {
+  if (typeof(elem) == "string") {
+    elem = document.getElementById(elem);
+  }
+  if (!elem) return false;
+  elem.parentNode.removeChild(elem);
+  return true;
+}
 
-// Make new menu
-var mMake = function (doSize) {
-  var sets = [], numberOfItems, activeSet = 0, title, author, video_id, currentIndex, fIndex;
+// Detect video player
+var detect = function () {
   //Flash player
   var players = document.getElementsByTagName("embed"); 
   //HTML5 player
@@ -21,208 +46,185 @@ var mMake = function (doSize) {
       players = [tmp[0].parentNode.parentNode];
     }
   }
-  if (players.length) {
-    var player = players[0];
-    var rect = player.getBoundingClientRect();
+  return players.length ? players[0] : null;
+}
 
-    player.insertAdjacentHTML("afterend", 
-    '<div id="iaextractor-menu">' +
-    '  <span type="title">Download Video</span> ' +
-    '  <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
-    '  <span id="iaextractor-sort" class="iaextractor-button"><i></i></span>' +
-    '  <span id="iaextractor-icon" class="iaextractor-button" disabled="true"><i></i></span>' +
-    '  <span id="iaextractor-settings" class="iaextractor-button"><i></i></span>' +
-    '  <div id="iaextractor-items"></div> ' +
-    '  <span type="footer"> ' +
-    '    <span id="iaextractor-previous" class="iaextractor-button" disabled="true"><i></i></span>' +
-    '    <span id="iaextractor-next" class="iaextractor-button"><i></i></span>' +
-    '  </span>' +
-    '  <ul id="iaextractor-downloader">' + 
-    '    <li>Firefox downloader</li>' + 
-    '    <li>Flashgot</li>' + 
-    '    <li>DownThemAll!</li>' + 
-    '    <li>dTa! OneClick</li>' + 
-    '  </ul>' +
-    '</div>');
-
-    var width = 350 + (doSize ? 40 : 0);
-    $("iaextractor-menu").setAttribute("style", 
-      ' top: -' + (rect.height + 2) + 'px;' + 
-      ' left: ' + (rect.width - width) + 'px;' + 
-      ' width: ' + width + 'px;'
-    );
-    $("iaextractor-items").setAttribute("style", 'height: ' + (rect.height - 85) + 'px;');
-    var downloader = $("iaextractor-downloader");
-    $("iaextractor-items").addEventListener('click', function (e) {
-      var elem = e.originalTarget;
-      //Dropdown
-      var dropdown = (elem.localName == "span") ? elem : elem.parentNode;
-      if (dropdown.className.indexOf("iaextractor-dropdown") !== -1) {
-        var tmp = dropdown.getBoundingClientRect();
-        downloader.style.left = tmp.left + "px";
-        downloader.style.top = (tmp.top + 30) + "px";
-        downloader.style.display = "block";
-        fIndex = parseInt(dropdown.parentNode.children[1].getAttribute("fIndex"));
-        currentIndex = fIndex - activeSet * numberOfItems;
-      
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      //Direct Download
-      if (elem.localName != "span" || !elem.hasAttribute("fIndex")) {
-        return true;
-      }
-      self.port.emit("download", elem.getAttribute("fIndex"));
-      
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }, false);
-    downloader.addEventListener('click', function (e) {
-      var format = sets[activeSet][currentIndex];
-      
-      switch (e.originalTarget) {
-        case downloader.children[0]:
-          self.port.emit("download", fIndex);
-          break;
-        case downloader.children[1]:
-          self.port.emit("flashgot", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate);
-          break;
-        case downloader.children[2]:
-          self.port.emit("downThemAll", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate, false);
-          break;
-        case downloader.children[3]:
-          self.port.emit("downThemAll", format.url, title, author, format.container, video_id, format.resolution, format.audioBitrate, true);
-      }
-      downloader.style.display = "none";
-    }, false);
-    $("iaextractor-close").addEventListener('click', function (e) {
-      var elem = $("iaextractor-menu");
-      elem.parentNode.removeChild(elem);
-    }, false);
-    $('iaextractor-previous').addEventListener('click', function () {
-      make.previous();
-    }, false);
-    $('iaextractor-next').addEventListener('click', function () {
-      make.next();
-    }, false);
-    window.addEventListener("click", function (e) {
-      var elem = e.originalTarget;
-      if (elem != downloader && elem.parentNode != downloader) {
-        downloader.style.display = "none";
-      }
-    });
-    
-    numberOfItems = Math.floor((rect.height - 62 - 10) / 51);
+// Make new menu
+var Menu = function (doSize) {
+  var vInfo, container = {}, currentIndex;
+  // Remove old menu and dropdown
+  remove("iaextractor-downloader");
+  if (remove("iaextractor-menu")) return; //Toggle
+  //
+  var player = detect();
+  if (!player) {
+    console.error("No embed player detected");
+    return;
   }
+  var rect = player.getBoundingClientRect();
+  player.insertAdjacentHTML("afterend", 
+    '<div id="iaextractor-menu">' + //injected menu
+    '  <span type="title">Download Links</span> ' +
+    '  <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
+    '  <span id="iaextractor-settings" class="iaextractor-button"><i></i></span>' +
+    '  <div id="iaextractor-items"><div>' + 
+    '    </div><div></div><div></div>' + 
+    '  </div> ' +
+    '  <span id="iaextractor-load"></span>' +
+    '  <span id="iaextractor-tabs">' + 
+    '    <span index=0 selected>1</span> ' + 
+    '    <span index=1>2</span>' +
+    '    <span index=2>3</span>' +
+    '  </span> ' +
+    '</div>' +
+    '<ul id="iaextractor-downloader">' +  //dropdown
+    '  <li>Firefox downloader</li>' + 
+    '  <li>Flashgot</li>' + 
+    '  <li>DownThemAll!</li>' + 
+    '  <li>dTa! OneClick</li>' + 
+    '</ul>'
+  );
+  var width = 350 + (doSize ? 40 : 0),
+      items = $("iaextractor-items"),
+      tabs = $("iaextractor-tabs"),
+      downloader = $("iaextractor-downloader");
+      
+  container.height = rect.height - 80;
+  $("iaextractor-menu").setAttribute("style", 
+    ' top: -' + (rect.height + 2) + 'px;' + 
+    ' left: ' + (rect.width - width) + 'px;' + 
+    ' width: ' + width + 'px;' +
+    ' height: ' + rect.height + 'px;'
+  );
+  items.setAttribute("style", 'width: ' + (width * 3) + 'px;');
+  items.childNodes[0].setAttribute("style", 'width: ' + width + 'px;');
+  items.childNodes[1].setAttribute("style", 'width: ' + width + 'px;');
+  items.childNodes[2].setAttribute("style", 'width: ' + width + 'px;');
+  tabs.setAttribute("style", 'width: ' + width + 'px;');
+  tabs.addEventListener('click', function (e) {
+    var elem = e.originalTarget;
+    var index = elem.getAttribute("index");
+    if (index === null) return;
+    index = parseInt(index);
+    items.childNodes[index].style.display = "block";
+    items.childNodes[(index + 1) % 3].style.display = "none";
+    items.childNodes[(index + 2) % 3].style.display = "none";
+    tabs.children[index].setAttribute("selected", "true");
+    tabs.children[(index + 1) % 3].removeAttribute("selected");
+    tabs.children[(index + 2) % 3].removeAttribute("selected");
+  }, false);
+  items.addEventListener('click', function (e) {
+    var target = e.originalTarget;
+    if (target.localName == "a") {
+      self.port.emit("download", target.getAttribute("fIndex"));
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    else if (target.className.indexOf("iaextractor-dropdown") != -1) {
+      var dropdown = (target.localName == "span") ? target : target.parentNode;
+      var tmp = dropdown.getBoundingClientRect();
+      downloader.style.left = (tmp.left - 80) + "px";
+      downloader.style.top = (tmp.top + 30) + "px";
+      downloader.style.display = "block";
+      currentIndex = parseInt(target.parentNode.getAttribute("fIndex"));
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, false);
+  downloader.addEventListener('click', function (e) {
+    var format = vInfo.formats[currentIndex];
+    switch (e.originalTarget) {
+    case downloader.children[0]:
+      self.port.emit("download", currentIndex);
+      break;
+    case downloader.children[1]:
+    case downloader.children[2]:
+    case downloader.children[3]:
+      self.port.emit(
+        e.originalTarget == downloader.children[1] ? "flashgot" : "downThemAll", 
+        format.url, 
+        vInfo.title,
+        vInfo.author,
+        format.container,
+        vInfo.video_id,
+        format.resolution,
+        format.audioBitrate,
+        e.originalTarget == downloader.children[3] ? true : false
+      );
+    }
+  }, false);
+  $("iaextractor-close").addEventListener('click', function (e) {
+    remove("iaextractor-menu")
+  }, false);
 
   return {
-    init: function (vInfo) {
-      /**
-       * @param {Number} index of YouTube link in vInfo object
-       */
-      function item (fIndex, txt, url) {
-        $("iaextractor-items").insertAdjacentHTML("beforeend", 
-          '<a class="iaextractor-link" href="' + url + '">' + 
-          '  <div>' +
-          '    <span class="iaextractor-button iaextractor-download-icon" disabled="true"><i></i></span>' + 
-          '    <span style="margin-left: 40px;" fIndex="' + fIndex + '">' +
-                txt +
-          '    </span>' +
-          '    <span class="iaextractor-button iaextractor-dropdown"><i></i></span>' +
-          '  </div>' +
-          '</a>'
-        );
-      }
-      // Split formats into lists
-      if (vInfo) {
-        while (vInfo.formats.length) {
-          sets.push(vInfo.formats.splice(0, numberOfItems));
-        }
-        title = vInfo.title;
-        author = vInfo.author;
-        video_id = vInfo.video_id;
-      }
-      // Clear old list
-      while (document.getElementsByClassName("iaextractor-link").length) {
-        var elem = document.getElementsByClassName("iaextractor-link")[0];
-        elem.parentNode.removeChild(elem);
-      }
-      //Add new list
+    initialize: function (_vInfo) {
+      vInfo = _vInfo;
       function map (str) {
         switch (str) {
-          case "hd720":
-            return "HD720p";
-          case "hd1080":
-            return "HD1080p";
-          default:
-            return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
+        case "hd720":
+          return "HD720p";
+        case "hd1080":
+          return "HD1080p";
+        default:
+          return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
         }
       }
-      sets[activeSet].forEach(function (format, index) {
-        var url = format.url + "&keepalive=yes&title=" + encodeURIComponent(title);
-        item (
-          activeSet * numberOfItems + index,
-          format.container.toUpperCase() + " " + map(format.quality) + 
-          " - " + 
-          format.audioEncoding.toUpperCase() + " " + format.audioBitrate + "K", 
-          url
-        );
+      //Remove loading icon
+      remove("iaextractor-load");
+      //Add new items
+      var tabIndex = (Math.floor((vInfo.formats.length - 1) * 53 / container.height) + 1);
+      var tabWidth = width / tabIndex;
+      tabs.children[0].setAttribute("style", 'width: ' + tabWidth + 'px;');
+      tabs.children[1].setAttribute("style", 'width: ' + tabWidth + 'px;');
+      tabs.children[2].setAttribute("style", 'width: ' + tabWidth + 'px;');
+      tabs.style.display = tabIndex == 1 ? "none" : "block";
+      
+      vInfo.formats.forEach (function (elem, index) {
+        var url = elem.url + "&keepalive=yes&title=" + encodeURIComponent(vInfo.title);
+        var a = html("a");
+        a.setAttribute("class", "iaextractor-item");
+        a.setAttribute("href", url);
+        a.setAttribute("fIndex", index);
+        var text = html("span");
+        text.setAttribute("style", "pointer-events: none;");
+        var dropdown = html("span");
+        dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
+        var i = html("i");
+        dropdown.appendChild(i);
+        a.appendChild(text);
+        a.appendChild(dropdown);
+        text.textContent = 
+          elem.container.toUpperCase() + " " + map(elem.quality) +
+          " - " +
+          elem.audioEncoding.toUpperCase() + " " + elem.audioBitrate + "K";
+        var i = Math.floor(index * 53 / container.height);
+        items.children[i].appendChild(a);
+        //Requesting File Size
+        if (doSize) {
+          self.port.emit("file-size-request", url, i, items.children[i].children.length - 1);
+        }
       });
-      if (doSize) {
-        window.setTimeout(function () {
-          sets[activeSet].forEach(function (format, index) {
-            self.port.emit("file-size-request", format.url, index);
-          });
-        }, 400);
-      }
-      if (sets.length == 1) {
-        $('iaextractor-next').setAttribute("disabled", true);
-      }
-    },
-    next: function () {
-      activeSet += 1;
-      this.init();
-      $('iaextractor-previous').removeAttribute("disabled");
-      if (activeSet + 1 == sets.length) {
-        $('iaextractor-next').setAttribute("disabled", true)
-      }
-    },
-    previous: function () {
-      activeSet -= 1;
-      this.init();
-      $('iaextractor-next').removeAttribute("disabled");
-      if (activeSet == 0) { 
-        $('iaextractor-previous').setAttribute("disabled", true);
-      }
     }
   }
 }
-
-self.port.on("file-size-response", function(url, size, index) {
-  var a = $("iaextractor-items").childNodes[index];
-  if (!a) return;
-  var span = a.children[0].children[1];
+self.port.on("file-size-response", function(url, size, i1, i2) {
+  var a = $("iaextractor-items").children[i1].children[i2];
+  if (!a || a.localName !== "a") return;
+  var span = a.childNodes[0];
   //Rejecting wrong file size
-  if (a.getAttribute("href").indexOf(url) === -1) {
+  if (a.getAttribute("href") != url) {
     return;
   }
   span.textContent += " - " + size;
 });
-
-var make;
-// Do not use $ here
-if (document.getElementById("iaextractor-menu")) {
-  while (document.getElementById("iaextractor-menu")) {
-    var elem = document.getElementById("iaextractor-menu");
-    elem.parentNode.removeChild(elem);
+window.addEventListener("click", function (e) {
+  var elem = e.originalTarget,
+      downloader = $("iaextractor-downloader");
+  if (downloader) {
+    downloader.style.display = "none";
   }
-}
-else {
-  make = new mMake(self.options.doSize);
-  self.port.on("info", function(vInfo) {
-    if (!document.getElementById("iaextractor-items")) return;
-    make.init(vInfo);
-  });
-}
+}, false);
+
+var menu = new Menu(self.options.doSize);
+self.port.on("info", menu.initialize);

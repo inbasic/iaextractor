@@ -377,9 +377,9 @@ var cmds = {
             doSize: prefs.getFileSize
           }
         });
-        worker.port.on("file-size-request", function (url, index) {
+        worker.port.on("file-size-request", function (url, i1, i2) {
           fileSize(url, function (url, size) {
-            worker.port.emit("file-size-response", url, size, index);
+            worker.port.emit("file-size-response", url, size, i1, i2);
           });
         });
         worker.port.on("download", function (fIndex) {

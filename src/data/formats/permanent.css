@@ -2,20 +2,47 @@
 #iaextractor-menu {
   position: relative;
   font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
-  background: #FAC08F !important;
+  background: #FF6C09 !important;
   z-index: 2147483647;
 }
 #iaextractor-menu a {
   color: #FFF !important;
 }
 #iaextractor-menu span[type=title],
-#iaextractor-menu span[type=footer] {
-  display: block;
-  background-color: #E36C09 !important;
-  font-size: 16px !important;
-  text-align: center;
+#iaextractor-tabs {
   height: 30px;
   line-height: 28px;
+}
+#iaextractor-menu span[type=title] {
+  display: block;
+  font-size: 16px !important;
+  text-align: center;
+}
+#iaextractor-tabs {
+  display: none;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  font-size: 16px !important;
+  text-align: center;
+}
+#iaextractor-tabs span {
+  float: left;
+  border-top: solid 3px transparent !important;
+  cursor: pointer;
+}
+#iaextractor-tabs span[selected] {
+  border-top-color: #FFF !important;
+}
+/** loading video info **/
+#iaextractor-load {
+  display: block;
+  width: 64px;
+  height: 64px;
+  padding: 50% !important;
+  margin-left: -32px !important;
+  margin-top: -60px !important;
+  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/fetch.gif) no-repeat center center !important;
 }
 /** Buttons **/
 .iaextractor-button {
@@ -39,96 +66,48 @@
   background-image: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png) !important;
   background-repeat: no-repeat;
 }
-#iaextractor-previous,
-#iaextractor-next {
-  position: relative;
-  width: 62px;
-}
-#iaextractor-previous[disabled=true],
-#iaextractor-next[disabled=true] {
-  display: none;
-}
-#iaextractor-previous i {
-  background-position: -32px !important;
-}
-#iaextractor-next i {
-  background-position: -48px !important;
-}
-#iaextractor-sort,
-#iaextractor-close {
-  border-left: solid 1px #FFF !important;
-}
 #iaextractor-close {
   top: 0;
   right: 0;
 }
-#iaextractor-sort {
-  bottom: 0;
-  right: 0;
-}
-#iaextractor-sort i {
-  background-position: -64px !important;
-}
-#iaextractor-icon,
 #iaextractor-settings {
-  border-right: solid 1px #FFF !important;
-}
-#iaextractor-icon {
   top: 0;
-  left: 0;
-}
-#iaextractor-icon i {
-  background-position: -96px !important;
-}
-#iaextractor-settings {
-  bottom: 0;
   left: 0;
 }
 #iaextractor-settings i {
-  background-position: -80px !important;
+  background-position: -96px !important;
 }
 .iaextractor-dropdown {
-  border-left: solid 1px #FFF !important;
-  right: 30px;
+  position: relative;
+  float: right;
 }
 .iaextractor-dropdown i {
   background-position: -112px !important;
-}
-.iaextractor-download-icon {
-  border-right: solid 1px #FFF !important;
-}
-.iaextractor-download-icon i{
-  background-position: -16px !important;
-  
+  pointer-events: none;
 }
 /** Menu Items **/
 #iaextractor-items {
-  margin-top: 25px !important;
+  overflow: hidden;
 }
-#iaextractor-items a {
+#iaextractor-items div {
+  float: left;
+}
+.iaextractor-item {
   display: block;
-  background: #A3171E !important;
   height: 30px;
-  margin: 20px 30px !important;
-  text-decoration: none !important;
-}
-#iaextractor-items a:hover {
-  text-decoration: none !important;
-}
-#iaextractor-items span:not(.iaextractor-button) {
-  display: inline-block;
-  position: absolute;
-  height: inherit;
   line-height: 30px;
+  background: #F79646 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) no-repeat 10px center !important;
+  margin:20px 33px 0 33px !important;
+  padding-left: 40px !important;
 }
-
+/** Downloader **/
 #iaextractor-downloader {
   display: none;
   z-index: 2147483647;
   position: fixed; 
-  background: white !important;
-  color: black !important;
-  border: solid 1px black !important;
+  background: #FFF !important;
+  color: #000 !important;
+  border: solid 1px #000 !important;
 }
 #iaextractor-downloader li {
   display: block;
@@ -137,19 +116,18 @@
   padding: 0 20px !important;
 }
 #iaextractor-downloader li:hover {
-  background: black !important;
-  color: white !important;
+  background: #000 !important;
+  color: #FFF !important;
   cursor: pointer;
 }
-
-
+/** Injected button **/
 #formats-button-small {
   position: absolute; 
   right: 5px; 
   top: 5px;
   z-index: 2147483647; 
   cursor: pointer;
-  transition: background-color 0.1s !important;
+  transition: background-color .1s !important;
   padding: 3px 2px 0 !important;
   border: 1px solid transparent !important;
   border-radius: 2px !important;
