@@ -854,6 +854,7 @@ var getVideo = (function () {
           .replace("%6", vInfo.audioEncoding)
           .replace("%7", vInfo.audioBitrate)
       );
+      onSubtitle(obj);
     }
     function onExtract (vInfo, dl, obj) {
       var id = dl.id;
@@ -868,7 +869,6 @@ var getVideo = (function () {
             tabs.open(obj.vFile.parent.path);
           }
         }
-        onSubtitle(obj);
       }
       if (!doExtract) {
         return afterExtract();
