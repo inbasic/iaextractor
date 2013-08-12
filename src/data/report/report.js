@@ -13,38 +13,29 @@ var _ = function (id) {
 }
 
 var videop = $("video-preferences");
-var folderp = $("folder-preferences");
-var handler = $("click-handler");
+    folderp = $("folder-preferences");
+    handler = $("click-handler");
+    qdtoggle = $("qd-toggle");
+    dltoggle = $("dl-toggle");
+    fbtoggle = $("folder-button");
 
-function autohide(el, cl) {
-  document.onclick = function() {
-    if (el.classList.contains(cl)) {
-      handler.style.display = "block";
-      el.style.zIndex = "4";
-    } else {
-      handler.style.display = "none";
-      el.style.zIndex = "2";
-    }
-    handler.onclick = function() {
-      el.classList.toggle(cl)
-    }
-  } 
+function cleanup() {
+  if (videop.classList.contains("slide")) videop.classList.remove("slide");
+  if (folderp.classList.contains("slide")) folderp.classList.remove("slide");
+  if (handler.style.display = "block") handler.style.display = "none";
+}
+
+function slidePanel(el, cl) {
+  if (el.classList.contains(cl)) cleanup();
+  else {el.classList.add(cl); handler.style.display = "block"}
 } 
 
-videop.addEventListener("click", function() {
-  videop.classList.toggle("slide");
-  autohide(videop, "slide");
-}, false);
+qdtoggle.onclick = function() {slidePanel(videop, "slide")}
+fbtoggle.onclick = function() {slidePanel(folderp, "slide")}
+handler.onclick = function() {cleanup()}
 
-folderp.addEventListener("click", function() {
-  folderp.classList.toggle("slide2");
-  autohide(folderp, "slide2");
-}, false);
-
-
-
-var downloadButton = $("download-button"),
-    formatsButton = $("formats-button"),
+var downloadButton = $("qd-button"),
+    formatsButton = $("dl-button"),
     aCheckbox = $("audio-checkbox"),
     subCheckbox = $("subtitle-checkbox"),
     sCheckbox = $("resolve-size-checkbox"),
@@ -58,9 +49,9 @@ var mList = function (name, value, func) {
     if (!soft) func(value);
   }
   set(true);
+
   window.addEventListener("click", function (e) {
-    if (e.target.id == "qradio" || e.target.className == "qchecked") videop.classList.toggle("slide");
-    if (e.target.id == "fradio" || e.target.className == "fchecked") folderp.classList.toggle("slide2");
+    if (e.target.className == "r" || e.target.className == "checked") cleanup();
     if (e.button != 0) return;
     if (e.originalTarget.localName != "input")
       return;
@@ -135,9 +126,23 @@ function tabSelector (e) {
       tab.removeAttribute("selected");
       tabpanel.removeAttribute("selected");
     }
+    if ($("home").hasAttribute("selected")) {
+      $("selected").style.left = "116px";
+      $("tabpanels").style.top = "-201px";
+    } 
+    if ($("downloads").hasAttribute("selected")) {
+      $("selected").style.left = "232";
+      $("tabpanels").style.top = "-402px";
+    } 
+    if ($("preferences").hasAttribute("selected")) {
+      $("selected").style.left = "0";
+      $("tabpanels").style.top = "0";
+    }
   }
 }
 $("tabs").addEventListener("click", tabSelector, false);
+var timesOpened = 0;
+
 
 var dm = {}, inList = [];
 var dmUI = {
@@ -164,14 +169,14 @@ var dmUI = {
       }
       var span = item.getElementsByTagName("span");
       var progress = item.getElementsByClassName("progress-inner");
-      var image = item.getElementsByTagName("img");
+      var image = item.getElementsByClassName("cancel");
       
       var rtn = {
         set name(value) {span[0].textContent = value},
         set description(value) {span[1].textContent = value},
         get progress() {return progress[0]},
         set progress(value) {progress[0].style.width = value},
-        get close() {return image[1]}
+        get close() {return image[0]}
       };
       item.setAttribute("cache", cache.push(rtn) - 1);
       return rtn;
@@ -226,7 +231,7 @@ self.port.on("detect", function(msg) {
   //Update fields
   dmUI.get(item).description = msg;
   //Switch to progress tab
-  window.setTimeout(function(){tabSelector(1);}, 700);
+  window.setTimeout(function(){tabSelector(2);}, 0);
   //
   dmUI.set(null, item);
 });
@@ -299,11 +304,12 @@ $("tools-button").addEventListener("click", function () {
 toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
+  
 
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
   // Resizing tabs
-  var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
+  /*var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
       width = gcwidth - 320; // Difference between normal panel size (387px) and normal tabs size (67px) 
   
   if (navigator.userAgent.indexOf("Mac OS X") != -1) {
@@ -313,7 +319,7 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
   var tabs = document.getElementsByClassName("tabs");
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].style.width = width + "px" ;
-  } 
+  }*/
   //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
@@ -332,22 +338,20 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
     downloadButton.textContent = _("open-youtube");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
-  //If there is no download switch to download tab
-  if (dmUI.isEmpty()) {
-    tabSelector(0);
+  //
+  timesOpened += 1;
+  if (timesOpened == 1) {
+    tabSelector(1)  
   }
 });
 
 self.port.on("autohide", function() {
-  if (videop.classList.contains("slide")) {
-    videop.classList.remove("slide");
-    handler.style.display = "none";
-    videop.style.zIndex = "2";
-  } else if (folderp.classList.contains("slide2")) {
-    folderp.classList.remove("slide2");
-    handler.style.display = "none";
-    folderp.style.zIndex = "2";
+  // If there is no download switch to download tab
+  if (dmUI.isEmpty()) {
+    tabSelector(1);
   }
+  // Restore sliding panels to default state
+  cleanup(); 
 });  
 
 window.addEventListener("load", function () {

@@ -88,8 +88,8 @@ var config = {
   //Panels
   panels: {
     rPanel: {
-      width: 387,
-      height: 200
+      width: 348,
+      height: 231
     },
     iPanel: {
       width: 520,
