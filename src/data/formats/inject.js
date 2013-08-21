@@ -12,7 +12,8 @@ var html = (function() {
   var elems = {
     a: document.createElement("a"),
     span: document.createElement("span"),
-    i: document.createElement("i")
+    i: document.createElement("i"),
+    div: document.createElement("div"),
   }
   return function(tag) {
     var tmp;
@@ -67,15 +68,9 @@ var Menu = function (doSize) {
     '  <span type="title">Download Links</span> ' +
     '  <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
     '  <span id="iaextractor-settings" class="iaextractor-button"><i></i></span>' +
-    '  <div id="iaextractor-items"><div>' + 
-    '    </div><div></div><div></div>' + 
-    '  </div> ' +
+    '  <div id="iaextractor-items"></div> ' +
     '  <span id="iaextractor-load"></span>' +
-    '  <span id="iaextractor-tabs">' + 
-    '    <span index=0 selected>1</span> ' + 
-    '    <span index=1>2</span>' +
-    '    <span index=2>3</span>' +
-    '  </span> ' +
+    '  <span id="iaextractor-tabs"></span> ' +
     '</div>' +
     '<ul id="iaextractor-downloader">' +  //dropdown
     '  <li>Firefox downloader</li>' + 
@@ -89,29 +84,30 @@ var Menu = function (doSize) {
       tabs = $("iaextractor-tabs"),
       downloader = $("iaextractor-downloader");
       
-  container.height = rect.height - 80;
+  container.height = rect.height - 85;
   $("iaextractor-menu").setAttribute("style", 
     ' top: -' + (rect.height + 2) + 'px;' + 
     ' left: ' + (rect.width - width) + 'px;' + 
     ' width: ' + width + 'px;' +
     ' height: ' + rect.height + 'px;'
   );
-  items.setAttribute("style", 'width: ' + (width * 3) + 'px;');
-  items.childNodes[0].setAttribute("style", 'width: ' + width + 'px;');
-  items.childNodes[1].setAttribute("style", 'width: ' + width + 'px;');
-  items.childNodes[2].setAttribute("style", 'width: ' + width + 'px;');
+  items.setAttribute("style", 'width: ' + (width * 10) + 'px;');  //Support up to 10 pages
   tabs.setAttribute("style", 'width: ' + width + 'px;');
   tabs.addEventListener('click', function (e) {
     var elem = e.originalTarget;
     var index = elem.getAttribute("index");
     if (index === null) return;
     index = parseInt(index);
-    items.childNodes[index].style.display = "block";
-    items.childNodes[(index + 1) % 3].style.display = "none";
-    items.childNodes[(index + 2) % 3].style.display = "none";
-    tabs.children[index].setAttribute("selected", "true");
-    tabs.children[(index + 1) % 3].removeAttribute("selected");
-    tabs.children[(index + 2) % 3].removeAttribute("selected");
+    for (var i = 0; i < items.childNodes.length; i++) {
+      if (i == index) {
+        items.childNodes[i].style.display = "block";
+        tabs.children[i].setAttribute("selected", "true");
+      }
+      else {
+        items.childNodes[i].style.display = "none";
+        tabs.children[i].removeAttribute("selected");
+      }
+    }
   }, false);
   items.addEventListener('click', function (e) {
     var target = e.originalTarget;
@@ -173,11 +169,22 @@ var Menu = function (doSize) {
       //Remove loading icon
       remove("iaextractor-load");
       //Add new items
-      var tabIndex = (Math.floor((vInfo.formats.length - 1) * 53 / container.height) + 1);
-      var tabWidth = width / tabIndex;
-      tabs.children[0].setAttribute("style", 'width: ' + tabWidth + 'px;');
-      tabs.children[1].setAttribute("style", 'width: ' + tabWidth + 'px;');
-      tabs.children[2].setAttribute("style", 'width: ' + tabWidth + 'px;');
+      var tabIndex = (Math.floor((vInfo.formats.length - 1) * 53 / container.height) + 1),
+          tabWidth = width / tabIndex;
+      for (var i = 0; i < tabIndex; i++) {
+        var div = html("div");
+        div.setAttribute("style", 'width: ' + width + 'px;');
+        $("iaextractor-items").appendChild(div);
+        
+        var span = html("span");
+        span.setAttribute("index", i);
+        span.setAttribute("style", 'width: ' + tabWidth + 'px;');
+        span.textContent = i;
+        if (i === 0) {
+          span.setAttribute("selected", "true");
+        }
+        $("iaextractor-tabs").appendChild(span);
+      }
       tabs.style.display = tabIndex == 1 ? "none" : "block";
       
       vInfo.formats.forEach (function (elem, index) {
