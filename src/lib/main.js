@@ -18,7 +18,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     tools         = require("./misc"),
     Request       = require("sdk/request").Request,
     data          = self.data,
-    window        = windowutils.activeBrowserWindow,
     prefs         = sp.prefs,
     fileSize      = tools.fileSize,
     format        = tools.format,
@@ -139,7 +138,7 @@ rPanel.port.on("cmd", function (cmd) {
       break;
     case "tools":
       rPanel.hide();
-      window.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all,resizable=false');
+      windowutils.activeBrowserWindow.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all');
       break;
     case "cancel":
       listener.cancel(parseInt(arguments[1]));
@@ -455,16 +454,15 @@ tabs.on('ready', function () {
 tabs.on('activate', monitor);
 
 /** Store toolbar button position **/
-var aWindow = windowutils.activeBrowserWindow;
 var aftercustomizationListener = function () {
-  let button = aWindow.document.getElementById(config.toolbar.id);
+  let button = windowutils.activeBrowserWindow.document.getElementById(config.toolbar.id);
   if (!button) return;
   _prefs.setCharPref("nextSibling", button.nextSibling.id);
 }
-aWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
+windowutils.activeBrowserWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
 exports.onUnload = function (reason) {
   //Remove toolbar listener
-  aWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
+  windowutils.activeBrowserWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
   //Close tools window
   let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
     .getService(Ci.nsIWindowMediator);   
@@ -637,7 +635,7 @@ sp.on("dFolder", function () {
     rPanel.hide();
     var nsIFilePicker = Ci.nsIFilePicker;
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(window, _("msg13"), nsIFilePicker.modeGetFolder);
+    fp.init(windowutils.activeBrowserWindow, _("msg13"), nsIFilePicker.modeGetFolder);
     var res = fp.show();
     if (res != nsIFilePicker.returnCancel){
       _prefs.setComplexValue("userFolder", fp.file.path);
@@ -758,7 +756,7 @@ var getVideo = (function () {
       if (prefs.dFolder == 4) {
         let nsIFilePicker = Ci.nsIFilePicker;
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-        fp.init(window, _("prompt3"), nsIFilePicker.modeSave);
+        fp.init(windowutils.activeBrowserWindow, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
         fp.defaultString = name + "." + vInfo.container;
         let res = fp.show();

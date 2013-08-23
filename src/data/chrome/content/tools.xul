@@ -1,6 +1,5 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://iaextractor/skin/tools.css" type="text/css"?>
-<?xml-stylesheet href="chrome://iaextractor/skin/tools-extra.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools.dtd">
 
@@ -51,10 +50,12 @@ var require = function (id) {
   <stringbundle id="bundle" src="chrome://iaextractor/locale/tools.properties"/>
 </stringbundleset>
 
-<tabbox flex="1" selectedIndex="1">
+<notificationbox id="notify" flex="1">
+<tabbox id="tabbox" flex="1" selectedIndex="1" persist="selectedIndex">
   <tabs>
     <tab label="&aac-to-mp3;"/>
     <tab label="&flv-to-aac;"/>
+    <tab label="&to-mp3;"/>
   </tabs>
   <tabpanels flex="1">
     <tabpanel
@@ -122,7 +123,26 @@ var require = function (id) {
         </vbox>
       </vbox>
       </tabpanel>
+    <tabpanel
+      ondragenter="return drag3.checkDrag(event)"
+      ondragover="return drag3.checkDrag(event)"
+      ondrop="drag3.doDrop(event)">
+      <vbox flex="1">
+        <hbox align="center">
+          <label value="&ffmpeg-path;" />
+          <textbox id="ffmpeg-path" flex="1"/>
+          <button id="browse" label="&browse;"/>
+        </hbox>
+        <hbox align="center">
+          <label value="&ffmpeg-input;" />
+          <textbox id="ffmpeg-input" flex="1"/>
+        </hbox>
+        <hbox align="center" pack="center" class="info" flex="1">
+        <label value="&drop3;"/>
+        </hbox>
+      </vbox>
+      </tabpanel>
   </tabpanels>
 </tabbox>
-
+</notificationbox>
 </window>
