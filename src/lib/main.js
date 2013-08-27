@@ -138,7 +138,7 @@ rPanel.port.on("cmd", function (cmd) {
       break;
     case "tools":
       rPanel.hide();
-      windowutils.activeBrowserWindow.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all');
+      windowutils.activeBrowserWindow.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all,resizable=yes');
       break;
     case "cancel":
       listener.cancel(parseInt(arguments[1]));
