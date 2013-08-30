@@ -4,16 +4,12 @@ var Cc = Components.classes,
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
-Cu.import("resource://gre/modules/FileUtils.jsm");
-
-var prefs = Cc["@mozilla.org/preferences-service;1"]
-                    .getService(Ci.nsIPrefService);
-prefs = prefs.getBranch("extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.");
 
 var $ = function (id) {
   return document.getElementById(id);
 }
 
+var prefs = require("sdk/simple-prefs").prefs;
 var bundle;
 var config = {
   url: {
@@ -292,52 +288,30 @@ var drag3 = {
   doDrop: function(event) {
     var dropFile = event.dataTransfer.mozGetDataAt("application/x-moz-file", 0);
     if (dropFile instanceof Ci.nsIFile) {
-      var ffmpeg = prefs.getCharPref("ffmpeg-path");
-      if (!ffmpeg) {
-        alert(bundle.getString("err18"));
-        return;
+      try {
+        exports.ffmpeg (dropFile.path);
       }
-      ffmpeg = new FileUtils.File(ffmpeg);
-      if (!ffmpeg.exists()) {
-        alert(bundle.getString("err19") + ffmpeg.path);
-        return;
+      catch (e) {
+        alert(e);
       }
-      var process = Cc["@mozilla.org/process/util;1"]
-        .createInstance(Ci.nsIProcess);
-      process.init(ffmpeg);
-      var args = prefs.getCharPref("ffmpeg-input");
-      args = args.split(" ");
-      args.forEach(function (arg, index) {
-        args[index] = arg
-          .replace("%input", dropFile.path)
-          .replace("%output", dropFile.path.replace(/\.+[^\.]*$/, ""));
-      })
-      process.runAsync(args, args.length);
     }
   }
 }
 
 window.addEventListener("load", function () {
   bundle = $("bundle");
-  try {
-    prefs.getCharPref("ffmpeg-input");
-  }
-  catch (e) {
-    prefs.setCharPref("ffmpeg-input", '-i %input %output.mp3');
-    prefs.setCharPref("ffmpeg-path", '');
-  }
   
-  $("ffmpeg-input").value = prefs.getCharPref("ffmpeg-input");
-  $("ffmpeg-path").value = prefs.getCharPref("ffmpeg-path");
+  $("ffmpeg-input").value = prefs.ffmpegInputs;
+  $("ffmpeg-path").value = prefs.ffmpegPath;
   
   $("ffmpeg-input").addEventListener("change", function () {
     var value = $("ffmpeg-input").value;
     if (!value) return;
-    prefs.setCharPref("ffmpeg-input", value);
+    prefs.ffmpegInputs = value;
   }, false);
   $("ffmpeg-path").addEventListener("change", function () {
     var value = $("ffmpeg-path").value;
-    prefs.setCharPref("ffmpeg-path", value);
+    prefs.ffmpegPath = value;
   }, false);
   $("ffmpeg-path").addEventListener("click", function () {
     if (!$("ffmpeg-path").value) {
@@ -361,7 +335,7 @@ window.addEventListener("load", function () {
   }, false);
   
   function showNotification() {
-    if ($("tabbox").selectedIndex == 2 && !prefs.getCharPref("ffmpeg-path")) {
+    if ($("tabbox").selectedIndex == 2 && !prefs.ffmpegPath) {
       var nb = $("notify");
       nb.removeAllNotifications();
       nb.appendNotification( bundle.getString("msg2") , null , null , nb.PRIORITY_WARNING_MEDIUM , null, null )

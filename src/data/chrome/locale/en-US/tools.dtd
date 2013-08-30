@@ -9,7 +9,7 @@
 <!ENTITY p4 "Server status:">
 <!ENTITY p5 "Downloading converted file">
 <!ENTITY drop2 "Drag and drop a video file (*.FLV) here">
-<!ENTITY ffmpeg-path "FFmpeg.exe path:">
+<!ENTITY ffmpeg-path "FFmpeg.exe location:">
 <!ENTITY browse "browse...">
-<!ENTITY ffmpeg-input "FFmpeg.exe input arguments">
+<!ENTITY ffmpeg-input "FFmpeg input arguments">
 <!ENTITY drop3 "Drag and drop a video file here">

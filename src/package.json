@@ -129,6 +129,18 @@
     "value": true
   },
   {
+    "name": "ffmpegPath",
+    "type": "file",
+    "title": ""
+  },
+  {
+    "name": "ffmpegInputs",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "-i %input %output.mp3"
+  },
+  {
     "name": "forceVisible",
     "title": "",
     "description": "",

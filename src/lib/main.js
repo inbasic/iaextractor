@@ -15,6 +15,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     subtitle      = require("./subtitle"),
     download      = require("./download"),
     extract       = require("./extract"),
+    ffmpeg        = require("./ffmpeg"),
     tools         = require("./misc"),
     Request       = require("sdk/request").Request,
     data          = self.data,
@@ -736,9 +737,9 @@ var getVideo = (function () {
     }
     function onFile (vInfo, title, user) {
       // Do not generate audio file if video format is not FLV
-      if (vInfo.container.toLowerCase() != "flv" && doExtract) {
+      if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
-        timer.setTimeout(function (){
+        timer.setTimeout(function () {
           notify(_('name'), _('msg5'))
         }, config.noAudioExtraction * 1000);
         doExtract = false;
@@ -871,10 +872,18 @@ var getVideo = (function () {
         return afterExtract();
       }
       listener.onExtractStart(id);
-      extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
-        listener.onExtractDone(id);
-        afterExtract(prefs.extension == "0" ? e : null);
-      });
+      if (vInfo.container == "flv") {
+        extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
+          listener.onExtractDone(id);
+          afterExtract(prefs.extension == "0" ? e : null);
+        });
+      }
+      else {
+        ffmpeg.ffmpeg(obj.vFile.path, function () {
+          listener.onExtractDone(id);
+          afterExtract();
+        });
+      }
     }
     function onSubtitle (obj) {
       if (!prefs.doSubtitle) return;
