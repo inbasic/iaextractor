@@ -67,16 +67,15 @@ var Menu = function (doSize) {
     '<div id="iaextractor-menu">' + //injected menu
     '  <span type="title">Download Links</span> ' +
     '  <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
-    '  <span id="iaextractor-settings" class="iaextractor-button"><i></i></span>' +
     '  <div id="iaextractor-items"></div> ' +
     '  <span id="iaextractor-load"></span>' +
     '  <span id="iaextractor-tabs"></span> ' +
     '</div>' +
     '<ul id="iaextractor-downloader">' +  //dropdown
-    '  <li>Firefox downloader</li>' + 
-    '  <li>Flashgot</li>' + 
-    '  <li>DownThemAll!</li>' + 
-    '  <li>dTa! OneClick</li>' + 
+    '  <li>FIREFOX DOWNLOADER</li>' + 
+    '  <li>FLASHGOT</li>' + 
+    '  <li>DOWNTHEMALL!</li>' + 
+    '  <li>DTA! ONECLICK</li>' + 
     '</ul>'
   );
   var width = 350 + (doSize ? 40 : 0),
@@ -117,16 +116,21 @@ var Menu = function (doSize) {
       e.preventDefault();
     }
     else if (target.className.indexOf("iaextractor-dropdown") != -1) {
-      var dropdown = (target.localName == "span") ? target : target.parentNode;
-      var tmp = dropdown.getBoundingClientRect();
-      downloader.style.left = (tmp.left - 80) + "px";
-      downloader.style.top = (tmp.top + 30) + "px";
+      var item = target.parentNode; 
+          formats = document.getElementsByClassName("iaextractor-item");
+      for (var i = 0; i < formats.length; i++) {
+        if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
+      }
+      item.setAttribute("selected", "true");
+      downloader.style.left = player.offsetLeft + (rect.width - width) + 33 + "px";
+      downloader.style.top = (item.offsetTop + 55) + "px";
       downloader.style.display = "block";
       currentIndex = parseInt(target.parentNode.getAttribute("fIndex"));
       e.stopPropagation();
       e.preventDefault();
     }
-  }, false);
+  }, false);	
+  downloader.setAttribute("style", 'width: ' + (width - 66) + 'px;');
   downloader.addEventListener('click', function (e) {
     var format = vInfo.formats[currentIndex];
     switch (e.originalTarget) {
@@ -175,11 +179,10 @@ var Menu = function (doSize) {
         var div = html("div");
         div.setAttribute("style", 'width: ' + width + 'px;');
         $("iaextractor-items").appendChild(div);
-        
         var span = html("span");
         span.setAttribute("index", i);
         span.setAttribute("style", 'width: ' + tabWidth + 'px;');
-        span.textContent = i;
+        span.textContent = i + 1;
         if (i === 0) {
           span.setAttribute("selected", "true");
         }
@@ -228,6 +231,10 @@ self.port.on("file-size-response", function(url, size, i1, i2) {
 window.addEventListener("click", function (e) {
   var elem = e.originalTarget,
       downloader = $("iaextractor-downloader");
+      formats = document.getElementsByClassName("iaextractor-item");
+  for (var i = 0; i < formats.length; i++) {
+    if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
+  }
   if (downloader) {
     downloader.style.display = "none";
   }

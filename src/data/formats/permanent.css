@@ -1,21 +1,19 @@
 /** Menu **/
 #iaextractor-menu {
   position: relative;
-  font-family: "Segoe UI", Tahoma, Helvetica, "Sans-Serif";
+  font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
   background: #FF6C09 !important;
   z-index: 2147483647;
   color: #FFF !important;
+  -moz-user-select: none;
 }
 #iaextractor-menu a {
   color: #FFF !important;
 }
-#iaextractor-menu span[type=title],
-#iaextractor-tabs {
-  height: 30px;
-  line-height: 28px;
-}
 #iaextractor-menu span[type=title] {
   display: block;
+  height: 30px;
+  line-height: 36px;
   font-size: 16px !important;
   text-align: center;
 }
@@ -26,15 +24,17 @@
   bottom: 0;
   font-size: 16px !important;
   text-align: center;
+  line-height: 30px;
 }
 #iaextractor-tabs span {
   float: left;
-  border-top: solid 3px transparent !important;
+  border-top: solid 2px transparent !important;
   cursor: pointer;
 }
 #iaextractor-tabs span[selected] {
   border-top-color: #FFF !important;
 }
+
 /** loading video info **/
 #iaextractor-load {
   display: block;
@@ -43,7 +43,7 @@
   padding: 50% !important;
   margin-left: -32px !important;
   margin-top: -60px !important;
-  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/fetch.gif) no-repeat center center !important;
+  background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/fetch.png) no-repeat center center !important;
 }
 /** Buttons **/
 .iaextractor-button {
@@ -57,9 +57,6 @@
 .iaextractor-button:not([disabled=true]) {
   cursor: pointer;
 }
-.iaextractor-button:not([disabled=true]):hover {
-  background-color: #D66508 !important;
-}
 .iaextractor-button i {
   display: inline-block;
   width: 16px;
@@ -68,22 +65,26 @@
   background-repeat: no-repeat;
 }
 #iaextractor-close {
-  top: 0;
-  right: 0;
+  top: 4px;
+  right: 2px;
+  opacity: 0.7;
+  transition: opacity 100ms !important;
 }
-#iaextractor-settings {
-  top: 0;
-  left: 0;
+#iaextractor-close:hover {
+  opacity: 1;
 }
-#iaextractor-settings i {
-  background-position: -96px !important;
+#iaextractor-close:hover:active {
+  opacity: 0.5;
+}
+#iaextractor-close i {
+  background-position: -16px !important;
 }
 .iaextractor-dropdown {
   position: relative;
   float: right;
 }
 .iaextractor-dropdown i {
-  background-position: -112px !important;
+  background-position: -80px !important;
   pointer-events: none;
 }
 /** Menu Items **/
@@ -97,45 +98,75 @@
   display: block;
   height: 30px;
   line-height: 30px;
-  background: #F79646 url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/download.png) no-repeat 10px center !important;
-  margin:20px 33px 0 33px !important;
+  background: #F79646 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) no-repeat 10px center !important;
+  transition: background-color 100ms !important;
+  margin: 20px 33px 0 33px !important;
   padding-left: 40px !important;
+  text-decoration: none !important;
+}
+.iaextractor-item:hover {
+  background-color: #FFA05A !important;
+}
+.iaextractor-item[selected] {
+  background-color: #FF8830 !important;
+}
+.iaextractor-item:hover:active {
+  background-color: #FF8830 !important;
 }
 /** Downloader **/
 #iaextractor-downloader {
+  font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
   display: none;
   z-index: 2147483647;
-  position: fixed; 
-  background: #FFF !important;
-  color: #000 !important;
-  border: solid 1px #000 !important;
+  position: absolute; 
+  color: #FFF !important;
+  background-color: #FF8830 !important;
+  -moz-user-select: none;
 }
 #iaextractor-downloader li {
   display: block;
-  height: 24px;
-  line-height: 20px;
-  padding: 0 20px !important;
+  height: 30px !important;
+  line-height: 30px;
+  padding: 0 40px !important;
+  background-repeat: no-repeat !important;
+  background-position: 10px center !important;
+  transition: background-color 100ms !important;
 }
 #iaextractor-downloader li:hover {
-  background: #000 !important;
-  color: #FFF !important;
+  background-color: #FFA45A !important;
   cursor: pointer;
 }
+#iaextractor-downloader li:hover:active {
+  background-color: #FF9E51 !important;
+}
+#iaextractor-downloader li:nth-child(1) {
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) !important;
+  display: none;
+}
+#iaextractor-downloader li:nth-child(2) {
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 32, 16, 16) !important;
+}
+#iaextractor-downloader li:nth-child(3) {
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 48, 16, 32) !important;
+}
+#iaextractor-downloader li:nth-child(4) {
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 64, 16, 48) !important;
+}
+
 /** Injected button **/
 #formats-button-small {
+  width: 32px;
+  height: 32px;
   position: absolute; 
-  right: 5px; 
-  top: 5px;
+  right: 4px; 
+  top: 13px;
   z-index: 2147483647; 
   cursor: pointer;
-  transition: background-color .1s !important;
-  padding: 3px 2px 0 !important;
-  border: 1px solid transparent !important;
-  border-radius: 2px !important;
+  transition: background 100ms !important;
+  background: #FFF -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 24, 24, 0) no-repeat center !important;
 }
-#formats-button-small:hover {
-  background-color: #CCE0FF !important;
-  border: 1px solid #5C9DFF !important;
+#formats-button-small:hover:active {
+  background: #FFF -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 48, 24, 24) no-repeat center !important;
 }
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */
