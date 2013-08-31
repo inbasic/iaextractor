@@ -426,9 +426,10 @@ exports.main = function(options, callbacks) {
   monitor(tabs.activeTab);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
-    timer.setTimeout(function () {
-      tabs.open({url: config.urls.homepage, inBackground : false});
-    }, 3000);
+    _prefs.setBoolPref("newVersion", true);
+  }
+  if (options.loadReason == "startup" || options.loadReason == "install") {
+    welcome();
   }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
@@ -436,6 +437,22 @@ exports.main = function(options, callbacks) {
       tab.reload();
     }
   }
+}
+
+/** Welcome page **/
+var welcome = function () {
+  try {
+    if (!_prefs.getBoolPref("newVersion")) return;
+  }
+  catch (e) {
+    return;
+  }
+  if (prefs.welcome) {
+    timer.setTimeout(function () {
+      tabs.open({url: config.urls.homepage, inBackground : false});
+    }, 3000);
+  }
+  _prefs.setBoolPref("newVersion", false);
 }
 
 /** Monitor **/
@@ -879,7 +896,7 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg(obj.vFile.path, function () {
+        ffmpeg.ffmpeg(obj.vFile, function () {
           listener.onExtractDone(id);
           afterExtract();
         });

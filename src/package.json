@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez"],
   
   "url": "",
-  "version": "0.2.3.1",
+  "version": "0.2.4b1",
   "lib": "lib",
   "main": "main",
   
@@ -139,6 +139,12 @@
     "description": "",
     "type": "string",
     "value": "-i %input %output.mp3"
+  },
+  {
+    "name": "welcome",
+    "title": "",
+    "type": "bool",
+    "value": true
   },
   {
     "name": "forceVisible",

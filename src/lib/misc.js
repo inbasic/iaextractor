@@ -69,6 +69,8 @@ var prefs = (function () {
     setIntPref: pservice.setIntPref,
     getCharPref: pservice.getCharPref,
     setCharPref: pservice.setCharPref,
+    getBoolPref: pservice.getBoolPref,
+    setBoolPref: pservice.setBoolPref,
     getComplexValue: pservice.getComplexValue,
     setComplexValue: function (id, val) {
       var str = Cc["@mozilla.org/supports-string;1"]
