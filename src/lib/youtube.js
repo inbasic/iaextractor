@@ -1,4 +1,4 @@
-var prefs   = require("sdk/simple-prefs").prefs,
+﻿var prefs   = require("sdk/simple-prefs").prefs,
     _prefs  = require("./misc").prefs,
     Request = require("sdk/request").Request,
     {Cc, Ci, Cu}  = require('chrome');
@@ -441,10 +441,10 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       if (!detected && tmp.length) detected = tmp[0];
       if (!detected) detected = info.formats[0]; //Get highest quality
 
-      if (callback) callback.apply(pointer, [detected, info.title, info.author.replace(/\+/g, " "), null]);
+      if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
     });
   } catch (e) {
-    if (callback) callback.apply(pointer, [null, null, e]);
+    if (callback) callback.apply(pointer, [e]);
   }
 }
 exports.getLink = getLink;

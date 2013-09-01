@@ -24,9 +24,10 @@ var {Cc, Ci, Cu}  = require('chrome'),
     format        = tools.format,
     _prefs        = tools.prefs,
     prompts       = tools.prompts;
-    
+
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 /** Internal Preferences **/
@@ -37,6 +38,7 @@ try {
   _prefs.setIntPref("decoder_ver", 1);
   _prefs.setCharPref("decoder_alg", '["r","s",2,"w",17,"w",61,"r","s",1,"w",7,"s",1]');
 }
+
 Request({ //Update signature decoder from server
   url: "http://add0n.com/signature.php?request=ver",
   onComplete: function (response) {
@@ -86,8 +88,8 @@ var config = {
   //Panels
   panels: {
     rPanel: {
-      width: 387,
-      height: 247
+      width: 348,
+      height: 231
     },
     iPanel: {
       width: 520,
@@ -157,6 +159,10 @@ rPanel.on("show", function() {
     prefs.extension, 
     yButton.saturate
   );
+});
+
+rPanel.on("hide", function() {
+  rPanel.port.emit("autohide")
 });
 
 var iPanel = panel.Panel({
@@ -371,9 +377,9 @@ var cmds = {
             doSize: prefs.getFileSize
           }
         });
-        worker.port.on("file-size-request", function (url, index) {
+        worker.port.on("file-size-request", function (url, i1, i2) {
           fileSize(url, function (url, size) {
-            worker.port.emit("file-size-response", url, size, index);
+            worker.port.emit("file-size-response", url, size, i1, i2);
           });
         });
         worker.port.on("download", function (fIndex) {
@@ -382,6 +388,8 @@ var cmds = {
         youtube.getInfo(videoID, function (vInfo) {
           worker.port.emit('info', vInfo);
         });
+        worker.port.on("flashgot", flashgot);
+        worker.port.on("downThemAll", downThemAll);        
       }
       else {
         notify(_('name'), _('msg4'));
@@ -742,17 +750,17 @@ var getVideo = (function () {
   
     function onDetect () {
       listener.onDetectStart();
-      youtube.getLink(videoID, fIndex, function (vInfo, title, user, e) {
+      youtube.getLink(videoID, fIndex, function (e, vInfo, title, author) {
         listener.onDetectDone();
         if (e) {
           notify(_('name'), e);
         }
         else {
-          onFile (vInfo, title, user);
+          onFile (vInfo, title, author);
         }
       });
     }
-    function onFile (vInfo, title, user) {
+    function onFile (vInfo, title, author) {
       // Do not generate audio file if video format is not FLV
       if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
@@ -761,14 +769,6 @@ var getVideo = (function () {
         }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
-      var name = ((prefs.addUserInfo && user ? user + " - " : "") + title)
-        .replace(/[:\?\¿]/g, "")
-        .replace(/[\\\/]/g, "-")
-        .replace(/[\*]/g, "^")
-        .replace(/[\"]/g, "'")
-        .replace(/[\<]/g, "[")
-        .replace(/[\>]/g, "]")
-        .replace(/[|]/g, "-");
       var vFile;
       //Select folder by nsIFilePicker
       if (prefs.dFolder == 4) {
@@ -776,7 +776,7 @@ var getVideo = (function () {
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(windowutils.activeBrowserWindow, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
-        fp.defaultString = name + "." + vInfo.container;
+        fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
         let res = fp.show();
         if (res == nsIFilePicker.returnCancel) return;
         vFile = fp.file;
@@ -786,7 +786,7 @@ var getVideo = (function () {
         try {
           //Simple-prefs doesnt support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-          vFile.append(name + "." + vInfo.container);
+          vFile.append(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
         }
         catch (e) {
           notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
@@ -812,7 +812,7 @@ var getVideo = (function () {
             root = "Desk";
             break;
         }
-        videoPath.push(name + "." + vInfo.container);
+        videoPath.push(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
         vFile = FileUtils.getFile(root, videoPath);
       }
       var aFile, sFile;
@@ -827,6 +827,7 @@ var getVideo = (function () {
         },
         get aFile () {
           if (aFile_first) {
+            //To mach audio name with video name in case of duplication
             let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
             aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
             aFile.initWithPath(vFile.parent.path);
@@ -919,7 +920,86 @@ var getVideo = (function () {
     }
   }
 })();
-
+/** File naming **/
+var fileName = function (title, container, author, video_id, video_resolution, audio_biterate) {
+  return pattern = prefs.namePattern
+    .replace ("[file_name]", title)
+    .replace ("[extension]", container)
+    .replace ("[author]", author)
+    .replace ("[video_id]", video_id)
+    .replace ("[video_resolution]", video_resolution)
+    .replace ("[audio_bitrate]", audio_biterate + "K")
+    //
+    .replace(/\+/g, " ")
+    .replace(/[:\?\¿]/g, "")
+    .replace(/[\\\/]/g, "-")
+    .replace(/[\*]/g, "^")
+    .replace(/[\"]/g, "'")
+    .replace(/[\<]/g, "[")
+    .replace(/[\>]/g, "]")
+    .replace(/[|]/g, "-");
+}
+/** Flashgot **/
+var flashgot = (function () {
+  var flashgot;
+  try {
+    flashgot = Cc["@maone.net/flashgot-service;1"]
+      .getService(Ci.nsISupports).wrappedJSObject;
+  }
+  catch (e) {}
+  return function (link, title, author, container, videoID, resolution, audioBitrate) {
+    if (flashgot) {
+      var links = [{
+        href: link,
+        fname : fileName(title, container, author, videoID, resolution, audioBitrate),
+        description: _("msg15")
+      }];
+      links.document = windowutils.activeBrowserWindow.document;
+      flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
+    }
+    else {
+      notify(_("name"), _("err14"));
+    }
+  }
+})();
+/** DownThemAll **/
+var downThemAll = (function () {
+  var DTA = {};
+  try {
+    Cu.import("resource://dta/api.jsm", DTA);
+  } 
+  catch (e) {
+    try {
+      var glue = {}
+      Cu.import("chrome://dta-modules/content/glue.jsm", glue);
+      DTA = glue["require"]("api");
+    }
+    catch (e) {}
+  }
+  return function (link, title, author, container, videoID, resolution, audioBitrate, turbo) {
+    var fname = fileName(title, container, author, videoID, resolution, audioBitrate);
+    if (DTA.saveSingleItem) {
+      try {
+        DTA.saveSingleItem(windowutils.activeBrowserWindow, turbo, {
+          url: link,
+          referrer: null,
+          description: _("msg15"),
+          fileName: fname,
+          destinationName: fname,
+          mask: "*name*.*ext*"
+        });
+      }
+      catch (e) {
+        if (turbo) {
+          downThemAll(link, title, author, container, false);
+        }
+      }
+    }
+    else {
+      notify(_("name"), _("err15"));
+    }
+  }
+})();
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
 var notify = (function () {
@@ -928,7 +1008,7 @@ var notify = (function () {
       let alertServ = Cc["@mozilla.org/alerts-service;1"].
                       getService(Ci.nsIAlertsService);
       //In linux config.image does not work properly!
-      alertServ.showAlertNotification(data.url("notification.png"), title, text);
+      alertServ.showAlertNotification(data.url("report/open.png"), title, text);
     }
     catch(e) {
       let browser = windowutils.activeBrowserWindow.gBrowser,
@@ -937,7 +1017,7 @@ var notify = (function () {
       notification = notificationBox.appendNotification(
         text, 
         'jetpack-notification-box',
-        data.url("notification.png"), 
+        data.url("report/open.png"), 
         notificationBox.PRIORITY_INFO_MEDIUM, 
         []
       );

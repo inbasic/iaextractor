@@ -49,6 +49,7 @@ function xmlToSrt (str) {
 var subtitle = function (video_id, langID, oFile, callback, pointer) {
   var lang = "en", name = "";
   switch (langID) {
+    case 0: lang = "en"; name = "English (en)"; break;
     case 1: lang = "fr"; name = "French (fr)"; break;
     case 2: lang = "de"; name = "German (de)"; break;
     case 3: lang = "it"; name = "Italian (it)"; break;
@@ -59,7 +60,6 @@ var subtitle = function (video_id, langID, oFile, callback, pointer) {
   youtube.getInfo(video_id, function (vInfo) {
     if (vInfo.ttsurl) {
       var url = vInfo.ttsurl + "&kind=" + (vInfo.cc_asr ? "asr" : "") + "&lang=" + lang  + "&name=";
-      console.error(url);
       Request({
         url: url,
         onComplete: function (response) {

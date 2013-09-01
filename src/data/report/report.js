@@ -1,6 +1,7 @@
 var $ = function (id) { 
   return document.getElementById(id);
 } 
+
 var _ = function (id) {
   var items = $("locale").getElementsByTagName("span");
   for (var i = 0; i < items.length; i++) {
@@ -11,34 +12,48 @@ var _ = function (id) {
   return id;
 }
 
-var downloadButton = $("download-button"),
-    formatsButton = $("formats-button"),
+var videop = $("video-preferences");
+    folderp = $("folder-preferences");
+    handler = $("click-handler");
+    qdtoggle = $("qd-toggle");
+    dltoggle = $("dl-toggle");
+    fbtoggle = $("folder-button");
+
+function cleanup() {
+  if (videop.classList.contains("slide")) videop.classList.remove("slide");
+  if (folderp.classList.contains("slide")) folderp.classList.remove("slide");
+  if (handler.style.display = "block") handler.style.display = "none";
+}
+
+function slidePanel(el, cl) {
+  if (el.classList.contains(cl)) cleanup();
+  else {el.classList.add(cl); handler.style.display = "block"}
+} 
+
+qdtoggle.onclick = function() {slidePanel(videop, "slide")}
+fbtoggle.onclick = function() {slidePanel(folderp, "slide")}
+handler.onclick = function() {cleanup()}
+
+var downloadButton = $("qd-button"),
+    formatsButton = $("dl-button"),
     aCheckbox = $("audio-checkbox"),
     subCheckbox = $("subtitle-checkbox"),
     sCheckbox = $("resolve-size-checkbox"),
     toolbar = $("download-manager-toolbar");
 
-var mList = function (name, el1, el2, value, func) {
-  var isHidden = true;
+var mList = function (name, value, func) {
   var radios = document.getElementsByName(name);
-  
+
   function set (soft) {
-    el1.textContent = el2.children[value].childNodes[1].textContent;
     radios[parseInt(value)].checked = true;
     if (!soft) func(value);
   }
   set(true);
-  el1.addEventListener("click", function () {
-    el2.style.display = isHidden ? 'block' : 'none';
-    isHidden = !isHidden;
-    window.scrollTo(0, document.body.scrollHeight);
-  }, false);
+
   window.addEventListener("click", function (e) {
+    if (e.target.className == "r" || e.target.className == "checked") cleanup();
     if (e.button != 0) return;
-    if (e.originalTarget == el1 || e.originalTarget.parent == el1) return;
-    isHidden = true;
-    el2.style.display = 'none';
-    if (e.originalTarget.localName != "label" && e.originalTarget.localName != "input")
+    if (e.originalTarget.localName != "input")
       return;
     for (var i = 0; i < radios.length; i++) {
       if (radios[i].checked) {
@@ -57,10 +72,9 @@ var mList = function (name, el1, el2, value, func) {
   }
 }
 
+
 var download = new mList (
   "dinput", 
-  $('download-list'), 
-  $('download-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "destination", value);
@@ -68,17 +82,13 @@ var download = new mList (
 );
 var quality = new mList (
   "vinput", 
-  $('video-list'), 
-  $('video-addition'),
   0,
   function (value) {
     self.port.emit("cmd", "quality", value);
   }
 );
 var format = new mList (
-  "finput", 
-  $('format-list'), 
-  $('format-addition'),
+  "finput",
   0,
   function (value) {
     self.port.emit("cmd", "format", value);
@@ -116,9 +126,23 @@ function tabSelector (e) {
       tab.removeAttribute("selected");
       tabpanel.removeAttribute("selected");
     }
+    if ($("home").hasAttribute("selected")) {
+      $("selected").style.left = "116px";
+      $("tabpanels").style.top = "-201px";
+    } 
+    if ($("downloads").hasAttribute("selected")) {
+      $("selected").style.left = "232";
+      $("tabpanels").style.top = "-402px";
+    } 
+    if ($("preferences").hasAttribute("selected")) {
+      $("selected").style.left = "0";
+      $("tabpanels").style.top = "0";
+    }
   }
 }
 $("tabs").addEventListener("click", tabSelector, false);
+var timesOpened = 0;
+
 
 var dm = {}, inList = [];
 var dmUI = {
@@ -145,14 +169,14 @@ var dmUI = {
       }
       var span = item.getElementsByTagName("span");
       var progress = item.getElementsByClassName("progress-inner");
-      var image = item.getElementsByTagName("img");
+      var image = item.getElementsByClassName("cancel");
       
       var rtn = {
         set name(value) {span[0].textContent = value},
         set description(value) {span[1].textContent = value},
         get progress() {return progress[0]},
         set progress(value) {progress[0].style.width = value},
-        get close() {return image[1]}
+        get close() {return image[0]}
       };
       item.setAttribute("cache", cache.push(rtn) - 1);
       return rtn;
@@ -207,7 +231,7 @@ self.port.on("detect", function(msg) {
   //Update fields
   dmUI.get(item).description = msg;
   //Switch to progress tab
-  window.setTimeout(function(){tabSelector(1);}, 700);
+  window.setTimeout(function(){tabSelector(2);}, 0);
   //
   dmUI.set(null, item);
 });
@@ -280,18 +304,22 @@ $("tools-button").addEventListener("click", function () {
 toolbar.addEventListener("click", function () {
   self.port.emit("cmd", "show-download-manager");
 }, true);
+  
+
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
-  //Resizing tabs
-  var width = parseInt(window.getComputedStyle($("tabs"), null).getPropertyValue("width"));
+  // Resizing tabs
+  /*var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
+      width = gcwidth - 320; // Difference between normal panel size (387px) and normal tabs size (67px) 
+  
   if (navigator.userAgent.indexOf("Mac OS X") != -1) {
     width -= 1;
   }
-  width = (width - 24)/3;
-  var tab = document.getElementsByClassName("tab");
-  for (var i = 0; i < tab.length; i++) {
-    tab[i].style.width = width + "px";
-  }
+
+  var tabs = document.getElementsByClassName("tabs");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].style.width = width + "px" ;
+  }*/
   //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
@@ -310,11 +338,21 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
     downloadButton.textContent = _("open-youtube");
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
-  //If there is no download switch to download tab
-  if (dmUI.isEmpty()) {
-    tabSelector(0);
+  //
+  timesOpened += 1;
+  if (timesOpened == 1) {
+    tabSelector(1)  
   }
 });
+
+self.port.on("autohide", function() {
+  // If there is no download switch to download tab
+  if (dmUI.isEmpty()) {
+    tabSelector(1);
+  }
+  // Restore sliding panels to default state
+  cleanup(); 
+});  
 
 window.addEventListener("load", function () {
   dmUI.checkState();
