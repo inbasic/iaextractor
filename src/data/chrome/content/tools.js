@@ -322,7 +322,6 @@ window.addEventListener("load", function () {
     var fp = Cc["@mozilla.org/filepicker;1"]
       .createInstance(Ci.nsIFilePicker); 
     fp.init(window, bundle.getString("msg1"), Ci.nsIFilePicker.modeOpen);
-    fp.appendFilter("FFmpeg.exe", "ffmpeg.exe");
     var rv = fp.show();
     if (rv == Ci.nsIFilePicker.returnOK || rv == Ci.nsIFilePicker.returnReplace) {
       var file = fp.file;
