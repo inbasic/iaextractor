@@ -82,14 +82,12 @@
 .iaextractor-dropdown {
   position: relative;
   float: right;
+  background-color: #F79646!important;
+  transition: background-color 100ms!important;
 }
 .iaextractor-dropdown i {
   background-position: -80px!important;
   pointer-events: none;
-}
-.iaextractor-dropdown:hover {
-  transition: background-color 100ms!important;
-  background-color: #FFB27F!important;
 }
 /** Menu Items **/
 #iaextractor-items {
@@ -102,21 +100,28 @@
   display: block;
   height: 30px;
   line-height: 30px;
-  background: #F79646 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) no-repeat 10px center !important;
-  transition: background-color 100ms!important;
   margin: 20px 33px 0 33px!important;
-  padding-left: 40px!important;
   text-decoration: none!important;
 }
-.iaextractor-item:hover {
+.iaextractor-item span:not(.iaextractor-dropdown) {
+  display: inline-block!important;
+  background: #F79646 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) no-repeat 10px center!important;
+  padding-left: 37px!important;
+  transition: background-color 100ms!important;
+}
+.iaextractor-item span:not(.iaextractor-dropdown):hover {
   background-color: #FFA05A!important;
 }
-.iaextractor-item[selected] {
+.iaextractor-item span:not(.iaextractor-dropdown):hover:active {
   background-color: #FF8830!important;
 }
-.iaextractor-item:hover:active {
+.iaextractor-dropdown:hover {
+  background-color: #FFA05A!important;
+}
+.iaextractor-item[selected] .iaextractor-dropdown {
   background-color: #FF8830!important;
 }
+
 /** Downloader **/
 #iaextractor-downloader {
   font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
@@ -159,22 +164,25 @@
 
 /** Injected button **/
 #formats-button-small {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   position: absolute; 
   right: 4px; 
   top: 13px;
   z-index: 2147483647; 
   cursor: pointer;
-  transition: background 100ms !important;
-  background: #FFF url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png) no-repeat center!important;
-  opacity: 0.7;
+  -moz-appearance: none!important;
+  border: 1px solid transparent!important;
+  border-radius: 2px;
+  background: #FFF -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 24, 24, 0) no-repeat center!important;
 }
 #formats-button-small:hover {
-  opacity: 1.0;
+  border: 1px solid #FF6C09!important;
+  background-color: #FFC077!important;
 }
 #formats-button-small:hover:active {
-  opacity: 0.5;
+  border: 1px solid #FB9D5A!important;
+  background: #FFD48B -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 48, 24, 24) no-repeat center!important;
 }
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */

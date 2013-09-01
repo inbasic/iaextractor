@@ -73,7 +73,7 @@ var Menu = function (doSize) {
     '</div>' +
     '<ul id="iaextractor-downloader">' +  //dropdown
     '  <li>Firefox Downloader</li>' + 
-    '  <li>FLashGot</li>' + 
+    '  <li>FlashGot</li>' + 
     '  <li>DownThemAll!</li>' + 
     '  <li>dTa OneClick</li>' + 
     '</ul>'
@@ -81,7 +81,8 @@ var Menu = function (doSize) {
   var width = 330 + (doSize ? 50 : 0),
       items = $("iaextractor-items"),
       tabs = $("iaextractor-tabs"),
-      downloader = $("iaextractor-downloader");
+      downloader = $("iaextractor-downloader"),
+      playlist = $("watch7-playlist-data");
       
   container.height = rect.height - 85;
   $("iaextractor-menu").setAttribute("style", 
@@ -116,20 +117,24 @@ var Menu = function (doSize) {
       e.preventDefault();
     }
     else if (target.className.indexOf("iaextractor-dropdown") != -1) {
-      var item = target.parentNode; 
+      var item = target.parentNode, 
           formats = document.getElementsByClassName("iaextractor-item");
       for (var i = 0; i < formats.length; i++) {
         if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
       }
       item.setAttribute("selected", "true");
       downloader.style.left = player.offsetLeft + (rect.width - width) + 33 + "px";
-      downloader.style.top = (item.offsetTop + 55) + "px";
+      if (playlist) {
+        downloader.style.top = (item.offsetTop + 89) + "px";
+      } else {
+        downloader.style.top = (item.offsetTop + 55) + "px";
+      }   
       downloader.style.display = "block";
       currentIndex = parseInt(target.parentNode.getAttribute("fIndex"));
       e.stopPropagation();
       e.preventDefault();
     }
-  }, false);
+  }, false);	
   downloader.setAttribute("style", 'width: ' + (width - 66) + 'px;');
   downloader.addEventListener('click', function (e) {
     var format = vInfo.formats[currentIndex];
@@ -197,7 +202,7 @@ var Menu = function (doSize) {
         a.setAttribute("href", url);
         a.setAttribute("fIndex", index);
         var text = html("span");
-        text.setAttribute("style", "pointer-events: none;");
+        text.setAttribute("style", 'width: ' + (width - 135) + 'px;');
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
         var i = html("i");
