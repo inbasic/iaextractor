@@ -231,7 +231,7 @@ self.port.on("detect", function(msg) {
   //Update fields
   dmUI.get(item).description = msg;
   //Switch to progress tab
-  window.setTimeout(function(){tabSelector(2);}, 0);
+  window.setTimeout(function(){tabSelector(2);}, 100);
   //
   dmUI.set(null, item);
 });

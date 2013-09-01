@@ -778,7 +778,16 @@ var getVideo = (function () {
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
         fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
         let res = fp.show();
-        if (res == nsIFilePicker.returnCancel) return;
+        if (res == nsIFilePicker.returnCancel) {
+          // Still no id. Generating a random one
+          var id = Math.floor(Math.random()*101) + 10000;
+          listener.onDownloadStart({
+            id: id,
+            displayName: "-"
+          });
+          listener.onDownloadDone({id: id}, true);
+          return;
+        }
         vFile = fp.file;
       }
       //Select folder by userFolder
