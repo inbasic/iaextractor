@@ -308,19 +308,6 @@ toolbar.addEventListener("click", function () {
 
 //Onload
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
-  // Resizing tabs
-  /*var gcwidth = parseInt(window.getComputedStyle($("global-container"), null).getPropertyValue("width"));
-      width = gcwidth - 320; // Difference between normal panel size (387px) and normal tabs size (67px) 
-  
-  if (navigator.userAgent.indexOf("Mac OS X") != -1) {
-    width -= 1;
-  }
-
-  var tabs = document.getElementsByClassName("tabs");
-  for (var i = 0; i < tabs.length; i++) {
-    tabs[i].style.width = width + "px" ;
-  }*/
-  //
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
   sCheckbox.checked = doFileSize;

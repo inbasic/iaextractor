@@ -30,32 +30,12 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
-/** Internal Preferences **/
-try {
-  _prefs.getIntPref("decoder_ver")
-} catch (e) {
-  // YouTube keeps changing signature decoding algorithm. These values will be updated accordingly.
-  _prefs.setIntPref("decoder_ver", 1);
-  _prefs.setCharPref("decoder_alg", '["r","s",2,"w",17,"w",61,"r","s",1,"w",7,"s",1]');
-}
 
-Request({ //Update signature decoder from server
-  url: "http://add0n.com/signature.php?request=ver",
-  onComplete: function (response) {
-    if (response.status != 200) return;
-    var version = parseInt(response.text);
-    if (version > _prefs.getIntPref("decoder_ver")) {
-      Request({
-        url: "http://add0n.com/signature.php?request=alg",
-        onComplete: function (response) {
-          if (response.status != 200) return;
-          _prefs.setCharPref("decoder_alg", response.text);
-          _prefs.setIntPref("decoder_ver", version);
-        }
-      }).get();
-    }
-  }
-}).get();
+/** Internal Preferences **/
+if (!prefs.decoder_ver) {
+  prefs.decoder_ver = 1;
+  prefs.decoder_alg = '["r","s",2,"w",17,"w",61,"r","s",1,"w",7,"s",1]';
+}
 
 /** Internal configurations **/
 var config = {
@@ -63,7 +43,8 @@ var config = {
   urls: {
     youtube: "https://www.youtube.com/",
     tools: "chrome://iaextractor/content/tools.xul",
-    homepage: "http://add0n.com/youtube.html"
+    homepage: "http://add0n.com/youtube.html",
+    signature: "http://add0n.com/signature.php?request="
   },
   //toolbar
   toolbar: {
@@ -71,10 +52,7 @@ var config = {
     move: {
       toolbarID: "nav-bar", 
       get insertbefore () {
-        var id;
-        try {
-          id = _prefs.getCharPref("nextSibling");
-        } catch(e) {}
+        var id = prefs.nextSibling;
         return id ? id : "home-button"
       },
       forceMove: false
@@ -98,7 +76,38 @@ var config = {
   }
 }
 
-/** Panels **/
+/** Update signature decoder from server **/
+Request({
+  url: config.urls.signature + "ver",
+  onComplete: function (response) {
+    if (response.status != 200) return;
+    var version = parseInt(response.text);
+    if (version > prefs.decoder_ver) {
+      Request({
+        url: config.urls.signature + "alg",
+        onComplete: function (response) {
+          if (response.status != 200) return;
+          prefs.decoder_alg = response.text
+          prefs.decoder_ver = version;
+        }
+      }).get();
+    }
+  }
+}).get();
+
+/** Inject menu and button into YouTube pages **/
+pageMod.PageMod({
+  include: ["*.youtube.com"],
+  contentScriptFile: data.url("formats/permanent.js"),
+  contentStyleFile: data.url("formats/permanent.css"),
+  onAttach: function(worker) {
+    worker.port.on("formats", function() {
+      cmds.onShiftClick();
+    });
+  }
+});
+
+/** Toolbar Panel **/
 var rPanel = panel.Panel({
   width: config.panels.rPanel.width,
   height: config.panels.rPanel.height,
@@ -108,44 +117,48 @@ var rPanel = panel.Panel({
 });
 rPanel.port.on("cmd", function (cmd) {
   switch (cmd) {
-    case "download":
-      cmds.onCommand(null, null, true, null);
-      break;
-    case "show-download-manager":
-      download.show();
-      break;
-    case "formats":
-      rPanel.hide();
-      cmds.onShiftClick();
-      break;
-    case "embed":
-      cmds.onCtrlClick();
-      break;
-    case "destination":
-      prefs.dFolder = parseInt(arguments[1]);
-      break;
-    case "quality":
-      prefs.quality = parseInt(arguments[1]);
-      break;
-    case "format":
-      prefs.extension = parseInt(arguments[1]);
-      break;
-    case "do-extract":
-      prefs.doExtract = arguments[1];
-      break;
-    case "do-subtitle":
-      prefs.doSubtitle = arguments[1];
-      break;
-    case "do-size":
-      prefs.getFileSize = arguments[1];
-      break;
-    case "tools":
-      rPanel.hide();
-      windowutils.activeBrowserWindow.open(config.urls.tools, 'iaextractor', 'chrome,minimizable=yes,all,resizable=yes');
-      break;
-    case "cancel":
-      listener.cancel(parseInt(arguments[1]));
-      break;
+  case "download":
+    cmds.onCommand(null, null, true, null);
+    break;
+  case "show-download-manager":
+    download.show();
+    break;
+  case "formats":
+    rPanel.hide();
+    cmds.onShiftClick();
+    break;
+  case "embed":
+    cmds.onCtrlClick();
+    break;
+  case "destination":
+    prefs.dFolder = parseInt(arguments[1]);
+    break;
+  case "quality":
+    prefs.quality = parseInt(arguments[1]);
+    break;
+  case "format":
+    prefs.extension = parseInt(arguments[1]);
+    break;
+  case "do-extract":
+    prefs.doExtract = arguments[1];
+    break;
+  case "do-subtitle":
+    prefs.doSubtitle = arguments[1];
+    break;
+  case "do-size":
+    prefs.getFileSize = arguments[1];
+    break;
+  case "tools":
+    rPanel.hide();
+    windowutils.activeBrowserWindow.open(
+      config.urls.tools, 
+      'iaextractor', 
+      'chrome,minimizable=yes,all,resizable=yes'
+    );
+    break;
+  case "cancel":
+    listener.cancel(parseInt(arguments[1]));
+    break;
   }
 });
 rPanel.on("show", function() {
@@ -160,20 +173,8 @@ rPanel.on("show", function() {
     yButton.saturate
   );
 });
-
 rPanel.on("hide", function() {
-  rPanel.port.emit("autohide")
-});
-
-var iPanel = panel.Panel({
-  width: config.panels.iPanel.width,
-  height: config.panels.iPanel.height,
-  contentURL: data.url('info.html'),
-  contentScriptFile: [
-    data.url('info/jsoneditor/jsoneditor.js'), 
-    data.url('info/info.js')
-  ],
-  contentScriptWhen: "ready"
+  rPanel.port.emit("autohide");
 });
 
 /** Get video id from URL **/
@@ -201,7 +202,7 @@ var IDExtractor = (function () {
     }
     //Is it in the cache?
     var index = urls.indexOf(url);
-    if (index !== -1) {
+    if (index !== -1 && IDs[index]) {
       return callback.apply(pointer, [IDs[index]]);
     }
     var id;
@@ -220,6 +221,7 @@ var IDExtractor = (function () {
       worker.port.on("response", function (id) {
         if (callback) {
           cache(url, id);
+          worker.destroy();
           return callback.apply(pointer, [id]);
         }
       });
@@ -230,7 +232,7 @@ var IDExtractor = (function () {
         try {
           var players = document.getElementsByTagName("embed"); // Flash player
           if (players.length) {
-            var flashvars = document.getElementsByTagName("embed")[0].getAttribute("flashvars");
+            var flashvars = players[0].getAttribute("flashvars");
             if (!flashvars) return null;
             var id = /video_id=([^\&]*)/.exec(flashvars);
             if (id && id.length) {
@@ -290,7 +292,7 @@ var IDExtractor = (function () {
 })();
 
 /** Initialize **/
-var yButton;
+var iPanel;
 var cmds = {
   /**
    * onCommand
@@ -305,12 +307,7 @@ var cmds = {
   onCommand: function (e, tbb, download, fIndex) {
     if (tbb) {
       if (!prefs.oneClickDownload || !prefs.silentOneClickDownload) {
-        try {
-          rPanel.show(tbb);
-        }
-        catch (e) {
-          rPanel.show(null, tbb);
-        }
+        rPanel.show(tbb);
       }
       if (prefs.oneClickDownload) {
         download = true;
@@ -331,15 +328,21 @@ var cmds = {
     });
   },
   onMiddleClick: function (e, tbb) {
-    let url = tabs.activeTab.url;
-    IDExtractor(url, function (videoID) {
+    if (!iPanel) {  //Do not load it on initialization
+      iPanel = panel.Panel({
+        width: config.panels.iPanel.width,
+        height: config.panels.iPanel.height,
+        contentURL: data.url('info.html'),
+        contentScriptFile: [
+          data.url('info/jsoneditor/jsoneditor.js'), 
+          data.url('info/info.js')
+        ],
+        contentScriptWhen: "ready"
+      });
+    }
+    IDExtractor(tabs.activeTab.url, function (videoID) {
       if (!videoID) return;
-      try {
-        iPanel.show(tbb);
-      }
-      catch (e) {
-        iPanel.show(null, tbb);
-      }
+      iPanel.show(tbb);
       youtube.getInfo(videoID, function (vInfo, e) {
         iPanel.port.emit('info', vInfo);
       });
@@ -399,7 +402,10 @@ var cmds = {
           worker.port.emit('info', vInfo);
         });
         worker.port.on("flashgot", flashgot);
-        worker.port.on("downThemAll", downThemAll);        
+        worker.port.on("downThemAll", downThemAll); 
+        worker.port.on("error", function(code) {
+          notify(_("name"), _(code));
+        });
       }
       else {
         notify(_('name'), _('msg4'));
@@ -407,31 +413,31 @@ var cmds = {
     });
   }
 }
-exports.main = function(options, callbacks) {
-  //Toolbar
-  yButton = toolbarbutton.ToolbarButton({
-    id: config.toolbar.id,
-    label: _("toolbar"),
-    tooltiptext: config.tooltip,
-    panel: rPanel,
-    onCommand: cmds.onCommand,
-    onClick: function (e, tbb) { //Linux problem for onClick
-      if (e.button == 1) {
-        cmds.onMiddleClick (e, tbb);
-      }
-      if (e.button == 0 && e.ctrlKey) {
-        e.stopPropagation();
-        e.preventDefault();
-        cmds.onCtrlClick();
-      }
-      if (e.button == 0 && e.shiftKey) {
-        e.stopPropagation();
-        e.preventDefault();
-        cmds.onShiftClick(e);
-      }
+
+var yButton = toolbarbutton.ToolbarButton({
+  id: config.toolbar.id,
+  label: _("toolbar"),
+  tooltiptext: config.tooltip,
+  panel: rPanel,
+  onCommand: cmds.onCommand,
+  onClick: function (e, tbb) { //Linux problem for onClick
+    if (e.button == 1) {
+      cmds.onMiddleClick (e, tbb);
     }
-  });
-  
+    if (e.button == 0 && e.ctrlKey) {
+      e.stopPropagation();
+      e.preventDefault();
+      cmds.onCtrlClick();
+    }
+    if (e.button == 0 && e.shiftKey) {
+      e.stopPropagation();
+      e.preventDefault();
+      cmds.onShiftClick(e);
+    }
+  }
+});
+
+exports.main = function(options, callbacks) {
   //Install
   if (options.loadReason == "install" || prefs.forceVisible) {
     //If adjacent button is restartless wait for its creation
@@ -444,7 +450,7 @@ exports.main = function(options, callbacks) {
   monitor(tabs.activeTab);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
-    _prefs.setBoolPref("newVersion", true);
+    prefs.newVersion = true;
   }
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
@@ -459,22 +465,17 @@ exports.main = function(options, callbacks) {
 
 /** Welcome page **/
 var welcome = function () {
-  try {
-    if (!_prefs.getBoolPref("newVersion")) return;
-  }
-  catch (e) {
-    return;
-  }
+  if (!prefs.newVersion) return;
   if (prefs.welcome) {
     timer.setTimeout(function () {
       tabs.open({url: config.urls.homepage, inBackground : false});
     }, 3000);
   }
-  _prefs.setBoolPref("newVersion", false);
+  prefs.newVersion = false;
 }
 
 /** Monitor **/
-function monitor (tab) {
+function monitor () {
   IDExtractor(tabs.activeTab.url, function (videoID) {
     if (videoID) {
       yButton.saturate = 1;
@@ -485,7 +486,8 @@ function monitor (tab) {
   });
 }
 tabs.on('ready', function () {
-  timer.setTimeout(monitor, 500);
+  //Even when document is ready, most likely the player is not accessible.
+  timer.setTimeout(monitor, 2000);
 });
 tabs.on('activate', monitor);
 
@@ -493,7 +495,7 @@ tabs.on('activate', monitor);
 var aftercustomizationListener = function () {
   let button = windowutils.activeBrowserWindow.document.getElementById(config.toolbar.id);
   if (!button) return;
-  _prefs.setCharPref("nextSibling", button.nextSibling.id);
+  prefs.nextSibling = button.nextSibling.id;
 }
 windowutils.activeBrowserWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
 exports.onUnload = function (reason) {
@@ -509,7 +511,7 @@ exports.onUnload = function (reason) {
   }
   //Remove observer
   hotkey.destroy();
-  http.destroy();
+  //http.destroy();
 }
 
 /** Hotkeys **/
@@ -640,7 +642,6 @@ var http = (function () {
                       }
                     });
                     monitor(tabs.activeTab);
-                    //gBrowser.getBrowserForDocument(doc)
                   }
                 }
               }
@@ -653,18 +654,6 @@ var http = (function () {
 })();
 //http.initialize ();
 
-/** Inject foramts menu into Youtube pages **/
-pageMod.PageMod({
-  include: ["*.youtube.com"],
-  contentScriptFile: data.url("formats/permanent.js"),
-  contentStyleFile: data.url("formats/permanent.css"),
-  onAttach: function(worker) {
-    worker.port.on("formats", function() {
-      cmds.onShiftClick();
-    });
-  }
-});
-
 /** Pref listener **/
 sp.on("dFolder", function () {
   if (prefs.dFolder == "5" && !prefs.userFolder) {
@@ -673,7 +662,7 @@ sp.on("dFolder", function () {
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(windowutils.activeBrowserWindow, _("msg13"), nsIFilePicker.modeGetFolder);
     var res = fp.show();
-    if (res != nsIFilePicker.returnCancel){
+    if (res != nsIFilePicker.returnCancel) {
       _prefs.setComplexValue("userFolder", fp.file.path);
     }
     else {
@@ -682,7 +671,7 @@ sp.on("dFolder", function () {
   }
 });
   
-/** Detect a Youtube download link, download it and extract the audio**/
+/** Detect a YouTube download link, download it and extract the audio**/
 var listener = (function () {
   var objs = [];
   function remove (dl) {
@@ -723,7 +712,7 @@ var listener = (function () {
     onProgress: function (dl) {
       rPanel.port.emit('download-update', 
         dl.id, 
-        dl.amountTransferred/dl.size*100, 
+        dl.amountTransferred / dl.size * 100, 
         _("msg11"), 
         format(dl.amountTransferred), 
         format(dl.size), 
@@ -739,7 +728,7 @@ var listener = (function () {
         tSize += obj.size;
         ttSize += obj.amountTransferred;
       });
-      yButton.progress = ttSize/tSize;
+      yButton.progress = ttSize / tSize;
       yButton.tooltiptext = 
         _("tooltip4").replace("%1", (tSize/1024/1024).toFixed(1)) +
         "\n" +
@@ -753,6 +742,7 @@ var listener = (function () {
     }
   }
 })();
+
 /** Call this with new **/
 var getVideo = (function () {
   return function (videoID, listener, fIndex) {
@@ -939,6 +929,7 @@ var getVideo = (function () {
     }
   }
 })();
+
 /** File naming **/
 var fileName = function (title, container, author, video_id, video_resolution, audio_biterate) {
   return pattern = prefs.namePattern
@@ -958,6 +949,7 @@ var fileName = function (title, container, author, video_id, video_resolution, a
     .replace(/[\>]/g, "]")
     .replace(/[|]/g, "-");
 }
+
 /** Flashgot **/
 var flashgot = (function () {
   var flashgot;
@@ -981,6 +973,7 @@ var flashgot = (function () {
     }
   }
 })();
+
 /** DownThemAll **/
 var downThemAll = (function () {
   var DTA = {};
@@ -1019,6 +1012,7 @@ var downThemAll = (function () {
     }
   }
 })();
+
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
 var notify = (function () {
@@ -1026,10 +1020,9 @@ var notify = (function () {
     try {
       let alertServ = Cc["@mozilla.org/alerts-service;1"].
                       getService(Ci.nsIAlertsService);
-      //In linux config.image does not work properly!
       alertServ.showAlertNotification(data.url("report/open.png"), title, text);
     }
-    catch(e) {
+    catch (e) {
       let browser = windowutils.activeBrowserWindow.gBrowser,
           notificationBox = browser.getNotificationBox();
 
@@ -1041,7 +1034,7 @@ var notify = (function () {
         []
       );
       timer.setTimeout(function() {
-          notification.close();
+        notification.close();
       }, config.desktopNotification * 1000);
     }
   }

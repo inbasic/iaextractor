@@ -1,237 +1,67 @@
 ﻿var prefs   = require("sdk/simple-prefs").prefs,
-    _prefs  = require("./misc").prefs,
-    Request = require("sdk/request").Request,
-    {Cc, Ci, Cu}  = require('chrome');
-
-
+    Request = require("sdk/request").Request;
 
 function _getInfo(videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
-  const KEYS_TO_SPLIT = ['keywords', 'fmt_list', 'fexp', 'watermark', 'ad_channel_code_overlay'];
-  //http://en.wikipedia.org/wiki/YouTube
-  const FORMATS = {
-    '5': {
-      container: 'flv',
-      resolution: '240p',
-      encoding: 'Sorenson H.283',
-      profile: null,
-      bitrate: '0.25',
-      audioEncoding: 'mp3',
-      audioBitrate: 64
-    },
-    '6': {
-      container: 'flv',
-      resolution: '270p',
-      encoding: 'Sorenson H.263',
-      profile: null,
-      bitrate: '0.8',
-      audioEncoding: 'mp3',
-      audioBitrate: 64
-    },
-    '13': {
-      container: '3gp',
-      resolution: null,
-      encoding: 'MPEG-4 Visual',
-      profile: null,
-      bitrate: '0.5',
-      audioEncoding: 'aac',
-      audioBitrate: null
-    },
-    '17': {
-      container: '3gp',
-      resolution: '144p',
-      encoding: 'MPEG-4 Visual',
-      profile: 'simple',
-      bitrate: '0.05',
-      audioEncoding: 'aac',
-      audioBitrate: 24
-    },
-    '18': {
-      container: 'mp4',
-      resolution: '360p',
-      encoding: 'H.264',
-      profile: 'baseline',
-      bitrate: '0.5',
-      audioEncoding: 'aac',
-      audioBitrate: 96
-    },
-    '22': {
-      container: 'mp4',
-      resolution: '720p',
-      encoding: 'H.264',
-      profile: 'high',
-      bitrate: '2-2.9',
-      audioEncoding: 'aac',
-      audioBitrate: 152
-    },
-    '34': {
-      container: 'flv',
-      resolution: '360p',
-      encoding: 'H.264',
-      profile: 'main',
-      bitrate: '0.5',
-      audioEncoding: 'aac',
-      audioBitrate: 128
-    },
-    '35': {
-      container: 'flv',
-      resolution: '280p',
-      encoding: 'H.264',
-      profile: 'main',
-      bitrate: '0.8-1',
-      audioEncoding: 'aac',
-      audioBitrate: 128
-    },
-    '36': {
-      container: '3gp',
-      resolution: '240p',
-      encoding: 'MPEG-4 Visual',
-      profile: 'simple',
-      bitrate: '0.17',
-      audioEncoding: 'aac',
-      audioBitrate: 38
-    },
-    '37': {
-      container: 'mp4',
-      resolution: '1080p',
-      encoding: 'H.264',
-      profile: 'high',
-      bitrate: '3-4.3',
-      audioEncoding: 'aac',
-      audioBitrate: 152
-    },
-    '38': {
-      container: 'mp4',
-      resolution: '3072p',
-      encoding: 'H.264',
-      profile: 'high',
-      bitrate: '3.5-5',
-      audioEncoding: 'aac',
-      audioBitrate: 152
-    },
-    '43': {
-      container: 'webm',
-      resolution: '360p',
-      encoding: 'VP8',
-      profile: null,
-      bitrate: '0.5',
-      audioEncoding: 'vorbis',
-      audioBitrate: 128
-    },
-    '44': {
-      container: 'webm',
-      resolution: '480p',
-      encoding: 'VP8',
-      profile: null,
-      bitrate: '1',
-      audioEncoding: 'vorbis',
-      audioBitrate: 128
-    },
-    '45': {
-      container: 'webm',
-      resolution: '720p',
-      encoding: 'VP8',
-      profile: null,
-      bitrate: '2',
-      audioEncoding: 'vorbis',
-      audioBitrate: 192
-    },
-    '46': {
-      container: 'webm',
-      resolution: '1080p',
-      encoding: 'vp8',
-      profile: null,
-      bitrate: null,
-      audioEncoding: 'vorbis',
-      audioBitrate: 192
-    },
-    '82': {
-      container: 'mp4',
-      resolution: '360p',
-      encoding: 'H.264',
-      profile: '3d',
-      bitrate: '0.5',
-      audioEncoding: 'aac',
-      audioBitrate: 96
-    },
-    '83': {
-      container: 'mp4',
-      resolution: '240p',
-      encoding: 'H.264',
-      profile: '3d',
-      bitrate: '0.5',
-      audioEncoding: 'aac',
-      audioBitrate: 96
-    },
-    '84': {
-      container: 'mp4',
-      resolution: '720p',
-      encoding: 'H.264',
-      profile: '3d',
-      bitrate: '2-2.9',
-      audioEncoding: 'aac',
-      audioBitrate: 152
-    },
-    '85': {
-      container: 'mp4',
-      resolution: '520p',
-      encoding: 'H.264',
-      profile: '3d',
-      bitrate: '2-2.9',
-      audioEncoding: 'aac',
-      audioBitrate: 152
-    },
-    '100': {
-      container: 'webm',
-      resolution: '360p',
-      encoding: 'VP8',
-      profile: '3d',
-      bitrate: null,
-      audioEncoding: 'vorbis',
-      audioBitrate: 128
-    },
-    '101': {
-      container: 'webm',
-      resolution: '360p',
-      encoding: 'VP8',
-      profile: '3d',
-      bitrate: null,
-      audioEncoding: 'vorbis',
-      audioBitrate: 192
-    },
-    '102': {
-      container: 'webm',
-      resolution: '720p',
-      encoding: 'VP8',
-      profile: '3d',
-      bitrate: null,
-      audioEncoding: 'vorbis',
-      audioBitrate: 192
+  
+  var formatDictionary = function (id) {
+    // itag, container, Video resolution, Video encoding, Video profile, Video bitrate (Mbit/s), Audio encoding, Audio bitrate (kbit/s)
+    const F = {
+      "5":   ["flv",  "240",  "H.283",  null,       "0.25",  "mp3", 64],
+      "6":   ["flv",  "270",  "H.263",  null,       "0.8",   "mp3", 64],
+      "13":  ["3gp",  "N/A",  "MPEG-4", null,       "0.5",   "aac", null],
+      "17":  ["3gp",  "144",  "MPEG-4", "simple",   "0.05",  "aac", 24],
+      "18":  ["mp4",  "360",  "H.264",  "baseline", "0.5",   "aac", 96],
+      "22":  ["mp4",  "720",  "H.264",  "high",     "2-2.9", "aac", 152],
+      "34":  ["flv",  "360",  "H.264",  "main",     "0.5",   "aac", 128],
+      "35":  ["flv",  "280",  "H.264",  "main",     "0.8-1", "aac", 128],
+      "36":  ["3gp",  "240",  "MPEG-4", "simple",   "0.17",  "aac", 38],
+      "37":  ["mp4",  "1080", "H.264",  "high",     "3-4.3", "aac", 152],
+      "38":  ["mp4",  "3072", "H.264",  "high",     "3.5-5", "aac", 152],
+      "43":  ["webm", "360",  "VP8",    null,       "0.5",   "ogg", 128],
+      "44":  ["webm", "480",  "VP8",    null,       "1",     "ogg", 128],
+      "45":  ["webm", "720",  "VP8",    null,       "2",     "ogg", 192],
+      "46":  ["webm", "1080", "vp8",    null,       null,    "ogg", 192],
+      "82":  ["mp4",  "360",  "H.264",  "3D",       "0.5",   "aac", 96],
+      "83":  ["mp4",  "240",  "H.264",  "3D",       "0.5",   "aac", 96],
+      "84":  ["mp4",  "720",  "H.264",  "3D",       "2-2.9", "aac", 152],
+      "85":  ["mp4",  "520",  "H.264",  "3D",       "2-2.9", "aac", 152],
+      "100": ["webm", "360",  "VP8",    "3D",       null,    "ogg", 128],
+      "101": ["webm", "360",  "VP8",    "3D",       null,    "ogg", 192],
+      "102": ["webm", "720",  "VP8",    "3D",       null,    "ogg", 192],
+      "120": ["flv",  "720",  "AVC",    "L3.1",     2,       "aac", 128]
     }
-  };
+    return {
+      container:     F[id][0],
+      resolution:    F[id][1] + "p",
+      encoding:      F[id][2],
+      profile:       F[id][3],
+      bitrate:       F[id][4],
+      audioEncoding: F[id][5],
+      audioBitrate:  F[id][6],
+    }
+  }
 
   function quary(str) {
     var temp = {};
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      if (pair[0] == "url_encoded_fmt_stream_map") { //Issue #4, title problem
+      if (pair[0] == "url_encoded_fmt_stream_map") {
         temp[pair[0]] = unescape(pair[1]);
       }
       else {
         temp[pair[0]] = unescape(decodeURIComponent(pair[1]));
       }
-      if (pair[0] == "title" || pair[0] == "author") {
+      if (pair[0] == "title" || pair[0] == "author") { //Issue #4, title problem
         temp[pair[0]] = temp[pair[0]].replace(/\+/g, " ");
       }
     }
     return temp;
   }
-  //Fetch data
-
   function parser(info) {
     //Clean keys
-    KEYS_TO_SPLIT.forEach(function (key) {
+    ['keywords', 'fmt_list', 'fexp'].forEach(function (key) {
       if (!info[key]) return;
       info[key] = info[key].split(',').filter(function (v) {
         return v !== '';
@@ -262,9 +92,7 @@ function _getInfo(videoID, callback, pointer) {
       videoFormats = info.url_encoded_fmt_stream_map;
 
       // parse the formats map
-      var sep1 = '%2C',
-        sep2 = '%26',
-        sep3 = '%3D';
+      var sep1 = '%2C', sep2 = '%26', sep3 = '%3D';
       if (videoFormats.indexOf(',') > -1) {
         sep1 = ',';
         sep2 = (videoFormats.indexOf('&') > -1) ? '&' : '\\u0026';
@@ -298,7 +126,7 @@ function _getInfo(videoID, callback, pointer) {
               arr[b] = l3;
               return arr
           }
-          var cmd = JSON.parse(_prefs.getCharPref("decoder_alg"));
+          var cmd = JSON.parse(prefs.decoder_alg);
           cmd.forEach(function (c, i) {
             if (typeof c !== "string") {
               return;
@@ -317,14 +145,13 @@ function _getInfo(videoID, callback, pointer) {
           });
           videoFormatsPair.url = url + "&signature=" + sig.join("");
         }
-        var format = FORMATS[videoFormatsPair.itag];
+        var format = formatDictionary(videoFormatsPair.itag);
         if (!format) {
           err = new Error('No such format for itag ' + data.itag + ' found');
         }
         for (var j in format) {
           videoFormatsPair[j] = format[j]
         }
-
         objs.push(videoFormatsPair);
       }
 
@@ -405,7 +232,7 @@ var getQuality = function (value) {
 var getLink = function (videoID, fIndex, callback, pointer) {
   try {
     _getInfo(videoID, function (info) {
-      var quality = prefs.quality;
+      var quality = prefs.quality, detected;
       if (!fIndex) {
         //format is already sorted high to low
         var tmp = info.formats.filter(function (a) {
@@ -419,8 +246,6 @@ var getLink = function (videoID, fIndex, callback, pointer) {
             tmp = tmp2;
           }
         }
-        tmp.filter(function (a) {});
-        var detected;
         var qualityValue = prefs.quality;
         while (tmp.length && !detected && qualityValue > -1) {
           var b = tmp.filter(function (a) {
@@ -438,12 +263,10 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       else {
         detected = info.formats[fIndex];
       }
-      if (!detected && tmp.length) detected = tmp[0];
-      if (!detected) detected = info.formats[0]; //Get highest quality
-
       if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
     });
-  } catch (e) {
+  }
+  catch (e) {
     if (callback) callback.apply(pointer, [e]);
   }
 }
@@ -452,10 +275,15 @@ exports.getLink = getLink;
 var getInfo = function (videoID, callback, pointer) {
   try {
     _getInfo(videoID, function (info) {
-      if (callback) callback.apply(pointer, [info, null]);
+      if (callback) {
+        callback.apply(pointer, [info, null]);
+      }
     });
-  } catch (e) {
-    if (callback) callback.apply(pointer, [null, e]);
+  }
+  catch (e) {
+    if (callback) {
+      callback.apply(pointer, [null, e]);
+    }
   }
 }
 exports.getInfo = getInfo;

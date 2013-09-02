@@ -63,16 +63,13 @@ var subtitle = function (video_id, langID, oFile, callback, pointer) {
       Request({
         url: url,
         onComplete: function (response) {
-          console.error(response.text);
           analyse (response.text);
         }
       }).get();
       url += name;
-      console.error(url);
       Request({
         url: url,
         onComplete: function (response) {
-          console.error(response.text);
           analyse (response.text);
         }
       }).get();

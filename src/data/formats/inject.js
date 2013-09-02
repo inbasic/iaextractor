@@ -1,3 +1,14 @@
+/* Test cases
+  1. http://www.youtube.com/watch?v=DQ6bJzzmQvM (video with four digit size, "1020 KB")
+  2. http://www.youtube.com/watch?v=A02s8omM_hI (video with on page)
+  3. http://www.youtube.com/watch?v=vNFcB-0QTho (video with two pages and non English title)
+  4. http://www.youtube.com/watch?v=14dzliD5NNk (video with four pages)
+  5. http://www.youtube.com/user/AdeleVEVO?feature=watch (video with three pages, user page)
+  6. http://www.youtube.com/watch?v=z6ZV_pZZ_V8 (only for US viewer [still not supported])
+  7. http://www.youtube.com/html5 (HTML5 player)
+  8. https://www.youtube.com/movie/the-great-gatsby?feature=c4-overview (movie page. Two modes: before and after playing the movie [hiding the player cause error])
+*/
+
 var $ = (function() {
   var cache = [];
   return function(id) {
@@ -59,7 +70,7 @@ var Menu = function (doSize) {
   //
   var player = detect();
   if (!player) {
-    console.error("No embed player detected");
+    self.port.emit("error", "msg4");
     return;
   }
   var rect = player.getBoundingClientRect();
