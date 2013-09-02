@@ -228,13 +228,23 @@ var IDExtractor = (function () {
     if (/http.*:.*youtube.com\/user/.test(url)) {
       var tmp = function () {
         try {
-          var divs = document.getElementsByClassName('channels-video-player');
-          if (!divs.length) {
-            divs = document.getElementsByClassName('c4-flexible-player-box');
+          var players = document.getElementsByTagName("embed"); // Flash player
+          if (players.length) {
+            var flashvars = document.getElementsByTagName("embed")[0].getAttribute("flashvars");
+            if (!flashvars) return null;
+            var id = /video_id=([^\&]*)/.exec(flashvars);
+            if (id && id.length) {
+              return id[1];
+            }
+            return null;
           }
-          return divs.length ? divs[0].getAttribute('data-video-id') : null
+          else {  //HTML5 player
+            var videos = document.getElementsByTagName("video");
+            if (!videos || !videos.length) return null;
+            return videos[0].getAttribute("data-youtube-id");
+          }
         }
-        catch(e){
+        catch(e) {
           return null
         }
       }

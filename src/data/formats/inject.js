@@ -202,7 +202,7 @@ var Menu = function (doSize) {
         a.setAttribute("href", url);
         a.setAttribute("fIndex", index);
         var text = html("span");
-        text.setAttribute("style", 'width: ' + (width - 135) + 'px;');
+        text.setAttribute("style", 'pointer-events: none; width: ' + (width - 135) + 'px;');
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
         var i = html("i");
