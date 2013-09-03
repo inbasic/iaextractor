@@ -102,6 +102,7 @@
   line-height: 30px;
   margin: 20px 33px 0 33px!important;
   text-decoration: none!important;
+  outline: 0!important;
 }
 .iaextractor-item span:not(.iaextractor-dropdown) {
   display: inline-block!important;

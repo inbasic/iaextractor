@@ -90,14 +90,14 @@ var Menu = function (doSize) {
     '</ul>'
   );
   var width = 330 + (doSize ? 50 : 0),
+      menu = $("iaextractor-menu"),
       items = $("iaextractor-items"),
       tabs = $("iaextractor-tabs"),
-      downloader = $("iaextractor-downloader"),
-      playlist = $("watch7-playlist-data");
-      
+      downloader = $("iaextractor-downloader");
+
   container.height = rect.height - 85;
-  $("iaextractor-menu").setAttribute("style", 
-    ' top: -' + (rect.height + 2) + 'px;' + 
+  menu.setAttribute("style", 
+    ' top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
     ' left: ' + (rect.width - width) + 'px;' + 
     ' width: ' + width + 'px;' +
     ' height: ' + rect.height + 'px;'
@@ -122,30 +122,27 @@ var Menu = function (doSize) {
   }, false);
   items.addEventListener('click', function (e) {
     var target = e.originalTarget;
-    if (target.localName == "a") {
+    var isDropdown = target.className.indexOf("iaextractor-dropdown") != -1;
+    target = (isDropdown || target.localName != "a") ? target.parentNode : target;
+    if (isDropdown) {
+      var formats = document.getElementsByClassName("iaextractor-item");
+      for (var i = 0; i < formats.length; i++) {
+        if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
+      }
+      target.setAttribute("selected", "true");
+      downloader.style.left = player.offsetLeft + (rect.width - width) + 33 + "px";
+      downloader.style.top = (target.offsetTop + player.offsetTop + 40) + "px";
+      downloader.style.display = "block";
+      currentIndex = parseInt(target.getAttribute("fIndex"));
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    else if (target.localName == "a") {
       self.port.emit("download", target.getAttribute("fIndex"));
       e.stopPropagation();
       e.preventDefault();
     }
-    else if (target.className.indexOf("iaextractor-dropdown") != -1) {
-      var item = target.parentNode, 
-          formats = document.getElementsByClassName("iaextractor-item");
-      for (var i = 0; i < formats.length; i++) {
-        if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
-      }
-      item.setAttribute("selected", "true");
-      downloader.style.left = player.offsetLeft + (rect.width - width) + 33 + "px";
-      if (playlist) {
-        downloader.style.top = (item.offsetTop + 89) + "px";
-      } else {
-        downloader.style.top = (item.offsetTop + 55) + "px";
-      }   
-      downloader.style.display = "block";
-      currentIndex = parseInt(target.parentNode.getAttribute("fIndex"));
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }, false);	
+  }, false);
   downloader.setAttribute("style", 'width: ' + (width - 66) + 'px;');
   downloader.addEventListener('click', function (e) {
     var format = vInfo.formats[currentIndex];
@@ -213,7 +210,7 @@ var Menu = function (doSize) {
         a.setAttribute("href", url);
         a.setAttribute("fIndex", index);
         var text = html("span");
-        text.setAttribute("style", 'pointer-events: none; width: ' + (width - 135) + 'px;');
+        text.setAttribute("style", 'width: ' + (width - 135) + 'px;');
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
         var i = html("i");
