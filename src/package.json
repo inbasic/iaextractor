@@ -139,7 +139,7 @@
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %input %output.mp3"
+    "value": "-i %input -q:a 0 %output.mp3"
   },
   {
     "name": "welcome",
