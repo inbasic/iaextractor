@@ -125,6 +125,12 @@ var Menu = function (doSize) {
     var isDropdown = target.className.indexOf("iaextractor-dropdown") != -1;
     target = (isDropdown || target.localName != "a") ? target.parentNode : target;
     if (isDropdown) {
+      var playerView = document.getElementsByClassName("video-player-view-component");
+      var upsellVideo = document.getElementById("upsell-video");
+      if (rect.height < 390) {
+        playerView[0].style.overflow = "visible";
+        upsellVideo.style.overflow = "visible";
+      }
       var formats = document.getElementsByClassName("iaextractor-item");
       for (var i = 0; i < formats.length; i++) {
         if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
@@ -243,8 +249,14 @@ self.port.on("file-size-response", function(url, size, i1, i2) {
 });
 window.addEventListener("click", function (e) {
   var elem = e.originalTarget,
-      downloader = $("iaextractor-downloader");
-      formats = document.getElementsByClassName("iaextractor-item");
+      downloader = $("iaextractor-downloader"),
+      formats = document.getElementsByClassName("iaextractor-item"),
+      playerView = document.getElementsByClassName("video-player-view-component"),
+      upsellVideo = document.getElementById("upsell-video");
+  for (var i = 0; i < playerView.length; i++) {
+    if (playerView[i].style.overflow = "visible") playerView[i].style.overflow = "hidden";
+  }
+  if (upsellVideo) upsellVideo.style.overflow = "hidden";
   for (var i = 0; i < formats.length; i++) {
     if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
   }
