@@ -1,12 +1,13 @@
 /* Test cases
   1. http://www.youtube.com/watch?v=DQ6bJzzmQvM (video with four digit size, "1020 KB")
-  2. http://www.youtube.com/watch?v=A02s8omM_hI (video with on page)
+  2. http://www.youtube.com/watch?v=A02s8omM_hI (video with one page)
   3. http://www.youtube.com/watch?v=vNFcB-0QTho (video with two pages and non English title)
   4. http://www.youtube.com/watch?v=14dzliD5NNk (video with four pages)
-  5. http://www.youtube.com/user/AdeleVEVO?feature=watch (video with three pages, user page)
+  5. http://www.youtube.com/user/AdeleVEVO?feature=watch (video with three pages, user page, two different sizes based on the window's size)
   6. http://www.youtube.com/watch?v=z6ZV_pZZ_V8 (only for US viewer [still not supported])
   7. http://www.youtube.com/html5 (HTML5 player)
   8. https://www.youtube.com/movie/the-great-gatsby?feature=c4-overview (movie page. Two modes: before and after playing the movie [hiding the player cause error])
+  9. http://www.youtube.com/watch?v=DeumyOzKqgI&feature=c4-overview&list=UUomP_epzeKzvBX156r6pm1Q (playlist)
 */
 
 var $ = (function() {
@@ -38,6 +39,7 @@ var html = (function() {
     }
   }
 })();
+
 var remove = function (elem) {
   if (typeof(elem) == "string") {
     elem = document.getElementById(elem);
@@ -63,10 +65,11 @@ var detect = function () {
 
 // Make new menu
 var Menu = function (doSize) {
-  var vInfo, container = {}, currentIndex;
+  var vInfo, numbersPerPage, currentIndex;
   // Remove old menu and dropdown
-  remove("iaextractor-downloader");
-  if (remove("iaextractor-menu")) return; //Toggle
+  if (remove("iaextractor-menu")) {
+    return; //Toggle
+  }
   //
   var player = detect();
   if (!player) {
@@ -74,6 +77,13 @@ var Menu = function (doSize) {
     return;
   }
   var rect = player.getBoundingClientRect();
+  var width = 330 + (doSize ? 50 : 0);
+  
+  if (width > rect.width) {
+    self.port.emit("error", "msg16");
+    return;
+  }
+  
   player.insertAdjacentHTML("afterend", 
     '<div id="iaextractor-menu">' + //injected menu
     '  <span type="title">Download Links</span> ' +
@@ -81,29 +91,33 @@ var Menu = function (doSize) {
     '  <div id="iaextractor-items"></div> ' +
     '  <span id="iaextractor-load"></span>' +
     '  <span id="iaextractor-tabs"></span> ' +
-    '</div>' +
-    '<ul id="iaextractor-downloader">' +  //dropdown
-    '  <li>Firefox Downloader</li>' + 
-    '  <li>FlashGot</li>' + 
-    '  <li>DownThemAll!</li>' + 
-    '  <li>dTa OneClick</li>' + 
-    '</ul>'
+    '  <ul id="iaextractor-downloader">' +  //dropdown
+    '    <li>FlashGot</li>' + 
+    '    <li>DownThemAll!</li>' + 
+    '    <li>dTa OneClick</li>' + 
+    '  </ul>' +
+    '</div>'
   );
-  var width = 330 + (doSize ? 50 : 0),
-      menu = $("iaextractor-menu"),
+
+  var menu = $("iaextractor-menu"),
       items = $("iaextractor-items"),
       tabs = $("iaextractor-tabs"),
       downloader = $("iaextractor-downloader");
-
-  container.height = rect.height - 85;
-  menu.setAttribute("style", 
-    ' top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
-    ' left: ' + (rect.width - width) + 'px;' + 
-    ' width: ' + width + 'px;' +
-    ' height: ' + rect.height + 'px;'
+      
+  numbersPerPage = Math.floor((rect.height - 83) / 51); //Each item is 51
+  // Adding styles
+  for (var i = 0; i < downloader.children.length; i++) {
+    downloader.children[i].setAttribute("style", 'width: ' + (width-180)/3 + 'px;');
+  }
+  menu.setAttribute("style",
+    'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
+    'left: ' + (rect.width - width) + 'px;' + 
+    'width: ' + width + 'px;' +
+    'height: ' + rect.height + 'px;'
   );
-  items.setAttribute("style", 'width: ' + (width * 10) + 'px;');  //Support up to 10 pages
+  items.setAttribute("style", 'width: ' + (width * 10) + 'px;'); //Up to 10 pages
   tabs.setAttribute("style", 'width: ' + width + 'px;');
+  // Listeners
   tabs.addEventListener('click', function (e) {
     var elem = e.originalTarget;
     var index = elem.getAttribute("index");
@@ -125,15 +139,19 @@ var Menu = function (doSize) {
     var isDropdown = target.className.indexOf("iaextractor-dropdown") != -1;
     target = (isDropdown || target.localName != "a") ? target.parentNode : target;
     if (isDropdown) {
-      var formats = document.getElementsByClassName("iaextractor-item");
-      for (var i = 0; i < formats.length; i++) {
-        if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
+      if (target.getAttribute("selected") == "true") {
+        target.removeAttribute("selected");
+        downloader.style.display = "none";
       }
-      target.setAttribute("selected", "true");
-      downloader.style.left = player.offsetLeft + (rect.width - width) + 33 + "px";
-      downloader.style.top = (target.offsetTop + player.offsetTop + 40) + "px";
-      downloader.style.display = "block";
-      currentIndex = parseInt(target.getAttribute("fIndex"));
+      else {
+        var formats = document.getElementsByClassName("iaextractor-item");
+        for (var i = 0; i < formats.length; i++) {
+          if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
+        }
+        target.setAttribute("selected", "true");
+        downloader.style.display = "block";
+        currentIndex = parseInt(target.getAttribute("fIndex"));
+      }
       e.stopPropagation();
       e.preventDefault();
     }
@@ -143,31 +161,22 @@ var Menu = function (doSize) {
       e.preventDefault();
     }
   }, false);
-  downloader.setAttribute("style", 'width: ' + (width - 66) + 'px;');
   downloader.addEventListener('click', function (e) {
     var format = vInfo.formats[currentIndex];
-    switch (e.originalTarget) {
-    case downloader.children[0]:
-      self.port.emit("download", currentIndex);
-      break;
-    case downloader.children[1]:
-    case downloader.children[2]:
-    case downloader.children[3]:
-      self.port.emit(
-        e.originalTarget == downloader.children[1] ? "flashgot" : "downThemAll", 
-        format.url, 
-        vInfo.title,
-        vInfo.author,
-        format.container,
-        vInfo.video_id,
-        format.resolution,
-        format.audioBitrate,
-        e.originalTarget == downloader.children[3] ? true : false
-      );
-    }
+    self.port.emit(
+      e.originalTarget == downloader.children[0] ? "flashgot" : "downThemAll", 
+      format.url, 
+      vInfo.title,
+      vInfo.author,
+      format.container,
+      vInfo.video_id,
+      format.resolution,
+      format.audioBitrate,
+      e.originalTarget == downloader.children[3] ? true : false
+    );
   }, false);
   $("iaextractor-close").addEventListener('click', function (e) {
-    remove("iaextractor-menu")
+    remove("iaextractor-menu");
   }, false);
 
   return {
@@ -186,7 +195,7 @@ var Menu = function (doSize) {
       //Remove loading icon
       remove("iaextractor-load");
       //Add new items
-      var tabIndex = (Math.floor((vInfo.formats.length - 1) * 53 / container.height) + 1),
+      var tabIndex = Math.floor((vInfo.formats.length - 1) / numbersPerPage) + 1,
           tabWidth = width / tabIndex;
       for (var i = 0; i < tabIndex; i++) {
         var div = html("div");
@@ -221,7 +230,8 @@ var Menu = function (doSize) {
           elem.container.toUpperCase() + " " + map(elem.quality) +
           " - " +
           elem.audioEncoding.toUpperCase() + " " + elem.audioBitrate + "K";
-        var i = Math.floor(index * 53 / container.height);
+          
+        var i = Math.floor(index / numbersPerPage);
         items.children[i].appendChild(a);
         //Requesting File Size
         if (doSize) {
@@ -241,17 +251,6 @@ self.port.on("file-size-response", function(url, size, i1, i2) {
   }
   span.textContent += " - " + size;
 });
-window.addEventListener("click", function (e) {
-  var elem = e.originalTarget,
-      downloader = $("iaextractor-downloader");
-      formats = document.getElementsByClassName("iaextractor-item");
-  for (var i = 0; i < formats.length; i++) {
-    if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
-  }
-  if (downloader) {
-    downloader.style.display = "none";
-  }
-}, false);
 
 var menu = new Menu(self.options.doSize);
 self.port.on("info", menu.initialize);

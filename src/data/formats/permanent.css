@@ -125,19 +125,19 @@
 
 /** Downloader **/
 #iaextractor-downloader {
-  font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
-  display: none;
-  z-index: 2147483647;
   position: absolute; 
-  color: #FFF!important;
-  background-color: #FF8830!important;
+  bottom: 0;
+  background-color: #FF8330!important;
   -moz-user-select: none;
+  display: none;
 }
 #iaextractor-downloader li {
-  display: block;
-  height: 30px!important;
-  line-height: 30px;
-  padding: 0 40px!important;
+  float: left;
+  display: inline-block;
+  overflow: hidden;
+  height: 32px!important;
+  line-height: 32px;
+  padding: 0 30px!important;
   background-repeat: no-repeat!important;
   background-position: 10px center!important;
   transition: background-color 100ms!important;
@@ -150,16 +150,12 @@
   background-color: #FF9E51!important;
 }
 #iaextractor-downloader li:nth-child(1) {
-  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0)!important;
-  display: none;
-}
-#iaextractor-downloader li:nth-child(2) {
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 32, 16, 16)!important;
 }
-#iaextractor-downloader li:nth-child(3) {
+#iaextractor-downloader li:nth-child(2) {
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 48, 16, 32)!important;
 }
-#iaextractor-downloader li:nth-child(4) {
+#iaextractor-downloader li:nth-child(3) {
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 64, 16, 48)!important;
 }
 

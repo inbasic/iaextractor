@@ -234,7 +234,7 @@ var IDExtractor = (function () {
           if (players.length) {
             var flashvars = players[0].getAttribute("flashvars");
             if (!flashvars) return null;
-            var id = /video_id=([^\&]*)/.exec(flashvars);
+            var id = /\&video_id=([^\&]*)/.exec(flashvars);
             if (id && id.length) {
               return id[1];
             }

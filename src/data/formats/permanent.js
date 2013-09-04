@@ -4,7 +4,6 @@ if (iaextractor_parent) {
   var button = document.createElement("button");
   button.setAttribute("title", "Detect all possible download links");
   button.setAttribute("id", "formats-button-small");
-  //button.setAttribute("class", "yt-uix-tooltip");
   button.addEventListener("click", function () {
     self.port.emit("formats");
   });
