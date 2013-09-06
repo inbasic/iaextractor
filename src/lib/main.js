@@ -17,13 +17,13 @@ var {Cc, Ci, Cu}  = require('chrome'),
     extract       = require("./extract"),
     ffmpeg        = require("./ffmpeg"),
     tools         = require("./misc"),
-    Request       = require("sdk/request").Request,
     data          = self.data,
     prefs         = sp.prefs,
     fileSize      = tools.fileSize,
     format        = tools.format,
     _prefs        = tools.prefs,
-    prompts       = tools.prompts;
+    prompts       = tools.prompts,
+    update        = tools.update
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -43,8 +43,7 @@ var config = {
   urls: {
     youtube: "https://www.youtube.com/",
     tools: "chrome://iaextractor/content/tools.xul",
-    homepage: "http://add0n.com/youtube.html",
-    signature: "http://add0n.com/signature.php?request="
+    homepage: "http://add0n.com/youtube.html"
   },
   //toolbar
   toolbar: {
@@ -77,23 +76,9 @@ var config = {
 }
 
 /** Update signature decoder from server **/
-Request({
-  url: config.urls.signature + "ver",
-  onComplete: function (response) {
-    if (response.status != 200) return;
-    var version = parseInt(response.text);
-    if (version > prefs.decoder_ver) {
-      Request({
-        url: config.urls.signature + "alg",
-        onComplete: function (response) {
-          if (response.status != 200) return;
-          prefs.decoder_alg = response.text
-          prefs.decoder_ver = version;
-        }
-      }).get();
-    }
-  }
-}).get();
+update();
+
+var iPanel, rPanel, cmds, yButton, IDExtractor, welcome;
 
 /** Inject menu and button into YouTube pages **/
 pageMod.PageMod({
@@ -108,7 +93,7 @@ pageMod.PageMod({
 });
 
 /** Toolbar Panel **/
-var rPanel = panel.Panel({
+rPanel = panel.Panel({
   width: config.panels.rPanel.width,
   height: config.panels.rPanel.height,
   contentURL: data.url('report.html'),
@@ -178,7 +163,7 @@ rPanel.on("hide", function() {
 });
 
 /** Get video id from URL **/
-var IDExtractor = (function () {
+IDExtractor = (function () {
   var urls = [], IDs = [];
   function cache(url, id) {
     var index = urls.push(url) - 1;
@@ -292,8 +277,7 @@ var IDExtractor = (function () {
 })();
 
 /** Initialize **/
-var iPanel;
-var cmds = {
+cmds = {
   /**
    * onCommand
    * 
@@ -414,7 +398,7 @@ var cmds = {
   }
 }
 
-var yButton = toolbarbutton.ToolbarButton({
+yButton = toolbarbutton.ToolbarButton({
   id: config.toolbar.id,
   label: _("toolbar"),
   tooltiptext: config.tooltip,
@@ -464,7 +448,7 @@ exports.main = function(options, callbacks) {
 }
 
 /** Welcome page **/
-var welcome = function () {
+welcome = function () {
   if (!prefs.newVersion) return;
   if (prefs.welcome) {
     timer.setTimeout(function () {
