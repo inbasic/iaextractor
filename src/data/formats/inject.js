@@ -77,7 +77,7 @@ var Menu = function (doSize) {
     return;
   }
   var rect = player.getBoundingClientRect();
-  var width = 330 + (doSize ? 50 : 0);
+  var width = 320;
   
   if (width > rect.width) {
     self.port.emit("error", "msg16");
@@ -86,28 +86,52 @@ var Menu = function (doSize) {
   
   player.insertAdjacentHTML("afterend", 
     '<div id="iaextractor-menu">' + //injected menu
-    '  <span type="title">Download Links</span> ' +
-    '  <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
-    '  <div id="iaextractor-items"></div> ' +
-    '  <span id="iaextractor-load"></span>' +
-    '  <span id="iaextractor-tabs"></span> ' +
-    '  <ul id="iaextractor-downloader">' +  //dropdown
-    '    <li>FlashGot</li>' + 
-    '    <li>DownThemAll!</li>' + 
-    '    <li>dTa OneClick</li>' + 
-    '  </ul>' +
+    ' <span type="title">Download Links</span> ' +
+    ' <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
+    ' <div id="iaextractor-items"></div> ' +
+    ' <span id="iaextractor-load"></span>' +
+    ' <span id="iaextractor-tabs"></span> ' +
+    ' <span id="iaextractor-selected"></span> ' +
+    ' <ul id="iaextractor-downloader">' + //dropdown
+    ' <li></li>' +
+    ' <li></li>' +
+    ' <li></li>' +
+    ' </ul>' +
     '</div>'
   );
 
   var menu = $("iaextractor-menu"),
       items = $("iaextractor-items"),
       tabs = $("iaextractor-tabs"),
-      downloader = $("iaextractor-downloader");
-      
-  numbersPerPage = Math.floor((rect.height - 83) / 51); //Each item is 51
+      downloader = $("iaextractor-downloader"),
+      selected = $("iaextractor-selected"),
+      load = $("iaextractor-load"),
+      visible = [];
+ 
+  var position = function(el, times) {
+    var el = document.getElementsByClassName(el);
+    for (var i = 0; i < el.length; i++) {
+      el[i].style.transform = "translate(" + width * times + "px)";
+    }
+  }
+
+  var select = function () {
+    for (var i = 0; i < items.childNodes.length; i++) {
+      if (i == 0) items.childNodes[i].setAttribute("class", "center");
+      if (i > 0) items.childNodes[i].setAttribute("class", "right");
+    }
+    position("center", 1);   
+    position("right", 2);     
+    visible.unshift(0);
+    items.childNodes[0].style.opacity = "1";
+    tabs.children[0].setAttribute("selected", "true");
+  }
+
+  numbersPerPage = Math.floor((rect.height - 83) / 51); // Each item is 51
+
   // Adding styles
   for (var i = 0; i < downloader.children.length; i++) {
-    downloader.children[i].setAttribute("style", 'width: ' + (width-180)/3 + 'px;');
+    downloader.children[i].setAttribute("style", 'width: ' + width/3 + 'px;');
   }
   menu.setAttribute("style",
     'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
@@ -115,22 +139,48 @@ var Menu = function (doSize) {
     'width: ' + width + 'px;' +
     'height: ' + rect.height + 'px;'
   );
-  items.setAttribute("style", 'width: ' + (width * 10) + 'px;'); //Up to 10 pages
+  load.setAttribute("style", 
+    'margin-top: ' + (rect.height - 126) / 2 + 'px;' +
+    'margin-left: ' + (width - 64) / 2 + 'px;'
+  );
+  items.setAttribute("style", 
+    'width: ' + width * 3 + 'px;' +
+    'margin-left: -' + width + 'px;'
+  );
   tabs.setAttribute("style", 'width: ' + width + 'px;');
+  selected.style.transform = "translate(0)";
+
   // Listeners
   tabs.addEventListener('click', function (e) {
     var elem = e.originalTarget;
     var index = elem.getAttribute("index");
     if (index === null) return;
     index = parseInt(index);
+    selected.style.transform = "translate(" + (width / tabs.children.length) * index + "px)";
+    // Show just 2 pages of items
+    if (visible.length == 2) visible.pop();
+    visible.unshift(index);
+    for (var i = 0; i < items.childNodes.length; i++) {
+      if (items.childNodes[i].style.opacity == "1") items.childNodes[i].style.removeProperty("opacity");
+    }
+    items.childNodes[visible[0]].style.opacity = "1";
+    if (visible.length == 2) items.childNodes[visible[1]].style.opacity = "1";
+    // Move pages
     for (var i = 0; i < items.childNodes.length; i++) {
       if (i == index) {
-        items.childNodes[i].style.display = "block";
+        items.childNodes[i].setAttribute("class", "center");
         tabs.children[i].setAttribute("selected", "true");
+        position("center", 1);
       }
-      else {
-        items.childNodes[i].style.display = "none";
+      else if (i < index) {
+        items.childNodes[i].setAttribute("class", "left");
         tabs.children[i].removeAttribute("selected");
+        position("left", 0);
+      }
+      else if (i > index) { 
+        items.childNodes[i].setAttribute("class", "right");
+        tabs.children[i].removeAttribute("selected");
+        position("right", 2);
       }
     }
   }, false);
@@ -141,7 +191,7 @@ var Menu = function (doSize) {
     if (isDropdown) {
       if (target.getAttribute("selected") == "true") {
         target.removeAttribute("selected");
-        downloader.style.display = "none";
+        downloader.style.bottom = "-32px";
       }
       else {
         var formats = document.getElementsByClassName("iaextractor-item");
@@ -149,7 +199,7 @@ var Menu = function (doSize) {
           if (formats[i].hasAttribute("selected")) formats[i].removeAttribute("selected");
         }
         target.setAttribute("selected", "true");
-        downloader.style.display = "block";
+        downloader.style.bottom = 0;
         currentIndex = parseInt(target.getAttribute("fIndex"));
       }
       e.stopPropagation();
@@ -185,9 +235,9 @@ var Menu = function (doSize) {
       function map (str) {
         switch (str) {
         case "hd720":
-          return "HD720p";
+          return "720p";
         case "hd1080":
-          return "HD1080p";
+          return "1080p";
         default:
           return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
         }
@@ -211,6 +261,8 @@ var Menu = function (doSize) {
         $("iaextractor-tabs").appendChild(span);
       }
       tabs.style.display = tabIndex == 1 ? "none" : "block";
+      selected.style.display = tabIndex == 1 ? "none" : "block";
+      selected.style.width = tabWidth + 'px';
       
       vInfo.formats.forEach (function (elem, index) {
         var url = elem.url + "&keepalive=yes&title=" + encodeURIComponent(vInfo.title);
@@ -219,7 +271,6 @@ var Menu = function (doSize) {
         a.setAttribute("href", url);
         a.setAttribute("fIndex", index);
         var text = html("span");
-        text.setAttribute("style", 'width: ' + (width - 135) + 'px;');
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
         var i = html("i");
@@ -238,6 +289,7 @@ var Menu = function (doSize) {
           self.port.emit("file-size-request", url, i, items.children[i].children.length - 1);
         }
       });
+      select();    
     }
   }
 }
