@@ -35,14 +35,15 @@
   opacity: 0.5;
 }
 #iaextractor-selected {
+  z-index: 1;
   position: absolute!important;
   bottom: 30px!important;
   height: 2px!important;
   background-color: white!important;
-  transition: transform 380ms;
+  transition: transform 300ms;
 }
    
-/** loading video info **/
+/** Loading Video Info **/
 #iaextractor-load {
   position: absolute;
   display: block;
@@ -50,6 +51,7 @@
   height: 64px;
   background: url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/fetch.png) no-repeat center center !important;
 }
+
 /** Buttons **/
 .iaextractor-button {
   position: absolute;
@@ -71,15 +73,98 @@
 #iaextractor-close:hover:active {
   opacity: 0.5;
 }
-.iaextractor-dropdown {
-  left: 40px;
-  margin-top: 7px!important;
-  width: 16px!important;
-  height: 16px!important;
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) no-repeat !important;
+#iaextractor-help {
+  top: 4px;
+  left: 2px;
   transition: opacity 100ms!important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 48, 16, 32) no-repeat center!important;
+}
+#iaextractor-help:hover:active {
+  opacity: 0.5;
+}
+.iaextractor-dropdown {
+  position: relative;
+  transform: translate(10px, -23px);
+  width: 16px!important;
+  height: 43px!important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 16, 16, 0) no-repeat !important;
+  transition: opacity 100ms, transform 200ms!important;
 }
 .iaextractor-dropdown:hover:active {
+  opacity: 0.5;
+}
+.iaextractor-dropdown i { 
+  position: absolute;
+  display: block!important;
+  width: 12px;
+  height: 12px;
+  border-radius: 200px;
+  bottom: 0;
+  border: 2px solid white!important;
+  pointer-events: none;
+}
+.iaextractor-dropdown i:after { 
+  display: block;
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-top: 2px;
+  margin-left: 2px;
+  border-radius: 200px;
+  background-color: white;
+}
+
+/** Help Panel **/
+#iaextractor-help-panel {
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  width: 320px;
+  height: 390px;
+  background-color: #FF6C09!important;
+  transform: translate(0, 390px);
+  transition: transform 350ms;
+}
+#ia-h-img1 {
+  display: block;
+  width: 320px;
+  height: 131px;
+  margin-top: 5px!important;
+  background-image: url("http://www.dropmocks.com/iBv4Zt")!important;
+}
+#ia-h-img2 {
+  display: block;
+  width: 320px;
+  height: 146px;
+  margin-top: 5px!important;
+  background-image: url("http://www.dropmocks.com/iBv3Ll")!important;
+}
+#ia-h-feedback {
+  display: block;
+  width: 112px;
+  height: 32px;
+  cursor: pointer;
+  margin-top: 18px!important;
+  margin-left: 104px!important;
+  text-decoration: none!important;
+  font-weight: 600!important;
+  font-size: 15px!important;
+  background: url("http://www.dropmocks.com/iBv4pS") no-repeat right center!important;
+}
+#ia-h-feedback:hover:active {
+  opacity: 0.5;
+}
+#ia-h-back {
+  display: block;
+  position: absolute;
+  bottom: 10px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-left: 152px!important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 64, 16, 48) no-repeat center!important;
+}
+#ia-h-back:hover:active {
   opacity: 0.5;
 }
 
@@ -87,15 +172,17 @@
 #iaextractor-items div {
   position: absolute;
   opacity: 0;
-  transition: transform 380ms;
+  transition: transform 300ms;
 }
 .iaextractor-item {
   display: block;
   line-height: 30px;
+  height: 30px;
   margin: 20px 30px 0 30px!important;
   text-decoration: none!important;
   outline: 0!important;
-  background-color: #F79646!important;
+  overflow: hidden;
+  transition: background-color 100ms!important;
 }
 .iaextractor-item span:first-child {
   display: inline-block;
@@ -112,13 +199,13 @@
 .iaextractor-item span:first-child:hover:active {
   background-color: #FF8830!important;
 }
-.iaextractor-item[selected] span:first-child {
-  padding-left: 34px!important;
-  border-left: 3px solid white!important;
+.iaextractor-item[selected] .iaextractor-dropdown {
+  transform: translate(10px, -50px);
 }
 
 /** Downloader **/
 #iaextractor-downloader {
+  z-index: 1;
   position: absolute;
   bottom: -32px;
   width: 100%!important;
@@ -150,6 +237,42 @@
 }
 #iaextractor-downloader li:nth-child(3) {
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm.png), 0, 64, 16, 48)!important;
+}
+#iaextractor-downloader li span {
+  position: relative!important;
+  background: white!important;
+  top: -33px;
+  padding: 5px!important;
+  pointer-events: none;
+  color: black;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+#iaextractor-downloader li span:after {
+  position: absolute!important;
+  top: 100%!important;
+  left: 50%!important;
+  content: ""!important;
+  border: solid transparent!important;
+  border-color: rgba(255, 255, 255, 0)!important;
+  border-top-color: white!important;
+  border-width: 6px!important;
+  margin-left: -6px!important;
+}
+#iaextractor-downloader li:nth-child(1) span {
+  left: 20px;
+}
+#iaextractor-downloader li:nth-child(2) span {
+  left: 5px;
+}
+#iaextractor-downloader li:nth-child(3) span {
+  left: 9px;
+}
+
+#iaextractor-downloader li:nth-child(1):hover span,
+#iaextractor-downloader li:nth-child(2):hover span, 
+#iaextractor-downloader li:nth-child(3):hover span {
+  opacity: 1;
 }
 
 /** Injected button **/

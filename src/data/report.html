@@ -10,10 +10,9 @@
       <span data-l10n-id="quick-download"></span>
       <span data-l10n-id="open-youtube"></span>
     </div>
-    
+
     <div id="global-container">
 
-      <div id="click-handler"></div>
       <div id="tabs" class="tabs">
         <span id="preferences" class="tab"><div></div></span>
         <span id="home" class="tab" selected="true"><div></div></span>
@@ -26,89 +25,82 @@
           <div id="folder-preferences">
             <span id="folder-title" data-l10n-id="download-folder"></span>
             <span id="download-addition">
-              <label class="radio dlabel"><input type="radio" name="dinput" value="0" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="1" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="2" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="3" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="4" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="5" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
+              <label class="radio dlabel"><input type="radio" name="dinput" value="5"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
             </span>
           </div>
-          <table id="container" cellspacing="0" cellpadding="0">
-              <tr>
-                <td class="title" data-l10n-id="conversion-tool"></td>
-                <td id="tools-button" class="button"></td>
-              </tr>
-              <tr>
-                <td class="title" data-l10n-id="resolve-links"></td>
-                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="resolve-size-checkbox"/><span></span></label></td>
-              </tr>
-              <tr>
-                <td class="title" data-l10n-id="extract-embed"></td>
-                <td id="embed-button" class="button"></td>
-              </tr>
-              <tr>
-                <td class="title" data-l10n-id="extract-audio"></td>
-                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></td>
-              </tr>
-              <tr>
-                <td class="title" data-l10n-id="extract-subtitle"></td>
-                <td class="checkboxTD"><label class="checkbox"><input type="checkbox" id="subtitle-checkbox"/><span></span></label></td>
-              </tr>
-              <tr>
-                <td class="title" data-l10n-id="download-folder"></td>
-                <td id="folder-button" class="button"></td>
-              </tr>
-          </table>
+          <div id="container">           
+            <span class="preference">
+              <span id="folder-button" class="button"></span>
+              <span class="title" data-l10n-id="download-folder"></span>
+            </span>
+            <span class="preference">
+              <span class="checkBox"><label class="checkbox"><input type="checkbox" id="resolve-size-checkbox"/><span></span></label></span>
+              <span class="title" data-l10n-id="resolve-links"></span>
+            </span>
+            <span class="preference">
+              <span class="checkBox"><label class="checkbox"><input type="checkbox" id="audio-checkbox"/><span></span></label></span>
+              <span class="title" data-l10n-id="extract-audio"></span>
+            </span>
+            <span class="preference">
+              <span class="checkBox"><label class="checkbox"><input type="checkbox" id="subtitle-checkbox"/><span></span></label></span>
+              <span class="title" data-l10n-id="extract-subtitle"></span>
+            </span>
+          </div>
         </div>
         <div id="home-panel" class="tabpanel" selected="true">
           <div id="video-preferences">
             <span id="format-addition">
               <span class="format-title">Format:</span>
               <span class="fcontainer">
-                <label class="radio"><input type="radio" name="finput" value="0" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.FLV"/></label>
-                <label class="radio"><input type="radio" name="finput" value="1" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.3GP"/></label>
-                <label class="radio"><input type="radio" name="finput" value="2" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.MP4"/></label>
-                <label class="radio"><input type="radio" name="finput" value="3" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.WebM"/></label>
+                <label class="radio"><input type="radio" name="finput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.FLV"/></label>
+                <label class="radio"><input type="radio" name="finput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.3GP"/></label>
+                <label class="radio"><input type="radio" name="finput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.MP4"/></label>
+                <label class="radio"><input type="radio" name="finput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.WebM"/></label>
               </span>
             </span>
             <span id="quality-addition">
               <span class="quality-title">Quality:</span>
               <span class="qcontainer">
-                <label class="radio"><input type="radio" name="vinput" value="0" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="1" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD720p"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="2" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.High"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="3" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Medium"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="4" onfocus="this.blur()"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Small"/></label>
+                <label class="radio"><input type="radio" name="vinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
+                <label class="radio"><input type="radio" name="vinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD720p"/></label>
+                <label class="radio"><input type="radio" name="vinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.High"/></label>
+                <label class="radio"><input type="radio" name="vinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Medium"/></label>
+                <label class="radio"><input type="radio" name="vinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Small"/></label>
               </span>              
             </span>
           </div>
-          <div id="qd-container">
-            <div id="qd-toggle"></div>
-            <div id="qd-button"></div>
-          </div>
-          <div id="dl-button">
-            <p data-l10n-id="download-links"></p>
-            <div id="dl-toggle"></div>
+          <div id="buttons">
+            <div id="qd-container" class="mbutton">
+              <div id="qd-toggle"></div>
+              <div id="download" class="mbutton"></div>
+            </div>
+            <div id="links" class="mbutton" data-l10n-id="download-links"></div>
+            <div id="tools" class="mbutton" data-l10n-id="conversion-tool"></div>
+            <div id="embed" class="mbutton" data-l10n-id="extract-embed"></div>
           </div>
         </div>
         <div id="downloads-panel" class="tabpanel">
           <div id="no-download-manager" class="nd-content"><p data-l10n-id="no-download"></p></div>
-          <div id="download-manager" class="d-content">
-            <div id="download-item" class="download-item" style="display:none;">
-              <div class="d-icon"></div>
-              <div class="body">
-                <span id="top-text">-</span>
-                <div class="progress-outer"><div class="progress-inner"></div></div>
-                <span id="bottom-text">...</span>
+          <div id="wrapper">
+            <div id="download-manager" class="d-content">
+              <div id="download-item" class="download-item" style="display:none;">
+                <div class="d-icon"></div>
+                <div class="body">
+                  <span id="top-text">-</span>
+                  <div class="progress-outer"><div class="progress-inner"></div></div>
+                  <span id="bottom-text">...</span>
+                </div>
+                <div class="cancel"></div>
               </div>
-              <div class="cancel"></div>
             </div>
           </div>
-          <div id="download-manager-toolbar" class="d-footer">
-            <span id="download-manager-toolbar-label"/>
-          </div>
         </div>
+        <div id="click-handler"></div>            
       </div>
     </div>
   </body>
