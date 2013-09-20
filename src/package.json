@@ -5,11 +5,11 @@
 
   "license": "mozilla public license 1.1",
 
-  "author": "InBasic",
-  "contributors": ["Alejandro Rodriguez"],
+  "author": "InBasic (@inbasic)",
+  "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.0b2",
+  "version": "0.3.0b4",
   "lib": "lib",
   "main": "main",
   

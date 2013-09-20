@@ -77,7 +77,7 @@ var Menu = function (doSize) {
     return;
   }
   var rect = player.getBoundingClientRect();
-  var width = 320;
+  var width = 320 + (doSize ? 10 : 0);
   
   if (width > rect.width) {
     self.port.emit("error", "msg16");
@@ -230,7 +230,7 @@ var Menu = function (doSize) {
       vInfo.video_id,
       format.resolution,
       format.audioBitrate,
-      e.originalTarget == downloader.children[3] ? true : false
+      e.originalTarget == downloader.children[2] ? true : false
     );
   }, false);
   $("ia-h-back").addEventListener('click', function () {
@@ -238,6 +238,7 @@ var Menu = function (doSize) {
     helpPanel.style.transform = "translate(0, " + 390 + "px)"; 
   }, false);
   $("iaextractor-help").addEventListener('click', function () {
+    helpPanel.style.width = width + "px";
     helpPanel.style.transitionTimingFunction = "ease";   
     helpPanel.style.transform = "translate(0)";
   }, false);

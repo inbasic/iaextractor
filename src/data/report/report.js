@@ -48,21 +48,21 @@ var slidePanel = function(el, value1, value2) {
   }
 }
 
-handler.onclick = function() {
+handler.addEventListener("click", function () {
   cleanup();
-}
-fbtoggle.onclick = function() {
+}, false);
+fbtoggle.addEventListener("click", function () {
   slidePanel(folderp, 230, 129);
-}
-qdtoggle.onclick = function() {
+}, false);
+qdtoggle.addEventListener("click", function () {
   slidePanel(videop, 230, 119);
-}
-qdtoggle.onmouseover = function() {
+}, false);
+qdtoggle.addEventListener("mouseover", function () {
   downloadButton.style.backgroundColor = "#FFA05A";
-}
-qdtoggle.onmouseleave = function() {
+}, false);
+qdtoggle.addEventListener("mouseleave", function () {
   downloadButton.style.backgroundColor = "#F79646";
-}
+}, false);
 
 var mList = function (name, value, func) {
   var radios = document.getElementsByName(name);
@@ -94,7 +94,6 @@ var mList = function (name, value, func) {
     }
   }
 }
-
 
 var download = new mList (
   "dinput", 
@@ -311,9 +310,8 @@ sCheckbox.addEventListener("change", function () {
 $("tools").addEventListener("click", function () {
   self.port.emit("cmd", "tools");
 }, true);
-  
 
-//Onload
+//Update UI
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
   aCheckbox.checked = doExtract;
   subCheckbox.checked = doSubtitle;
@@ -334,9 +332,6 @@ self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vInde
     qdtoggle.style.display = "none";
   }
   downloadButton[isRed ? "setAttribute" : "removeAttribute"]("type", "active");
-});
-
-self.port.on("autohide", function() {
   // If there is no download switch to download tab
   if (dmUI.isEmpty()) {
     tabSelector(1);

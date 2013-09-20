@@ -43,7 +43,10 @@ var config = {
   urls: {
     youtube: "https://www.youtube.com/",
     tools: "chrome://iaextractor/content/tools.xul",
-    homepage: "http://add0n.com/youtube.html"
+    homepage: "http://add0n.com/extractor.html",
+    update: "http://add0n.com/extractor-updated.html",
+    flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
+    downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/"
   },
   //toolbar
   toolbar: {
@@ -157,9 +160,6 @@ rPanel.on("show", function() {
     prefs.extension, 
     yButton.saturate
   );
-});
-rPanel.on("hide", function() {
-  rPanel.port.emit("autohide");
 });
 
 /** Get video id from URL **/
@@ -434,7 +434,7 @@ exports.main = function(options, callbacks) {
   monitor(tabs.activeTab);
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
-    prefs.newVersion = true;
+    prefs.newVer = options.loadReason;
   }
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
@@ -449,13 +449,16 @@ exports.main = function(options, callbacks) {
 
 /** Welcome page **/
 welcome = function () {
-  if (!prefs.newVersion) return;
+  if (!prefs.newVer) return;
   if (prefs.welcome) {
     timer.setTimeout(function () {
-      tabs.open({url: config.urls.homepage, inBackground : false});
+      tabs.open({
+        url: prefs.newVer == "install" ? config.urls.homepage : config.urls.update, 
+        inBackground : false
+      });
     }, 3000);
   }
-  prefs.newVersion = false;
+  prefs.newVer = "";
 }
 
 /** Monitor **/
@@ -954,6 +957,9 @@ var flashgot = (function () {
     }
     else {
       notify(_("name"), _("err14"));
+      timer.setTimeout(function (){
+        tabs.open(config.urls.flashgot);
+      }, 2000);
     }
   }
 })();
@@ -993,6 +999,9 @@ var downThemAll = (function () {
     }
     else {
       notify(_("name"), _("err15"));
+      timer.setTimeout(function (){
+        tabs.open(config.urls.downthemall);
+      }, 2000);
     }
   }
 })();
