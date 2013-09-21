@@ -45,6 +45,7 @@ table {
   width: 100px;
   background-color: white;
   transition: transform 300ms;
+  z-index: 1;
 }
 #home,
 #downloads,
@@ -66,6 +67,7 @@ table {
   height: 200px;
   transition: transform 300ms;
   position: absolute;
+  font-size: 0; /* preventing extra margin between child elements (MAC issue) */
 }
 .tabpanel {
   display: inline-block;
@@ -73,7 +75,7 @@ table {
   height: 200px;  
   background-color: #FF6C09;
   position: relative;
-  margin-right: -4px;
+  margin: 0;  /* preventing extra margin between siblings*/
 }
 #click-handler {
   display: none;

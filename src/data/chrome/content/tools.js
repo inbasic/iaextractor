@@ -289,7 +289,10 @@ var drag3 = {
     var dropFile = event.dataTransfer.mozGetDataAt("application/x-moz-file", 0);
     if (dropFile instanceof Ci.nsIFile) {
       try {
-        exports.ffmpeg (dropFile.path);
+        $("ffmpeg-info").value = bundle.getString("msg4");
+        exports.ffmpeg (dropFile.path, function (){
+          $("ffmpeg-info").value = bundle.getString("msg3");
+        });
       }
       catch (e) {
         alert(e);

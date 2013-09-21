@@ -177,7 +177,7 @@ var require = function (id) {
           <textbox id="ffmpeg-input" flex="1"/>
         </hbox>
         <hbox align="center" pack="center" class="info" flex="1">
-        <label value="&drop3;"/>
+        <label id="ffmpeg-info"  value="&drop3;"/>
         </hbox>
       </vbox>
       </tabpanel>
