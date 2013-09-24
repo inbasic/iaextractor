@@ -51,32 +51,6 @@ var prompts = (function () {
 })();
 exports.prompts = prompts;
 
-/** Signature updater **/
-var update = function (callback, pointer) {
-  var url = "http://add0n.com/signature.php?request=";
-
-  Request({
-    url: url + "ver",
-    onComplete: function (response) {
-      if (response.status == 200) {
-        var version = parseInt(response.text);
-        if (version > (prefs.decoder_ver || 0)) {
-          Request({
-            url: url + "alg",
-            onComplete: function (response) {
-              if (response.status != 200) return;
-              prefs.decoder_alg = response.text
-              prefs.decoder_ver = version;
-            }
-          }).get();
-        }
-      }
-      if (callback) callback.apply(pointer);
-    }
-  }).get();
-}
-exports.update = update;
-
 /** Calculate file size **/
 var cache = {};
 var calculate = function (url, callback, pointer) {
@@ -113,19 +87,8 @@ var calculate = function (url, callback, pointer) {
         cache[url] = size;
         callback.apply(pointer, [url, format(size)]);
       }
-      else {  // Size is zero, try to update decoder from server
-        var lastUpdate = parseInt(prefs.getLastUpdate) || 0;
-        var current = (new Date()).getTime();
-        //Check for new update if 60 mins is passed.
-        if (current > lastUpdate + 60 * 60000) {
-          update(function () {
-            calculate(url, callback, pointer);
-          });
-          prefs.getLastUpdate = current + ""; //Store as string
-        }
-        else {
-          callback.apply(pointer, [url, null]);
-        }
+      else {  // Size is zero
+        callback.apply(pointer, [url, null]);
       }
       sent = true;
       req.abort();

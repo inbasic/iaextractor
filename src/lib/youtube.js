@@ -67,7 +67,7 @@ function _getInfo(videoID, callback, pointer) {
         return v !== '';
       });
     });
-    // convert some strings to javascript numbers and booleans
+    // convert some strings to JavaScript numbers and booleans
     for (var i in info) {
       var val = info[i],
         intVal = parseInt(val, 10),
@@ -88,7 +88,17 @@ function _getInfo(videoID, callback, pointer) {
     for (var i in info.fmt_list) {
       info.fmt_list[i] = info.fmt_list[i].split('/');
     }
-    info.formats = (function () {
+    info.video_verticals = (info.video_verticals ? info.video_verticals : "")
+      .slice(1, -1)
+      .split(',')
+      .filter(function (val) {
+        return val !== '';
+      });
+    for (var i in info.video_verticals) {
+      info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
+    }
+    
+    var _f = function () {
       videoFormats = info.url_encoded_fmt_stream_map;
 
       // parse the formats map
@@ -126,7 +136,7 @@ function _getInfo(videoID, callback, pointer) {
               arr[b] = l3;
               return arr
           }
-          var cmd = JSON.parse(prefs.decoder_alg);
+          var cmd = JSON.parse(prefs.ccode || '["r","r"]');
           cmd.forEach(function (c, i) {
             if (typeof c !== "string") {
               return;
@@ -155,20 +165,33 @@ function _getInfo(videoID, callback, pointer) {
         objs.push(videoFormatsPair);
       }
 
+      delete info.url_encoded_fmt_stream_map;
       return objs;
-    })();
-    delete info.url_encoded_fmt_stream_map;
-    info.video_verticals = (info.video_verticals ? info.video_verticals : "")
-      .slice(1, -1)
-      .split(',')
-      .filter(function (val) {
-        return val !== '';
-      });
-    for (var i in info.video_verticals) {
-      info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
     }
-
-    if (callback) callback.apply(pointer, [info]);
+    
+    if (info.player && info.player != prefs.player) { // Request new codec
+      console.error('requesting new sig');
+    
+      Request({
+        url: "http://add0n.com/signature2.php?id=" + info.player,
+        onComplete: function (response) {
+          if (response.text) {
+            var tmp = response.text.split("\n");
+            prefs.player = tmp[0];
+            prefs.ccode = tmp[1];
+          
+            info.formats = _f ();
+            if (callback) callback.apply(pointer, [info]);
+          }
+        }
+      }).get();
+    }
+    else {
+      console.error('Using cache');
+    
+      info.formats = _f ();
+      if (callback) callback.apply(pointer, [info]);
+    }
   }
 
   Request({
@@ -189,6 +212,10 @@ function _getInfo(videoID, callback, pointer) {
             } 
             else {
               info.url_encoded_fmt_stream_map = tmp[1];
+              var tmp2 = /html5player-([^\"]*).js/.exec(response.text);
+              if (tmp2 && tmp2.length == 2) {
+                info.player = tmp2[1];
+              }
               parser(info);
             }
           }

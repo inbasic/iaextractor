@@ -31,12 +31,6 @@ Cu.import("resource://gre/modules/Services.jsm");
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 
-/** Internal Preferences **/
-if (!prefs.decoder_ver) {
-  prefs.decoder_ver = 1;
-  prefs.decoder_alg = '["r","s",2,"w",17,"w",61,"r","s",1,"w",7,"s",1]';
-}
-
 /** Internal configurations **/
 var config = {
   //URLs
@@ -77,9 +71,6 @@ var config = {
     }
   }
 }
-
-/** Update signature decoder from server **/
-update();
 
 var iPanel, rPanel, cmds, yButton, IDExtractor, welcome;
 
