@@ -444,7 +444,7 @@ welcome = function () {
   if (prefs.welcome) {
     timer.setTimeout(function () {
       tabs.open({
-        url: prefs.newVer == "install" ? config.urls.homepage : config.urls.update, 
+        url: prefs.newVer == "install" ? config.urls.homepage : config.urls.update + "?v=" + self.version, 
         inBackground : false
       });
     }, 3000);

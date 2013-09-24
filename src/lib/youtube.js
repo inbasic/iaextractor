@@ -1,5 +1,6 @@
 ﻿var prefs   = require("sdk/simple-prefs").prefs,
-    Request = require("sdk/request").Request;
+    Request = require("sdk/request").Request,
+    _       = require("sdk/l10n").get;
 
 function _getInfo(videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
@@ -157,7 +158,7 @@ function _getInfo(videoID, callback, pointer) {
         }
         var format = formatDictionary(videoFormatsPair.itag);
         if (!format) {
-          err = new Error('No such format for itag ' + data.itag + ' found');
+          //new Error('No such format for itag ' + data.itag + ' found');
         }
         for (var j in format) {
           videoFormatsPair[j] = format[j]
@@ -170,16 +171,22 @@ function _getInfo(videoID, callback, pointer) {
     }
     
     if (info.player && info.player != prefs.player) { // Request new codec
-      console.error('requesting new sig');
-    
+      console.error('local: requesting new sig');
       Request({
         url: "http://add0n.com/signature2.php?id=" + info.player,
         onComplete: function (response) {
+          if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
+        
           if (response.text) {
-            var tmp = response.text.split("\n");
-            prefs.player = tmp[0];
-            prefs.ccode = tmp[1];
-          
+            if (response.text && response.text.indexOf("Error") == -1) {
+              var tmp = response.text.split("\n");
+              prefs.player = tmp[0];
+              prefs.ccode = tmp[1];
+              console.error("server response: " + tmp[2]);
+            }
+            else {
+              throw _("err16") + " ... " + response.text;
+            }
             info.formats = _f ();
             if (callback) callback.apply(pointer, [info]);
           }
@@ -187,7 +194,7 @@ function _getInfo(videoID, callback, pointer) {
       }).get();
     }
     else {
-      console.error('Using cache');
+      console.error('local: Using cache');
     
       info.formats = _f ();
       if (callback) callback.apply(pointer, [info]);
