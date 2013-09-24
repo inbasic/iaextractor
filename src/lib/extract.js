@@ -63,11 +63,6 @@ function extract(stream, callback, pointer) {
     pointer += 4; // PreviousTagSize0 skipping
 
     if (pointer >= stream.length - 1) {
-Cc['@mozilla.org/consoleservice;1']
-            .getService(Ci.nsIConsoleService)
-            .logStringMessage("ooo");
-            
-            
       if (callback && callback.done) {
         callback.done.apply(pointer, [audio]);
       }

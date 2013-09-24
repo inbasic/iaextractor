@@ -1,4 +1,4 @@
-var iaextractor_parent = document.getElementById("watch-headline-title");
+var iaextractor_parent = window.content.document.getElementById('watch-headline-title');
 
 if (iaextractor_parent) {
   var button = document.createElement("button");
