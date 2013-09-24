@@ -12,27 +12,8 @@
     </div>
 
     <div id="global-container">
-
-      <div id="tabs" class="tabs">
-        <span id="preferences" class="tab"><div></div></span>
-        <span id="home" class="tab" selected="true"><div></div></span>
-        <span id="downloads" class="tab"><div></div></span>
-      </div>
-      <div id="selected"></div>      
-
       <div id="tabpanels" class="tabpanels">
         <div id="preferences-panel" class="tabpanel">
-          <div id="folder-preferences">
-            <span id="folder-title" data-l10n-id="download-folder"></span>
-            <span id="download-addition">
-              <label class="radio dlabel"><input type="radio" name="dinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
-              <label class="radio dlabel"><input type="radio" name="dinput" value="5"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
-            </span>
-          </div>
           <div id="container">           
             <span class="preference">
               <span id="folder-button" class="button"></span>
@@ -53,27 +34,6 @@
           </div>
         </div>
         <div id="home-panel" class="tabpanel" selected="true">
-          <div id="video-preferences">
-            <span id="format-addition">
-              <span class="format-title">Format:</span>
-              <span class="fcontainer">
-                <label class="radio"><input type="radio" name="finput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.FLV"/></label>
-                <label class="radio"><input type="radio" name="finput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.3GP"/></label>
-                <label class="radio"><input type="radio" name="finput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.MP4"/></label>
-                <label class="radio"><input type="radio" name="finput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.WebM"/></label>
-              </span>
-            </span>
-            <span id="quality-addition">
-              <span class="quality-title">Quality:</span>
-              <span class="qcontainer">
-                <label class="radio"><input type="radio" name="vinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD720p"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.High"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Medium"/></label>
-                <label class="radio"><input type="radio" name="vinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Small"/></label>
-              </span>              
-            </span>
-          </div>
           <div id="buttons">
             <div id="qd-container" class="mbutton">
               <div id="qd-toggle"></div>
@@ -101,6 +61,45 @@
           </div>
         </div>
         <div id="click-handler"></div>            
+      </div>
+
+      <div id="tabs" class="tabs">
+        <span id="preferences" class="tab"><div></div></span>
+        <span id="home" class="tab" selected="true"><div></div></span>
+        <span id="downloads" class="tab"><div></div></span>
+        <div id="selected"></div>      
+      </div>
+      <div id="folder-preferences">
+        <span id="folder-title" data-l10n-id="download-folder"></span>
+        <span id="download-addition">
+          <label class="radio dlabel"><input type="radio" name="dinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dft_dir"/></label>
+          <label class="radio dlabel"><input type="radio" name="dinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.hm_dir"/></label>
+          <label class="radio dlabel"><input type="radio" name="dinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.tmp_dir"/></label>
+          <label class="radio dlabel"><input type="radio" name="dinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.dsk_dir"/></label>
+          <label class="radio dlabel"><input type="radio" name="dinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.slt_fdr"/></label>
+          <label class="radio dlabel"><input type="radio" name="dinput" value="5"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="dFolder_options.urs_fdr"/></label>
+        </span>
+      </div>
+      <div id="video-preferences">
+        <span id="format-addition">
+          <span class="format-title">Format:</span>
+          <span class="fcontainer">
+            <label class="radio"><input type="radio" name="finput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.FLV"/></label>
+            <label class="radio"><input type="radio" name="finput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.3GP"/></label>
+            <label class="radio"><input type="radio" name="finput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.MP4"/></label>
+            <label class="radio"><input type="radio" name="finput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="extension_options.WebM"/></label>
+          </span>
+        </span>
+        <span id="quality-addition">
+          <span class="quality-title">Quality:</span>
+          <span class="qcontainer">
+            <label class="radio"><input type="radio" name="vinput" value="0"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD1080p"/></label>
+            <label class="radio"><input type="radio" name="vinput" value="1"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.HD720p"/></label>
+            <label class="radio"><input type="radio" name="vinput" value="2"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.High"/></label>
+            <label class="radio"><input type="radio" name="vinput" value="3"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Medium"/></label>
+            <label class="radio"><input type="radio" name="vinput" value="4"><div class="r"><div class="checked"></div></div><span class="text" data-l10n-id="quality_options.Small"/></label>
+          </span>              
+        </span>
       </div>
     </div>
   </body>

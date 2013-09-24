@@ -23,7 +23,6 @@ table {
   width: 300px;
   height: 30px;
   background-color: #FF6C09;
-  transform: translate(0px);
   -moz-user-select: none;
 }
 .tab {
@@ -40,12 +39,11 @@ table {
 }
 #selected {
   position: absolute;
-  bottom: 28px;
+  top: 0;
   height: 2px;
   width: 100px;
   background-color: white;
   transition: transform 300ms;
-  z-index: 1;
 }
 #home,
 #downloads,
@@ -88,6 +86,9 @@ table {
 #home-panel, 
 #downloads-panel,
 #preferences-panel {
+  -moz-user-select: none;
+}
+label {
   -moz-user-select: none;
 }
 input[type="radio"] {
@@ -170,12 +171,13 @@ label {
 }
 #download {
   background-image: -moz-image-rect(url("38.png"), 0, 76, 38, 38);
+  background-position: center 13px!important;
 }
 #download[type="active"] {
   background-image: -moz-image-rect(url("38.png"), 0, 38, 38, 0);
 }
 #links {
-  background-image: -moz-image-rect(url("38.png"), 0, 114, 38, 76);
+  background: #F79646 url("links.png") no-repeat center 10px;
   opacity: 0.5;
   cursor: default;
 }
@@ -188,11 +190,11 @@ label {
   cursor: pointer;
 }
 #tools {
-  background-image: url("tools.png");
+  background-image: -moz-image-rect(url("38.png"), 0, 152, 38, 114);
   margin-right: 8px;
 }
 #embed {
-  background-image: -moz-image-rect(url("38.png"), 0, 152, 38, 114);
+  background-image: -moz-image-rect(url("38.png"), 0, 114, 38, 76);
 }
 #qd-toggle {
   background-image: -moz-image-rect(url("16.png"), 0, 32, 16, 16);
@@ -207,6 +209,7 @@ label {
   background-color: #FF6C09;
   transition: transform 280ms;
   border-top: 1px solid white;
+  -moz-user-select: none;
 }
 #format-addition,
 #quality-addition {
@@ -256,8 +259,8 @@ label {
   background-repeat: no-repeat;
   background-position: center;
   position: absolute;
-  top: 4px;
-  left: 108px;
+  top: 6px;
+  left: 106px;
   opacity: 0.5;
   height: 16px;
   width: 16px;
@@ -276,7 +279,7 @@ label {
 #wrapper {
   position: absolute;
   left: 16px;
-  top: 14px;
+  top: 13px;
   width: 268px;
   height: 176px;
   overflow: hidden;
@@ -403,7 +406,7 @@ label {
 .checkbox input:checked + span {
   background-position: center;
   background-repeat: no-repeat;
-  background-image: -moz-image-rect(url("preferences.png"), 0, 64, 16, 48);
+  background-image: -moz-image-rect(url("preferences.png"), 0, 32, 16, 16);
 }
 .button {
   width: 22px;
@@ -424,7 +427,7 @@ label {
   background-color: rgba(255, 255, 255, 0.2);
 }
 #folder-button {
-  background-image: -moz-image-rect(url("preferences.png"), 0, 48, 16, 32);
+  background-image: -moz-image-rect(url("preferences.png"), 0, 16, 16, 0);
 }
 #folder-preferences {
   z-index: 1;
@@ -435,6 +438,7 @@ label {
   transition: transform 280ms;
   background-color: #FF6C09;
   border-top: 1px solid white;
+  -moz-user-select: none;
 }
 #download-addition {
   width: 300px;
