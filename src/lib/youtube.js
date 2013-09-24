@@ -169,11 +169,10 @@ function _getInfo(videoID, callback, pointer) {
       delete info.url_encoded_fmt_stream_map;
       return objs;
     }
-    
-    if (info.player && info.player != prefs.player) { // Request new codec
-      console.error('local: requesting new sig');
+    // Request new codec
+    if ((info.player || info.use_cipher_signature) && info.player != prefs.player) { // if there is no html5 player but ciphered signature ...
       Request({
-        url: "http://add0n.com/signature2.php?id=" + info.player,
+        url: "http://add0n.com/signature2.php?id=" + (info.player || ""),
         onComplete: function (response) {
           if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
         
@@ -182,7 +181,6 @@ function _getInfo(videoID, callback, pointer) {
               var tmp = response.text.split("\n");
               prefs.player = tmp[0];
               prefs.ccode = tmp[1];
-              console.error("server response: " + tmp[2]);
             }
             else {
               throw _("err16") + " ... " + response.text;
@@ -193,9 +191,7 @@ function _getInfo(videoID, callback, pointer) {
         }
       }).get();
     }
-    else {
-      console.error('local: Using cache');
-    
+    else {    
       info.formats = _f ();
       if (callback) callback.apply(pointer, [info]);
     }

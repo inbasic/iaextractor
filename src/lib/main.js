@@ -8,6 +8,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     panel         = require("sdk/panel"),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
+    Request       = require("sdk/request").Request,
     windowutils   = require("window-utils"),
     toolbarbutton = require("./toolbarbutton"),
     userstyles    = require("./userstyles"),
@@ -30,6 +31,17 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
+
+/** Check server status for signature updating **/
+Request({
+  url: "http://add0n.com/signature2.php?stat=reset",
+  onComplete: function (response) {
+    if (response.status == 200 && response.text == "y") {  //Reset old signatures
+      prefs.player = "";
+      prefs.ccode = "";
+    }
+  }
+}).get();
 
 /** Internal configurations **/
 var config = {
@@ -82,6 +94,9 @@ pageMod.PageMod({
   onAttach: function(worker) {
     worker.port.on("formats", function() {
       cmds.onShiftClick();
+    });
+    worker.port.on("page-update", function() {
+      monitor();
     });
   }
 });
