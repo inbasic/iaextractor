@@ -76,15 +76,6 @@
 #iaextractor-close:hover:active {
   opacity: 0.5;
 }
-#iaextractor-help {
-  top: 4px;
-  left: 2px;
-  transition: opacity 100ms!important;
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 48, 16, 32) no-repeat center!important;
-}
-#iaextractor-help:hover:active {
-  opacity: 0.5;
-}
 .iaextractor-dropdown {
   position: relative;
   transform: translate(10px, -23px);
@@ -115,62 +106,6 @@
   margin-left: 2px;
   border-radius: 200px;
   background-color: white;
-}
-
-/** Help Panel **/
-
-#iaextractor-help-panel {
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-  height: 390px;
-  background-color: #FF6C09!important;
-  transform: translate(0, 390px);
-  transition: transform 350ms;
-}
-#ia-h-img1 {
-  display: block;
-  width: 320px;
-  height: 131px;
-  margin: auto!important;
-  margin-top: 5px!important;
-  background-image: url("http://www.dropmocks.com/iBv4Zt")!important;
-}
-#ia-h-img2 {
-  display: block;
-  width: 320px;
-  height: 146px;
-  margin: auto!important;
-  margin-top: 5px!important;
-  background-image: url("http://www.dropmocks.com/iBv3Ll")!important;
-}
-#ia-h-feedback {
-  display: block;
-  width: 112px;
-  height: 32px;
-  cursor: pointer;
-  margin: auto!important;
-  margin-top: 18px!important;
-  text-decoration: none!important;
-  font-weight: 600!important;
-  font-size: 15px!important;
-  background: url("http://www.dropmocks.com/iBv4pS") no-repeat right center!important;
-}
-#ia-h-feedback:hover:active {
-  opacity: 0.5;
-}
-#ia-h-back {
-  display: block;
-  bottom: 10px;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  margin: auto!important;
-  margin-top: 28px!important;
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 64, 16, 48) no-repeat center!important;
-}
-#ia-h-back:hover:active {
-  opacity: 0.5;
 }
 
 /** Menu Items **/

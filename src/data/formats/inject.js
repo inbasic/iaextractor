@@ -87,14 +87,7 @@ var Menu = function (doSize) {
   player.insertAdjacentHTML("afterend", 
     '<div id="iaextractor-menu">' + //injected menu
     ' <span type="title">Download Links</span> ' +
-    ' <span id="iaextractor-help" class="iaextractor-button"></span>' +
-    ' <span id="iaextractor-close" class="iaextractor-button"><i></i></span>' +
-    ' <div id="iaextractor-help-panel">' +
-    '  <span id="ia-h-img1"></span>' +
-    '  <span id="ia-h-img2"></span>' +
-    '  <a href="https://github.com/inbasic/iaextractor/issues" target="newtab" id="ia-h-feedback">Support & Feedback</a>' +
-    '  <span id="ia-h-back"></span>' +
-    ' </div>' +
+    ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
     ' <div id="iaextractor-items"></div> ' +
     ' <span id="iaextractor-load"></span>' +
     ' <span id="iaextractor-tabs"></span> ' +
@@ -113,7 +106,6 @@ var Menu = function (doSize) {
       downloader = $("iaextractor-downloader"),
       selected = $("iaextractor-selected"),
       load = $("iaextractor-load"),
-      helpPanel = $("iaextractor-help-panel"),
       visible = [];
  
   var position = function(el, times) {
@@ -156,7 +148,7 @@ var Menu = function (doSize) {
     'margin-left: -' + width + 'px;'
   );
   tabs.setAttribute("style", 'width: ' + width + 'px;');
-  selected.style.transform = "translate(0)";
+  selected.style.transform = 'translate(0)';
 
   // Listeners
   tabs.addEventListener('click', function (e) {
@@ -232,15 +224,6 @@ var Menu = function (doSize) {
       format.audioBitrate,
       e.originalTarget == downloader.children[2] ? true : false
     );
-  }, false);
-  $("ia-h-back").addEventListener('click', function () {
-    helpPanel.style.transitionTimingFunction = "ease-in-out";   
-    helpPanel.style.transform = "translate(0, " + 390 + "px)"; 
-  }, false);
-  $("iaextractor-help").addEventListener('click', function () {
-    helpPanel.style.width = width + "px";
-    helpPanel.style.transitionTimingFunction = "ease";   
-    helpPanel.style.transform = "translate(0)";
   }, false);
   $("iaextractor-close").addEventListener('click', function (e) {
     remove("iaextractor-menu");
