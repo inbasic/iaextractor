@@ -52,7 +52,8 @@ var config = {
     homepage: "http://add0n.com/extractor.html",
     update: "http://add0n.com/extractor-updated.html",
     flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
-    downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/"
+    downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/",
+    instruction: "http://add0n.com/extractor.html#instruction"
   },
   //toolbar
   toolbar: {
@@ -386,6 +387,22 @@ cmds = {
           });
         });
         worker.port.on("download", function (fIndex) {
+          // Show instruction
+          if (!prefs.showInstruction) {
+            var prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+              .getService(Ci.nsIPromptService);
+            var check = {value: true};
+            var flags = prompts.BUTTON_POS_0 * prompts.BUTTON_TITLE_IS_STRING +
+                        prompts.BUTTON_POS_1 * prompts.BUTTON_TITLE_IS_STRING;
+
+            var button = prompts.confirmEx(null, _("msg17"), _("msg18"), flags, _("msg19"), _("msg20"), "", _("msg21"), check);
+                    prefs.showInstruction = check.value;
+            if (button == 1) {
+              timer.setTimeout(function () {
+                tabs.open("http://add0n.com/extractor.html#instruction");
+              }, 1000);
+            }
+          }
           cmds.onCommand(null, null, true, fIndex);
         });
         youtube.getInfo(videoID, function (vInfo) {
