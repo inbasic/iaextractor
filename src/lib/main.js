@@ -1004,14 +1004,17 @@ var downThemAll = (function () {
   return function (link, title, author, container, videoID, resolution, audioBitrate, turbo) {
     var fname = fileName(title, container, author, videoID, resolution, audioBitrate);
     if (DTA.saveSingleItem) {
+      var iOService = Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService)
       try {
         DTA.saveSingleItem(windowutils.activeBrowserWindow, turbo, {
-          url: link,
-          referrer: null,
+          url: new DTA.URL(iOService.newURI(link, "UTF-8", null)),
+          referrer: "",
           description: _("msg15"),
           fileName: fname,
           destinationName: fname,
-          mask: "*name*.*ext*"
+          isPrivate: false,
+          ultDescription: ""
         });
       }
       catch (e) {
