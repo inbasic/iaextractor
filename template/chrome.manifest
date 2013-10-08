@@ -1,3 +1,4 @@
 content   iaextractor resources/iaextractor/data/chrome/content/
 skin      iaextractor classic/1.0 resources/iaextractor/data/chrome/skin/classic/
 locale    iaextractor en-US resources/iaextractor/data/chrome/locale/en-US/
+locale    iaextractor es-ES resources/iaextractor/data/chrome/locale/es-ES/

@@ -230,13 +230,14 @@ label {
 .format-title,
 .quality-title {
   font-size: 13px;
+  text-align: center;
   display: block;
   height: 24px;
   position: absolute;
   margin-top: 38px;
 }
 .format-title {
-  padding-left: 8px;
+  width: 72px;
 }
 .fcontainer,
 .qcontainer {
@@ -246,7 +247,7 @@ label {
   padding-left: 5px;
 }
 .fcontainer {
-  width: 77px;
+  width: 70px;
   height: 76px;
   margin-top: 14px;
 }

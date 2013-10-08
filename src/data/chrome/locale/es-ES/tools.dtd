@@ -1,0 +1,15 @@
+<!ENTITY title "Herramientas - Youtube Video and Audio Downloader">
+<!ENTITY aac-to-mp3 "Convertidor AAC a MP3 (Herramienta Online)">
+<!ENTITY flv-to-aac "Extractor de audio FLV">
+<!ENTITY to-mp3 "Convertidor MP3">
+<!ENTITY drop1 "Arrastre y suelte un archivo de audio (*.AAC) aquí">
+<!ENTITY p1 "Solicitando permiso para convertir">
+<!ENTITY p2 "Subiendo archivo de audio al servidor">
+<!ENTITY p3 "Esperando que el servidor complete la conversión del archivo">
+<!ENTITY p4 "Estado del servidor:">
+<!ENTITY p5 "Descargando archivo convertido">
+<!ENTITY drop2 "Arrastre y suelte un archivo de video (*.FLV) aquí">
+<!ENTITY ffmpeg-path "Ubicación del archivo FFmpeg.exe:">
+<!ENTITY browse "Explorar...">
+<!ENTITY ffmpeg-input "Argumentos de entrada de FFmpeg">
+<!ENTITY drop3 "Arrastre y suelte un archivo de video aquí">

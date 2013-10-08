@@ -86,7 +86,7 @@ var Menu = function (doSize) {
   
   player.insertAdjacentHTML("afterend", 
     '<div id="iaextractor-menu">' + //injected menu
-    ' <span type="title">Download Links</span> ' +
+    ' <span type="title">Download Links</span> ' +    
     ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
     ' <div id="iaextractor-items"></div> ' +
     ' <span id="iaextractor-load"></span>' +
