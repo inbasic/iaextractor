@@ -263,7 +263,7 @@ var Menu = function (doSize) {
       tabs.style.display = tabIndex == 1 ? "none" : "block";
       selected.style.display = tabIndex == 1 ? "none" : "block";
       selected.style.width = tabWidth + 'px';
-      
+
       vInfo.formats.forEach (function (elem, index) {
         var url = elem.url + "&keepalive=yes&title=" + encodeURIComponent(vInfo.title);
         var a = html("a");

@@ -3,7 +3,7 @@
     _       = require("sdk/l10n").get;
 
 function _getInfo(videoID, callback, pointer) {
-  const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
+  const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=';
   
   var formatDictionary = function (id) {
     // itag, container, Video resolution, Video encoding, Video profile, Audio encoding, Audio bitrate (kbit/s)
@@ -27,22 +27,36 @@ function _getInfo(videoID, callback, pointer) {
       "83":  ["mp4",  "240",  "H.264",  "3D",       "aac", 96],
       "84":  ["mp4",  "720",  "H.264",  "3D",       "aac", 152],
       "85":  ["mp4",  "520",  "H.264",  "3D",       "aac", 152],
+      "100": ["webm", "360",  "VP8",    "3D",       "ogg", 128],
+      "101": ["webm", "360",  "VP8",    "3D",       "ogg", 192],
+      "102": ["webm", "720",  "VP8",    "3D",       "ogg", 192],
+      "120": ["flv",  "720",  "AVC",    "L3.1",     "aac", 128],
 //    "92":  ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
 //    "93":  ["mp4",  "360",  null,     "Apple",    "?",   "?"],  //Live Streaming
 //    "94":  ["mp4",  "480",  null,     "Apple",    "?",   "?"],  //Live Streaming
 //    "95":  ["mp4",  "720",  null,     "Apple",    "?",   "?"],  //Live Streaming
 //    "96":  ["mp4",  "1080", null,     "Apple",    "?",   "?"],  //Live Streaming
-      "100": ["webm", "360",  "VP8",    "3D",       "ogg", 128],
-      "101": ["webm", "360",  "VP8",    "3D",       "ogg", 192],
-      "102": ["webm", "720",  "VP8",    "3D",       "ogg", 192],
-      "120": ["flv",  "720",  "AVC",    "L3.1",     "aac", 128],
 //    "132": ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    "151": ["mp4",  "72",   null,     "Apple",    "?",   "?"],  //Live Streaming
       "139": ["m4a",  "48",   null,     "DASH A",   "aac", 38],   //Audio only
       "140": ["m4a",  "128",  null,     "DASH A",   "aac", 128],  //Audio only
       "141": ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio only
-//    "151": ["mp4",  "72",   null,     "Apple",    "?",   "?"],  //Live Streaming
       "171": ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio only
-      "172": ["webm", "256",  null,     "DASH A",   "ogg", 192]   //Audio only
+      "172": ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio only
+      "133": ["mp4",  "240",  null,     "DASH V",   null,  null], //Video only
+      "134": ["mp4",  "360",  null,     "DASH V",   null,  null], //Video only
+      "135": ["mp4",  "480",  null,     "DASH V",   null,  null], //Video only
+      "136": ["mp4",  "720",  null,     "DASH V",   null,  null], //Video only
+      "137": ["mp4",  "1080", null,     "DASH V",   null,  null], //Video only
+      "138": ["mp4",  "1080", null,     "DASH V",   null,  null], //Video only
+      "160": ["mp4",  "144",  null,     "DASH V",   null,  null], //Video only
+      "242": ["webm", "240",  null,     "DASH V",   null,  null], //Video only
+      "243": ["webm", "360",  null,     "DASH V",   null,  null], //Video only
+      "244": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
+      "245": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
+      "246": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
+      "247": ["webm", "720",  null,     "DASH V",   null,  null], //Video only
+      "248": ["webm", "1080", null,     "DASH V",   null,  null]  //Video only
     }
     if (!F[id]) return;
     var tmp = {
@@ -53,8 +67,11 @@ function _getInfo(videoID, callback, pointer) {
       audioEncoding: F[id][4],
       audioBitrate:  F[id][5],
     };
-    if (id == 139 || id == 140 || id == 141 || id == 171 || id == 172) {
-      tmp.quality = "audio";
+    if ((id >= 139 && id <= 141) || (id >= 171 && id <= 172)) {
+      tmp.quality = "audio only";
+    }
+    if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
+      tmp.quality = "video only";
     }
     return tmp;
   }
@@ -179,8 +196,6 @@ function _getInfo(videoID, callback, pointer) {
             }
           });
           videoFormatsPair.url = url + "&signature=" + sig.join("");
-          
-          console.error(videoFormatsPair.itag + " " + videoFormatsPair.url)
         }
         else {
           videoFormatsPair.url = url;
