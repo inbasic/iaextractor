@@ -2,6 +2,7 @@
 <!ENTITY aac-to-mp3 "AAC to MP3 Converter (Online Tool)">
 <!ENTITY flv-to-aac "FLV Audio Extractor">
 <!ENTITY to-mp3 "MP3 Converter">
+<!ENTITY mixer "Combine audio and video files">
 <!ENTITY drop1 "Drag and drop an audio file (*.AAC) here">
 <!ENTITY p1 "Requesting conversion permission">
 <!ENTITY p2 "Uploading the audio file to server">
@@ -13,3 +14,6 @@
 <!ENTITY browse "browse...">
 <!ENTITY ffmpeg-input "FFmpeg input arguments">
 <!ENTITY drop3 "Drag and drop a video file here">
+<!ENTITY drop4_1 "Drag and drop a video only file here">
+<!ENTITY drop4_2 "Drag and drop an audio only file here">
+<!ENTITY reset "Reset">

@@ -72,6 +72,12 @@ var require = function (id) {
         set ffmpegInputs (val) {
           return prefs.setCharPref("ffmpegInputs", val);
         },
+        get ffmpegInputs2 () {
+          return prefs.getCharPref("ffmpegInputs2");
+        },
+        set ffmpegInputs2 (val) {
+          return prefs.setCharPref("ffmpegInputs2", val);
+        }
       }
     }
   }
@@ -95,6 +101,7 @@ var require = function (id) {
     <tab label="&aac-to-mp3;"/>
     <tab label="&flv-to-aac;"/>
     <tab label="&to-mp3;"/>
+    <tab label="&mixer;"/>
   </tabs>
   <tabpanels flex="1">
     <tabpanel
@@ -168,18 +175,48 @@ var require = function (id) {
       ondrop="drag3.doDrop(event)">
       <vbox flex="1">
         <hbox align="center">
-          <label value="&ffmpeg-path;" />
-          <textbox id="ffmpeg-path" flex="1"/>
-          <button id="browse" label="&browse;"/>
+          <label value="&ffmpeg-path;"/>
+          <textbox id= "ffmpeg-path-1" flex="1" onchange="commands.ffmpeg_change(this.value)" onclick="commands.ffmpeg_click(this.value)"/>
+          <button label="&browse;" oncommand="commands.browse();"/>
         </hbox>
         <hbox align="center">
           <label value="&ffmpeg-input;" />
-          <textbox id="ffmpeg-input" flex="1"/>
+          <textbox id="ffmpeg-input" flex="1" onchange="commands.ffmpeg_command(this.value)"/>
         </hbox>
         <hbox align="center" pack="center" class="info" flex="1">
-        <label id="ffmpeg-info"  value="&drop3;"/>
+          <label id="ffmpeg-info" value="&drop3;"/>
         </hbox>
       </vbox>
+      </tabpanel>
+      <tabpanel orient="vertical">
+        <vbox>
+          <hbox align="center">
+            <label value="&ffmpeg-path;"/>
+            <textbox flex="1" id= "ffmpeg-path-2" onchange="commands.ffmpeg_change(this.value)" onclick="commands.ffmpeg_click(this.value)"/>
+            <button label="&browse;" oncommand="commands.browse();"/>
+          </hbox>
+          <hbox align="center">
+            <label value="&ffmpeg-input;" />
+            <textbox id="ffmpeg-input2" flex="1" onchange="commands.ffmpeg_command2(this.value)"/>
+          </hbox>
+        </vbox>
+        <hbox flex="1">
+          <vbox flex="1" align="center" pack="center"
+            ondragenter="return drag4.checkDrag(event)"
+            ondragover="return drag4.checkDrag(event)"
+            ondrop="drag4.doDrop(event, 1)">
+            <label id="video-only" value="&drop4_1;"/>
+            <button id="video-only-reset" label="&reset;" collapsed="true" oncommand="commands.reset(1)"/>
+          </vbox>
+          <toolbarseparator />
+          <vbox flex="1" align="center" pack="center"
+            ondragenter="return drag4.checkDrag(event)"
+            ondragover="return drag4.checkDrag(event)"
+            ondrop="drag4.doDrop(event, 2)">
+            <label id="audio-only" value="&drop4_2;"/>
+            <button id="audio-only-reset" label="&reset;" collapsed="true" oncommand="commands.reset(2)"/>
+          </vbox>
+        </hbox>
       </tabpanel>
   </tabpanels>
 </tabbox>

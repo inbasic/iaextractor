@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.1b2",
+  "version": "0.3.1b3",
   "lib": "lib",
   "main": "main",
   
@@ -140,6 +140,13 @@
     "description": "",
     "type": "string",
     "value": "-i %input -q:a 0 %output.mp3"
+  },
+  {
+    "name": "ffmpegInputs2",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "-i %audio -i %video -acodec copy -vcodec copy %output.mp4"
   },
   {
     "name": "welcome",

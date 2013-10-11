@@ -771,8 +771,16 @@ var getVideo = (function () {
       });
     }
     function onFile (vInfo, title, author) {
+      // Do not generate audio file if video has no sound or the file is audio only
+      if (
+        (vInfo.itag >= 133 && vInfo.itag <= 141) || 
+        vInfo.itag == 160 || 
+        (vInfo.itag >= 171 && vInfo.itag <= 172) || 
+        (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+        doExtract = false;
+      }
       // Do not generate audio file if video format is not FLV
-      if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
+      else if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
         timer.setTimeout(function () {
           notify(_('name'), _('msg5'))
@@ -916,10 +924,10 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg(obj.vFile, function () {
+        ffmpeg.ffmpeg(function () {
           listener.onExtractDone(id);
           afterExtract();
-        });
+        }, null, obj.vFile);
       }
     }
     function onSubtitle (obj) {

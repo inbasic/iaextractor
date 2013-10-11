@@ -71,7 +71,7 @@ function _getInfo(videoID, callback, pointer) {
       tmp.quality = "audio only";
     }
     if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
-      tmp.quality = "video only";
+      tmp.quality = F[id][1] + "p Video only";
     }
     return tmp;
   }
