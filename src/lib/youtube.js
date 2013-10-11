@@ -8,55 +8,55 @@ function _getInfo(videoID, callback, pointer) {
   var formatDictionary = function (id) {
     // itag, container, Video resolution, Video encoding, Video profile, Audio encoding, Audio bitrate (kbit/s)
     const F = {
-      "5":   ["flv",  "240",  "H.283",  null,       "mp3", 64],
-      "6":   ["flv",  "270",  "H.263",  null,       "mp3", 64],
-      "13":  ["3gp",  "N/A",  "MPEG-4", null,       "aac", null],
-      "17":  ["3gp",  "144",  "MPEG-4", "simple",   "aac", 24],
-      "18":  ["mp4",  "360",  "H.264",  "baseline", "aac", 96],
-      "22":  ["mp4",  "720",  "H.264",  "high",     "aac", 152],
-      "34":  ["flv",  "360",  "H.264",  "main",     "aac", 128],
-      "35":  ["flv",  "280",  "H.264",  "main",     "aac", 128],
-      "36":  ["3gp",  "240",  "MPEG-4", "simple",   "aac", 38],
-      "37":  ["mp4",  "1080", "H.264",  "high",     "aac", 152],
-      "38":  ["mp4",  "3072", "H.264",  "high",     "aac", 152],
-      "43":  ["webm", "360",  "VP8",    null,       "ogg", 128],
-      "44":  ["webm", "480",  "VP8",    null,       "ogg", 128],
-      "45":  ["webm", "720",  "VP8",    null,       "ogg", 192],
-      "46":  ["webm", "1080", "vp8",    null,       "ogg", 192],
-      "82":  ["mp4",  "360",  "H.264",  "3D",       "aac", 96],
-      "83":  ["mp4",  "240",  "H.264",  "3D",       "aac", 96],
-      "84":  ["mp4",  "720",  "H.264",  "3D",       "aac", 152],
-      "85":  ["mp4",  "520",  "H.264",  "3D",       "aac", 152],
-      "100": ["webm", "360",  "VP8",    "3D",       "ogg", 128],
-      "101": ["webm", "360",  "VP8",    "3D",       "ogg", 192],
-      "102": ["webm", "720",  "VP8",    "3D",       "ogg", 192],
-      "120": ["flv",  "720",  "AVC",    "L3.1",     "aac", 128],
-//    "92":  ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "93":  ["mp4",  "360",  null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "94":  ["mp4",  "480",  null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "95":  ["mp4",  "720",  null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "96":  ["mp4",  "1080", null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "132": ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
-//    "151": ["mp4",  "72",   null,     "Apple",    "?",   "?"],  //Live Streaming
-      "139": ["m4a",  "48",   null,     "DASH A",   "aac", 38],   //Audio only
-      "140": ["m4a",  "128",  null,     "DASH A",   "aac", 128],  //Audio only
-      "141": ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio only
-      "171": ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio only
-      "172": ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio only
-      "133": ["mp4",  "240",  null,     "DASH V",   null,  null], //Video only
-      "134": ["mp4",  "360",  null,     "DASH V",   null,  null], //Video only
-      "135": ["mp4",  "480",  null,     "DASH V",   null,  null], //Video only
-      "136": ["mp4",  "720",  null,     "DASH V",   null,  null], //Video only
-      "137": ["mp4",  "1080", null,     "DASH V",   null,  null], //Video only
-      "138": ["mp4",  "1080", null,     "DASH V",   null,  null], //Video only
-      "160": ["mp4",  "144",  null,     "DASH V",   null,  null], //Video only
-      "242": ["webm", "240",  null,     "DASH V",   null,  null], //Video only
-      "243": ["webm", "360",  null,     "DASH V",   null,  null], //Video only
-      "244": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
-      "245": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
-      "246": ["webm", "480",  null,     "DASH V",   null,  null], //Video only
-      "247": ["webm", "720",  null,     "DASH V",   null,  null], //Video only
-      "248": ["webm", "1080", null,     "DASH V",   null,  null]  //Video only
+      5:   ["flv",  "240",  "H.283",  null,       "mp3", 64],
+      6:   ["flv",  "270",  "H.263",  null,       "mp3", 64],
+      13:  ["3gp",  "N/A",  "MPEG-4", null,       "aac", null],
+      17:  ["3gp",  "144",  "MPEG-4", "simple",   "aac", 24],
+      18:  ["mp4",  "360",  "H.264",  "baseline", "aac", 96],
+      22:  ["mp4",  "720",  "H.264",  "high",     "aac", 152],
+      34:  ["flv",  "360",  "H.264",  "main",     "aac", 128],
+      35:  ["flv",  "280",  "H.264",  "main",     "aac", 128],
+      36:  ["3gp",  "240",  "MPEG-4", "simple",   "aac", 38],
+      37:  ["mp4",  "1080", "H.264",  "high",     "aac", 152],
+      38:  ["mp4",  "3072", "H.264",  "high",     "aac", 152],
+      43:  ["webm", "360",  "VP8",    null,       "ogg", 128],
+      44:  ["webm", "480",  "VP8",    null,       "ogg", 128],
+      45:  ["webm", "720",  "VP8",    null,       "ogg", 192],
+      46:  ["webm", "1080", "vp8",    null,       "ogg", 192],
+      82:  ["mp4",  "360",  "H.264",  "3D",       "aac", 96],
+      83:  ["mp4",  "240",  "H.264",  "3D",       "aac", 96],
+      84:  ["mp4",  "720",  "H.264",  "3D",       "aac", 152],
+      85:  ["mp4",  "520",  "H.264",  "3D",       "aac", 152],
+      100: ["webm", "360",  "VP8",    "3D",       "ogg", 128],
+      101: ["webm", "360",  "VP8",    "3D",       "ogg", 192],
+      102: ["webm", "720",  "VP8",    "3D",       "ogg", 192],
+      120: ["flv",  "720",  "AVC",    "L3.1",     "aac", 128],
+//    92:  ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    93:  ["mp4",  "360",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    94:  ["mp4",  "480",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    95:  ["mp4",  "720",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    96:  ["mp4",  "1080", null,     "Apple",    "?",   "?"],  //Live Streaming
+//    132: ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    151: ["mp4",  "72",   null,     "Apple",    "?",   "?"],  //Live Streaming
+      139: ["m4a",  "48",   null,     "DASH A",   "aac", 38],   //Audio-only
+      140: ["m4a",  "128",  null,     "DASH A",   "aac", 128],  //Audio-only
+      141: ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio-only
+      171: ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio-only
+      172: ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio-only
+      133: ["mp4",  "240",  null,     "DASH V",   null,  null], //Video-only
+      134: ["mp4",  "360",  null,     "DASH V",   null,  null], //Video-only
+      135: ["mp4",  "480",  null,     "DASH V",   null,  null], //Video-only
+      136: ["mp4",  "720",  null,     "DASH V",   null,  null], //Video-only
+      137: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
+      138: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
+      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
+      242: ["webm", "240",  null,     "DASH V",   null,  null], //Video-only
+      243: ["webm", "360",  null,     "DASH V",   null,  null], //Video-only
+      244: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      245: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      246: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      247: ["webm", "720",  null,     "DASH V",   null,  null], //Video-only
+      248: ["webm", "1080", null,     "DASH V",   null,  null]  //Video-only
     }
     if (!F[id]) return;
     var tmp = {
@@ -68,10 +68,10 @@ function _getInfo(videoID, callback, pointer) {
       audioBitrate:  F[id][5],
     };
     if ((id >= 139 && id <= 141) || (id >= 171 && id <= 172)) {
-      tmp.quality = "audio only";
+      tmp.quality = "audio-only";
     }
     if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
-      tmp.quality = F[id][1] + "p Video only";
+      tmp.quality = F[id][1] + "p Video-only";
     }
     return tmp;
   }
@@ -165,6 +165,7 @@ function _getInfo(videoID, callback, pointer) {
         if (videoFormatsPair['url'] == null) continue;
         url = videoFormatsPair['url'];
         if (videoFormatsPair['itag'] == null) continue;
+        videoFormatsPair['itag'] = parseInt(videoFormatsPair['itag']);
         itag = videoFormatsPair['itag'];
         if (videoFormatsPair['sig']) {
           videoFormatsPair['url'] = url + '&signature=' + videoFormatsPair['sig'];
@@ -340,6 +341,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       else {
         detected = info.formats[fIndex];
       }
+      detected.parent = info;
       if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
     });
   }

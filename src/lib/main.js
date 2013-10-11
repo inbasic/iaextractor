@@ -24,6 +24,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     format        = tools.format,
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
+    prompts2      = tools.prompts2,
     update        = tools.update
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -389,15 +390,9 @@ cmds = {
         worker.port.on("download", function (fIndex) {
           // Show instruction
           if (!prefs.showInstruction) {
-            var prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-              .getService(Ci.nsIPromptService);
-            var check = {value: true};
-            var flags = prompts.BUTTON_POS_0 * prompts.BUTTON_TITLE_IS_STRING +
-                        prompts.BUTTON_POS_1 * prompts.BUTTON_TITLE_IS_STRING;
-
-            var button = prompts.confirmEx(null, _("msg17"), _("msg18"), flags, _("msg19"), _("msg20"), "", _("msg21"), check);
-                    prefs.showInstruction = check.value;
-            if (button == 1) {
+            var tmp = prompts2(_("msg17"), _("msg18"), _("msg19"), _("msg20"), _("msg21"), true);
+            prefs.showInstruction = tmp.check.value;
+            if (tmp.button == 1) {
               timer.setTimeout(function () {
                 tabs.open("http://add0n.com/extractor.html#instruction");
               }, 1000);
@@ -753,10 +748,33 @@ var listener = (function () {
   }
 })();
 
+var batch = (function () {
+  var cache = {};
+  var files = {};
+  return {
+    add: function (id) {
+      cache[id] = 2;
+    },
+    execute: function (id, file, callback, pointer) {
+      cache[id] -= 1;
+      if (cache[id] == 1) {
+        files[id] = file;
+        if (callback) callback.apply(pointer);
+      }
+      else {
+        ffmpeg.ffmpeg (function () {
+          if (callback) callback.apply(pointer);
+        }, null, files[id], file);
+      }
+    }
+  }
+})();
+
 /** Call this with new **/
 var getVideo = (function () {
-  return function (videoID, listener, fIndex) {
+  return function (videoID, listener, fIndex, callback, pointer) {
     var doExtract = prefs.doExtract;
+    var batchID;  // For batch job
   
     function onDetect () {
       listener.onDetectStart();
@@ -771,7 +789,7 @@ var getVideo = (function () {
       });
     }
     function onFile (vInfo, title, author) {
-      // Do not generate audio file if video has no sound or the file is audio only
+      // Do not generate audio file if video has no sound or the file is audio-only
       if (
         (vInfo.itag >= 133 && vInfo.itag <= 141) || 
         vInfo.itag == 160 || 
@@ -786,6 +804,54 @@ var getVideo = (function () {
           notify(_('name'), _('msg5'))
         }, config.noAudioExtraction * 1000);
         doExtract = false;
+      }
+      // Download proper audio file if video-only format is selected
+      if ((vInfo.itag >= 133 && vInfo.itag <= 138) || vInfo.itag == 160 || (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+        if (!prefs.showAudioDownloadInstruction) {
+          var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
+          prefs.showAudioDownloadInstruction = tmp.check.value;
+          prefs.doBatchMode = tmp.button == 0;
+        }
+        if (prefs.doBatchMode) {
+          // Selecting the audio file
+          var tmp = vInfo.parent.formats.filter(function (a) {
+            return [140, 141, 139, 171, 172].indexOf(a.itag) != -1;
+          });
+          if (tmp && tmp.length) {
+            var afIndex;
+            if ([133, 160, 242].indexOf(vInfo.itag) != -1) {  // Low quality
+              tmp.sort(function (a, b) {
+                var i = [140, 171, 139, 172, 141].indexOf(a.itag),
+                    j = [140, 171, 139, 172, 141].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            else if ([134, 135, 243, 244, 245, 246].indexOf(vInfo.itag) != -1) { // Medium quality
+              tmp.sort(function (a, b) {
+                var i = [140, 171, 172, 141, 139].indexOf(a.itag),
+                    j = [140, 171, 172, 141, 139].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            else {  //High quality
+              tmp.sort(function (a, b) {
+                var i = [141, 172, 140, 171, 139].indexOf(a.itag),
+                    j = [141, 172, 140, 171, 139].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            afIndex = tmp[0].itag;
+            batchID = Math.floor((Math.random()*10000)+1);
+            batch.add(batchID);
+            vInfo.parent.formats.forEach (function (a, index) {
+              if (a.itag == afIndex) {
+                new getVideo(videoID, listener, index, function (f) {
+                  batch.execute(batchID, f);
+                });
+              }
+            });
+          }
+        }
       }
       var vFile;
       //Select folder by nsIFilePicker
@@ -912,6 +978,8 @@ var getVideo = (function () {
             tabs.open(obj.vFile.parent.path);
           }
         }
+        if (callback) callback.apply(pointer, [obj.vFile]);
+        if (batchID) batch.execute(batchID, obj.vFile);
       }
       if (!doExtract) {
         return afterExtract();

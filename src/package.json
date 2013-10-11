@@ -149,6 +149,13 @@
     "value": "-i %audio -i %video -acodec copy -vcodec copy %output.mp4"
   },
   {
+    "name": "doBatchMode",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "welcome",
     "title": "",
     "type": "bool",

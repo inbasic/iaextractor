@@ -14,6 +14,6 @@
 <!ENTITY browse "browse...">
 <!ENTITY ffmpeg-input "FFmpeg input arguments">
 <!ENTITY drop3 "Drag and drop a video file here">
-<!ENTITY drop4_1 "Drag and drop a video only file here">
-<!ENTITY drop4_2 "Drag and drop an audio only file here">
+<!ENTITY drop4_1 "Drag and drop a video-only file here">
+<!ENTITY drop4_2 "Drag and drop an audio-only file here">
 <!ENTITY reset "Reset">

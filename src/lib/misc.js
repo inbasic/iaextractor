@@ -51,6 +51,24 @@ var prompts = (function () {
 })();
 exports.prompts = prompts;
 
+/** Prompt2 **/
+var prompts2 = (function () {
+  let prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+    .getService(Ci.nsIPromptService);
+
+  return function (title, content, strButton0, strButton1, strCheck, checked) {
+    var check = {value: checked};
+    var flags = prompts.BUTTON_POS_0 * (strButton0 ? prompts.BUTTON_TITLE_IS_STRING : prompts.BUTTON_TITLE_YES) +
+                prompts.BUTTON_POS_1 * (strButton1 ? prompts.BUTTON_TITLE_IS_STRING : prompts.BUTTON_TITLE_NO);
+    var button = prompts.confirmEx(null, title, content, flags, strButton0 || "", strButton1 || "", "", strCheck, check);
+    return {
+      button: button,
+      check: check
+    }
+  }
+})();
+exports.prompts2 = prompts2;
+
 /** Calculate file size **/
 var cache = {};
 var calculate = function (url, callback, pointer) {
