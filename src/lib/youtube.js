@@ -164,6 +164,7 @@ function _getInfo(videoID, callback, pointer) {
         }
         if (videoFormatsPair['url'] == null) continue;
         url = videoFormatsPair['url'];
+        if (url.indexOf("ratebypass") == -1) url += "&ratebypass=yes";
         if (videoFormatsPair['itag'] == null) continue;
         videoFormatsPair['itag'] = parseInt(videoFormatsPair['itag']);
         itag = videoFormatsPair['itag'];
