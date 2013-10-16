@@ -471,12 +471,15 @@ welcome = function () {
   if (prefs.welcome) {
     timer.setTimeout(function () {
       tabs.open({
-        url: prefs.newVer == "install" ? config.urls.homepage : config.urls.update + "?v=" + self.version, 
+        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update + "?v=" + self.version), 
         inBackground : false
       });
+      prefs.newVer = "";
     }, 3000);
   }
-  prefs.newVer = "";
+  else {
+    prefs.newVer = "";
+  }
 }
 
 /** Monitor **/
