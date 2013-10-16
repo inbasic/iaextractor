@@ -699,7 +699,12 @@ var listener = (function () {
     },
     onDetectDone: function () {},
     onDownloadStart: function (dl) {
-      rPanel.port.emit('download-start', dl.id, dl.displayName, _("msg6"));
+      rPanel.port.emit(
+        'download-start', 
+        dl.id, 
+        dl.displayName ? dl.displayName : (new FileUtils.File(dl.target.path)).leafName, 
+        _("msg6")
+      );
     },
     onDownloadPaused: function (dl) {
       rPanel.port.emit('download-paused', dl.id, _("msg12"));
@@ -741,9 +746,7 @@ var listener = (function () {
     },
     onError: remove,
     cancel: function (id) {
-      var dm = Cc["@mozilla.org/download-manager;1"]
-        .getService(Ci.nsIDownloadManager);
-      dm.cancelDownload(id);
+      download.cancel(id);
     }
   }
 })();
@@ -954,7 +957,9 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
-      listener.onDownloadStart(dr(vInfo.url, obj.vFile));
+      dr(vInfo.url, obj.vFile, null, false, function (dl) {
+        listener.onDownloadStart(dl);
+      });
       notify(
         _('name'), 
         _('msg3').replace("%1", vInfo.quality)
@@ -987,8 +992,16 @@ var getVideo = (function () {
       listener.onExtractStart(id);
       if (vInfo.container == "flv") {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
-          listener.onExtractDone(id);
-          afterExtract(prefs.extension == "0" ? e : null);
+          if (e && prefs.ffmpegPath) {
+            ffmpeg.ffmpeg(function () {
+              listener.onExtractDone(id);
+              afterExtract();
+            }, null, obj.vFile);
+          }
+          else {
+            listener.onExtractDone(id);
+            afterExtract(prefs.extension == "0" ? e : null);
+          }
         });
       }
       else {
