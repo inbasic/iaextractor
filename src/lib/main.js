@@ -155,6 +155,10 @@ rPanel.port.on("cmd", function (cmd) {
   case "cancel":
     listener.cancel(parseInt(arguments[1]));
     break;
+  case "settings":
+    windowutils.activeBrowserWindow.BrowserOpenAddonsMgr(
+      "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
+    break;
   }
 });
 rPanel.on("show", function() {

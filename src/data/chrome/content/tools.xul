@@ -177,7 +177,7 @@ var require = function (id) {
         <hbox align="center">
           <label value="&ffmpeg-path;"/>
           <textbox id= "ffmpeg-path-1" flex="1" onchange="commands.ffmpeg_change(this.value)" onclick="commands.ffmpeg_click(this.value)"/>
-          <button label="&browse;" oncommand="commands.browse();"/>
+          <button id="browse" label="&browse;" oncommand="commands.browse();"/>
         </hbox>
         <hbox align="center">
           <label value="&ffmpeg-input;" />
