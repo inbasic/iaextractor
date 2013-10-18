@@ -384,6 +384,9 @@ label {
   padding-left: 8px;
 }
 .checkBox {
+  width: 25px;
+  height: 22px;
+  margin-bottom: 7px;
   display: inline-block;
 }
 .checkbox span {
@@ -391,7 +394,6 @@ label {
   height: 22px;
   display: block;
   cursor: pointer;
-  margin-bottom: 5px;
   border: 1px solid white;
   transition: background-color 110ms;
 }
@@ -429,6 +431,9 @@ label {
 }
 #folder-button {
   background-image: -moz-image-rect(url("preferences.png"), 0, 16, 16, 0);
+}
+#settings-button {
+  background-image: -moz-image-rect(url("preferences.png"), 0, 48, 16, 32);
 }
 #folder-preferences {
   z-index: 1;

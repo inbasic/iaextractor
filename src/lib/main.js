@@ -158,6 +158,7 @@ rPanel.port.on("cmd", function (cmd) {
   case "settings":
     windowutils.activeBrowserWindow.BrowserOpenAddonsMgr(
       "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
+    rPanel.hide();
     break;
   }
 });
