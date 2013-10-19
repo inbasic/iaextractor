@@ -462,6 +462,9 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
+  if (options.loadReason == "install" && !prefs.ffmpegPath) {
+    windowutils.activeBrowserWindow.alert (_("msg24"));
+  }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -476,7 +479,7 @@ welcome = function () {
   if (prefs.welcome) {
     timer.setTimeout(function () {
       tabs.open({
-        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update + "?v=" + self.version), 
+        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version, 
         inBackground : false
       });
       prefs.newVer = "";
@@ -800,11 +803,10 @@ var getVideo = (function () {
       });
     }
     function onFile (vInfo, title, author) {
-      // Do not generate audio file if video has no sound or the file is audio-only
+      // Do not generate audio file if video has no sound track
       if (
-        (vInfo.itag >= 133 && vInfo.itag <= 141) || 
+        (vInfo.itag >= 133 && vInfo.itag <= 138) || 
         vInfo.itag == 160 || 
-        (vInfo.itag >= 171 && vInfo.itag <= 172) || 
         (vInfo.itag >= 242 && vInfo.itag <= 248)) {
         doExtract = false;
       }
