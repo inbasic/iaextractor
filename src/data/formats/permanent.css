@@ -59,8 +59,8 @@
 .iaextractor-button {
   position: absolute;
   display: inline-block;
-  width: 32px;
-  height: 30px;
+  width: 40px;
+  height: 20px;
   line-height: 36px;
   text-align: center;
 }
@@ -68,13 +68,16 @@
   cursor: pointer;
 }
 #iaextractor-close {
-  top: 4px;
-  right: 2px;
-  transition: opacity 100ms!important;
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 32, 16, 16) no-repeat center!important;
+  top: 0;
+  right: 0;
+  transition: background 100ms!important;
+  background: #F79646 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/images.png), 0, 32, 16, 16) no-repeat center!important;
+}
+#iaextractor-close:hover {
+  background-color: #FFA05A!important;
 }
 #iaextractor-close:hover:active {
-  opacity: 0.5;
+  background-color: #FF8830!important;
 }
 .iaextractor-dropdown {
   position: relative;
