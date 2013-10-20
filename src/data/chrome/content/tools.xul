@@ -182,6 +182,7 @@ var require = function (id) {
         <hbox align="center">
           <label value="&ffmpeg-input;" />
           <textbox id="ffmpeg-input" flex="1" onchange="commands.ffmpeg_command(this.value)"/>
+          <button label="&reset;" oncommand="commands.reset1();"/>
         </hbox>
         <hbox align="center" pack="center" class="info" flex="1">
           <label id="ffmpeg-info" value="&drop3;"/>
@@ -198,6 +199,7 @@ var require = function (id) {
           <hbox align="center">
             <label value="&ffmpeg-input;" />
             <textbox id="ffmpeg-input2" flex="1" onchange="commands.ffmpeg_command2(this.value)"/>
+            <button label="&reset;" oncommand="commands.reset2();"/>
           </hbox>
         </vbox>
         <hbox flex="1">

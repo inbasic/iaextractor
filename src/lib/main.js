@@ -1131,6 +1131,29 @@ var downThemAll = (function () {
   }
 })();
 
+/** Reset all settings **/
+sp.on("reset", function() {
+  if (!windowutils.activeBrowserWindow.confirm(_("msg25"))) return
+  
+  prefs.extension = 0;
+  prefs.quality = 2
+  prefs.doExtract = true;
+  prefs.doSubtitle = false;
+  prefs.subtitleLang = 0;
+  prefs.namePattern = "[file_name].[extension]";
+  prefs.dFolder = 3;
+  prefs.getFileSize = true;
+  prefs.open = false;
+  prefs.downloadHKey = "Accel + Shift + Q";
+  prefs.oneClickDownload = false;
+  prefs.silentOneClickDownload = true;
+  prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
+  prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+  prefs.doBatchMode = true;
+  prefs.welcome = true;
+  prefs.forceVisible = true
+});
+
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
 var notify = (function () {

@@ -167,5 +167,11 @@
     "description": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "reset",
+    "type": "control",
+    "label": "",
+    "title": ""
   }]
 }

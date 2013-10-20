@@ -387,7 +387,15 @@ var commands = {
       commands.ffmpeg_change(fp.file.path);
       $("notify").removeAllNotifications();
     }
-  }
+  },
+  reset1: function () {
+    prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
+    $("ffmpeg-input").value = prefs.ffmpegInputs;
+  },
+  reset2: function () {
+    prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+    $("ffmpeg-input2").value = prefs.ffmpegInputs2;
+  },
 }
 
 window.addEventListener("load", function () {
