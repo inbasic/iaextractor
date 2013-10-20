@@ -786,8 +786,8 @@ var batch = (function () {
 
 /** Call this with new **/
 var getVideo = (function () {
-  return function (videoID, listener, fIndex, callback, pointer) {
-    var doExtract = prefs.doExtract;
+  return function (videoID, listener, fIndex, noAudio, callback, pointer) {
+    var doExtract = noAudio ? false : prefs.doExtract;
     var batchID;  // For batch job
   
     function onDetect () {
@@ -858,7 +858,7 @@ var getVideo = (function () {
             batch.add(batchID);
             vInfo.parent.formats.forEach (function (a, index) {
               if (a.itag == afIndex) {
-                new getVideo(videoID, listener, index, function (f) {
+                new getVideo(videoID, listener, index, true, function (f) {
                   batch.execute(batchID, f);
                 });
               }
