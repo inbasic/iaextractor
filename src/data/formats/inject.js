@@ -86,7 +86,7 @@ var Menu = function (doSize) {
   
   player.insertAdjacentHTML("afterend", 
     '<div id="iaextractor-menu">' + //injected menu
-    ' <span type="title">Download Links</span> ' +
+    ' <span type="title">Download Links</span> ' +    
     ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
     ' <div id="iaextractor-items"></div> ' +
     ' <span id="iaextractor-load"></span>' +
@@ -239,7 +239,7 @@ var Menu = function (doSize) {
         case "hd1080":
           return "1080p";
         default:
-          return str.toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
+          return (str || "").toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
         }
       }
       //Remove loading icon
@@ -263,7 +263,7 @@ var Menu = function (doSize) {
       tabs.style.display = tabIndex == 1 ? "none" : "block";
       selected.style.display = tabIndex == 1 ? "none" : "block";
       selected.style.width = tabWidth + 'px';
-      
+
       vInfo.formats.forEach (function (elem, index) {
         var url = elem.url + "&keepalive=yes&title=" + encodeURIComponent(vInfo.title);
         var a = html("a");
@@ -279,8 +279,7 @@ var Menu = function (doSize) {
         a.appendChild(dropdown);
         text.textContent = 
           elem.container.toUpperCase() + " " + map(elem.quality) +
-          " - " +
-          elem.audioEncoding.toUpperCase() + " " + elem.audioBitrate + "K";
+          (elem.audioEncoding ? " - " + elem.audioEncoding.toUpperCase() + " " + elem.audioBitrate + "K" : "");
           
         var i = Math.floor(index / numbersPerPage);
         items.children[i].appendChild(a);

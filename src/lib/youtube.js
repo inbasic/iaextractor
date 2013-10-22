@@ -3,44 +3,77 @@
     _       = require("sdk/l10n").get;
 
 function _getInfo(videoID, callback, pointer) {
-  const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=';
+  const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=';
   
   var formatDictionary = function (id) {
-    // itag, container, Video resolution, Video encoding, Video profile, Video bitrate (Mbit/s), Audio encoding, Audio bitrate (kbit/s)
+    // itag, container, Video resolution, Video encoding, Video profile, Audio encoding, Audio bitrate (kbit/s)
     const F = {
-      "5":   ["flv",  "240",  "H.283",  null,       "0.25",  "mp3", 64],
-      "6":   ["flv",  "270",  "H.263",  null,       "0.8",   "mp3", 64],
-      "13":  ["3gp",  "N/A",  "MPEG-4", null,       "0.5",   "aac", null],
-      "17":  ["3gp",  "144",  "MPEG-4", "simple",   "0.05",  "aac", 24],
-      "18":  ["mp4",  "360",  "H.264",  "baseline", "0.5",   "aac", 96],
-      "22":  ["mp4",  "720",  "H.264",  "high",     "2-2.9", "aac", 152],
-      "34":  ["flv",  "360",  "H.264",  "main",     "0.5",   "aac", 128],
-      "35":  ["flv",  "280",  "H.264",  "main",     "0.8-1", "aac", 128],
-      "36":  ["3gp",  "240",  "MPEG-4", "simple",   "0.17",  "aac", 38],
-      "37":  ["mp4",  "1080", "H.264",  "high",     "3-4.3", "aac", 152],
-      "38":  ["mp4",  "3072", "H.264",  "high",     "3.5-5", "aac", 152],
-      "43":  ["webm", "360",  "VP8",    null,       "0.5",   "ogg", 128],
-      "44":  ["webm", "480",  "VP8",    null,       "1",     "ogg", 128],
-      "45":  ["webm", "720",  "VP8",    null,       "2",     "ogg", 192],
-      "46":  ["webm", "1080", "vp8",    null,       null,    "ogg", 192],
-      "82":  ["mp4",  "360",  "H.264",  "3D",       "0.5",   "aac", 96],
-      "83":  ["mp4",  "240",  "H.264",  "3D",       "0.5",   "aac", 96],
-      "84":  ["mp4",  "720",  "H.264",  "3D",       "2-2.9", "aac", 152],
-      "85":  ["mp4",  "520",  "H.264",  "3D",       "2-2.9", "aac", 152],
-      "100": ["webm", "360",  "VP8",    "3D",       null,    "ogg", 128],
-      "101": ["webm", "360",  "VP8",    "3D",       null,    "ogg", 192],
-      "102": ["webm", "720",  "VP8",    "3D",       null,    "ogg", 192],
-      "120": ["flv",  "720",  "AVC",    "L3.1",     2,       "aac", 128]
+      5:   ["flv",  "240",  "H.283",  null,       "mp3", 64],
+      6:   ["flv",  "270",  "H.263",  null,       "mp3", 64],
+      13:  ["3gp",  "N/A",  "MPEG-4", null,       "aac", null],
+      17:  ["3gp",  "144",  "MPEG-4", "simple",   "aac", 24],
+      18:  ["mp4",  "360",  "H.264",  "baseline", "aac", 96],
+      22:  ["mp4",  "720",  "H.264",  "high",     "aac", 152],
+      34:  ["flv",  "360",  "H.264",  "main",     "aac", 128],
+      35:  ["flv",  "280",  "H.264",  "main",     "aac", 128],
+      36:  ["3gp",  "240",  "MPEG-4", "simple",   "aac", 38],
+      37:  ["mp4",  "1080", "H.264",  "high",     "aac", 152],
+      38:  ["mp4",  "3072", "H.264",  "high",     "aac", 152],
+      43:  ["webm", "360",  "VP8",    null,       "ogg", 128],
+      44:  ["webm", "480",  "VP8",    null,       "ogg", 128],
+      45:  ["webm", "720",  "VP8",    null,       "ogg", 192],
+      46:  ["webm", "1080", "vp8",    null,       "ogg", 192],
+      82:  ["mp4",  "360",  "H.264",  "3D",       "aac", 96],
+      83:  ["mp4",  "240",  "H.264",  "3D",       "aac", 96],
+      84:  ["mp4",  "720",  "H.264",  "3D",       "aac", 152],
+      85:  ["mp4",  "520",  "H.264",  "3D",       "aac", 152],
+      100: ["webm", "360",  "VP8",    "3D",       "ogg", 128],
+      101: ["webm", "360",  "VP8",    "3D",       "ogg", 192],
+      102: ["webm", "720",  "VP8",    "3D",       "ogg", 192],
+      120: ["flv",  "720",  "AVC",    "L3.1",     "aac", 128],
+//    92:  ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    93:  ["mp4",  "360",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    94:  ["mp4",  "480",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    95:  ["mp4",  "720",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    96:  ["mp4",  "1080", null,     "Apple",    "?",   "?"],  //Live Streaming
+//    132: ["mp4",  "240",  null,     "Apple",    "?",   "?"],  //Live Streaming
+//    151: ["mp4",  "72",   null,     "Apple",    "?",   "?"],  //Live Streaming
+      139: ["m4a",  "48",   null,     "DASH A",   "aac", 38],   //Audio-only
+      140: ["m4a",  "128",  null,     "DASH A",   "aac", 128],  //Audio-only
+      141: ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio-only
+      171: ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio-only
+      172: ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio-only
+      133: ["mp4",  "240",  null,     "DASH V",   null,  null], //Video-only
+      134: ["mp4",  "360",  null,     "DASH V",   null,  null], //Video-only
+      135: ["mp4",  "480",  null,     "DASH V",   null,  null], //Video-only
+      136: ["mp4",  "720",  null,     "DASH V",   null,  null], //Video-only
+      137: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
+      138: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
+      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
+      242: ["webm", "240",  null,     "DASH V",   null,  null], //Video-only
+      243: ["webm", "360",  null,     "DASH V",   null,  null], //Video-only
+      244: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      245: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      246: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
+      247: ["webm", "720",  null,     "DASH V",   null,  null], //Video-only
+      248: ["webm", "1080", null,     "DASH V",   null,  null]  //Video-only
     }
-    return {
+    if (!F[id]) return;
+    var tmp = {
       container:     F[id][0],
       resolution:    F[id][1] + "p",
       encoding:      F[id][2],
       profile:       F[id][3],
-      bitrate:       F[id][4],
-      audioEncoding: F[id][5],
-      audioBitrate:  F[id][6],
+      audioEncoding: F[id][4],
+      audioBitrate:  F[id][5],
+    };
+    if ((id >= 139 && id <= 141) || (id >= 171 && id <= 172)) {
+      tmp.quality = "audio-only";
     }
+    if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
+      tmp.quality = F[id][1] + "p Video-only";
+    }
+    return tmp;
   }
 
   function quary(str) {
@@ -48,7 +81,7 @@ function _getInfo(videoID, callback, pointer) {
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      if (pair[0] == "url_encoded_fmt_stream_map") {
+      if (pair[0] == "url_encoded_fmt_stream_map" || pair[0] == "adaptive_fmts") {
         temp[pair[0]] = unescape(pair[1]);
       }
       else {
@@ -99,17 +132,25 @@ function _getInfo(videoID, callback, pointer) {
       info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
     }
     
-    var _f = function () {
-      videoFormats = info.url_encoded_fmt_stream_map;
-
-      // parse the formats map
-      var sep1 = '%2C', sep2 = '%26', sep3 = '%3D';
-      if (videoFormats.indexOf(',') > -1) {
-        sep1 = ',';
-        sep2 = (videoFormats.indexOf('&') > -1) ? '&' : '\\u0026';
-        sep3 = '=';
+    var _f = function () {      // parse the formats map
+      var sep1 = ',', sep2 = '&', sep3 = '=', videoFormats;
+      if (info.url_encoded_fmt_stream_map && info.adaptive_fmts) {
+        videoFormats = 
+          info.url_encoded_fmt_stream_map.replace(/\\u0026/g, "&").replace(/\\\//g, '/') + 
+          sep1 + 
+          info.adaptive_fmts.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
       }
-
+      else if (info.url_encoded_fmt_stream_map) {
+        videoFormats = 
+          info.url_encoded_fmt_stream_map.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
+      }
+      else if (info.adaptive_fmts) {
+        videoFormats = 
+          info.adaptive_fmts.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
+      }
+      else {
+        return null;
+      }
       var objs = new Array();
       var videoFormatsGroup = videoFormats.split(sep1);
       for (var i = 0; i < videoFormatsGroup.length; i++) {
@@ -118,16 +159,18 @@ function _getInfo(videoID, callback, pointer) {
         for (var j = 0; j < videoFormatsElem.length; j++) {
           var pair = videoFormatsElem[j].split(sep3);
           if (pair.length == 2) {
-            videoFormatsPair[pair[0]] = pair[1];
+            videoFormatsPair[pair[0]] = decodeURIComponent(unescape(unescape(pair[1])));
           }
         }
         if (videoFormatsPair['url'] == null) continue;
-        url = unescape(unescape(videoFormatsPair['url'])).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+        url = videoFormatsPair['url'];
+        if (url.indexOf("ratebypass") == -1) url += "&ratebypass=yes";
         if (videoFormatsPair['itag'] == null) continue;
+        videoFormatsPair['itag'] = parseInt(videoFormatsPair['itag']);
         itag = videoFormatsPair['itag'];
         if (videoFormatsPair['sig']) {
           videoFormatsPair['url'] = url + '&signature=' + videoFormatsPair['sig'];
-        } 
+        }
         else if (videoFormatsPair['s']) {
           var sig = (videoFormatsPair['s'] + "").split("");
           function swap(arr, b) {
@@ -156,10 +199,11 @@ function _getInfo(videoID, callback, pointer) {
           });
           videoFormatsPair.url = url + "&signature=" + sig.join("");
         }
-        var format = formatDictionary(videoFormatsPair.itag);
-        if (!format) {
-          //new Error('No such format for itag ' + data.itag + ' found');
+        else {
+          videoFormatsPair.url = url;
         }
+        var format = formatDictionary(videoFormatsPair.itag);
+        if (!format) continue;
         for (var j in format) {
           videoFormatsPair[j] = format[j]
         }
@@ -167,6 +211,7 @@ function _getInfo(videoID, callback, pointer) {
       }
 
       delete info.url_encoded_fmt_stream_map;
+      delete info.adaptive_fmts;
       return objs;
     }
     // Request new codec
@@ -203,18 +248,22 @@ function _getInfo(videoID, callback, pointer) {
       if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
 
       var info = quary(response.text);
-      if (response.text.indexOf("use_cipher_signature=True") != -1) {
+      if (true) {
+
+      
         Request({
           url: "http://www.youtube.com/watch?v=" + videoID,
           onComplete: function (response) {
             if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
 
-            var tmp = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
-            if (!tmp || !tmp.length) {
-              throw 'Error: Cannot detect url_encoded_fmt_stream_map from HTML file.';
-            } 
+            var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
+            var tmp2 = /adaptive\_fmts\"\:\ \"([^\"]*)/.exec(response.text);
+            if (!tmp1 && !tmp2) {
+              throw 'Error: Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the HTML file.';
+            }
             else {
-              info.url_encoded_fmt_stream_map = tmp[1];
+              info.url_encoded_fmt_stream_map = tmp1 ? tmp1[1] : null;
+              info.adaptive_fmts = tmp2 ? tmp2[1] : null;
               var tmp2 = /html5player-([^\"]*).js/.exec(response.text);
               if (tmp2 && tmp2.length == 2) {
                 info.player = tmp2[1];
@@ -293,6 +342,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
       else {
         detected = info.formats[fIndex];
       }
+      detected.parent = info;
       if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
     });
   }

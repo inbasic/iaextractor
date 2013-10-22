@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.0",
+  "version": "0.3.1b8",
   "lib": "lib",
   "main": "main",
   
@@ -142,6 +142,20 @@
     "value": "-i %input -q:a 0 %output.mp3"
   },
   {
+    "name": "ffmpegInputs2",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "-i %audio -i %video -acodec copy -vcodec copy %output.mp4"
+  },
+  {
+    "name": "doBatchMode",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "welcome",
     "title": "",
     "type": "bool",
@@ -153,5 +167,11 @@
     "description": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "reset",
+    "type": "control",
+    "label": "",
+    "title": ""
   }]
 }

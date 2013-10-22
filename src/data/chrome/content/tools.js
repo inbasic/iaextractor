@@ -290,9 +290,9 @@ var drag3 = {
     if (dropFile instanceof Ci.nsIFile) {
       try {
         $("ffmpeg-info").value = bundle.getString("msg4");
-        exports.ffmpeg (dropFile.path, function (){
+        exports.ffmpeg (function () {
           $("ffmpeg-info").value = bundle.getString("msg3");
-        });
+        }, null, dropFile);
       }
       catch (e) {
         alert(e);
@@ -300,44 +300,114 @@ var drag3 = {
     }
   }
 }
+/** File Drag & Drop for Tab4 **/
+var audio_file, video_file;
+var drag4 = {
+  checkDrag: function (event) {
+    var isFile = event.dataTransfer.types.contains("application/x-moz-file");
+    if (isFile) {
+      event.preventDefault();
+    }
+  },
+  doDrop: function(event, id) {
+    var dropFile = event.dataTransfer.mozGetDataAt("application/x-moz-file", 0);
+    if (dropFile instanceof Ci.nsIFile) {
+      if (id == 1) {
+        $("video-only").value = dropFile.leafName;
+        video_file = dropFile;
+        $("video-only-reset").collapsed = false;
+        doMix();
+      }
+      else {
+        $("audio-only").value = dropFile.leafName;
+        audio_file = dropFile;
+        $("audio-only-reset").collapsed = false;
+        doMix();
+      }
+    }
+  }
+}
+function doMix() {
+  if (!audio_file || !video_file) return;
+  $("audio-only-reset").disabled = true;
+  $("video-only-reset").disabled = true;
+  try {
+    exports.ffmpeg (function () {
+      $("audio-only-reset").disabled = false;
+      $("video-only-reset").disabled = false;
+      $("video-only").value = bundle.getString("msg5");
+      $("audio-only").value = bundle.getString("msg6");
+      $("audio-only-reset").collapsed = true;
+      $("video-only-reset").collapsed = true;
+      audio_file = video_file = null;
+    }, null, audio_file, video_file);
+  }
+  catch (e) {
+    alert(e);
+  }
+}
 
-window.addEventListener("load", function () {
-  bundle = $("bundle");
-  
-  $("ffmpeg-input").value = prefs.ffmpegInputs;
-  $("ffmpeg-path").value = prefs.ffmpegPath;
-  
-  $("ffmpeg-input").addEventListener("change", function () {
-    var value = $("ffmpeg-input").value;
-    if (!value) return;
-    prefs.ffmpegInputs = value;
-  }, false);
-  $("ffmpeg-path").addEventListener("change", function () {
-    var value = $("ffmpeg-path").value;
+var commands = {
+  reset: function (id) {
+    if (id == 1) {
+      $("video-only-reset").collapsed = true;
+      $("video-only").value = bundle.getString("msg5");
+      video_file = null;
+    }
+    else {
+      $("audio-only-reset").collapsed = true;
+      $("audio-only").value = bundle.getString("msg6");
+      audio_file = null;
+    }
+  },
+  ffmpeg_change: function (value) {
     prefs.ffmpegPath = value;
-  }, false);
-  $("ffmpeg-path").addEventListener("click", function () {
-    if (!$("ffmpeg-path").value) {
+    $("ffmpeg-path-1").value = value;
+    $("ffmpeg-path-2").value = value;
+  },
+  ffmpeg_click: function (value) {
+    if (!value) {
       $("browse").doCommand();
     }
-  }, false);
-  $("browse").addEventListener("command", function () {
+  },
+  ffmpeg_command: function (value) {
+    if (!value) return;
+    prefs.ffmpegInputs = value;
+  },
+  ffmpeg_command2: function (value) {
+    if (!value) return;
+    prefs.ffmpegInputs2 = value;
+  },
+  browse: function () {
     var fp = Cc["@mozilla.org/filepicker;1"]
       .createInstance(Ci.nsIFilePicker); 
     fp.init(window, bundle.getString("msg1"), Ci.nsIFilePicker.modeOpen);
     var rv = fp.show();
     if (rv == Ci.nsIFilePicker.returnOK || rv == Ci.nsIFilePicker.returnReplace) {
-      var file = fp.file;
-      var path = fp.file.path;
-      $("ffmpeg-path").value = path;
-      
-      $("ffmpeg-path").dispatchEvent(new CustomEvent("change", {}));
+      commands.ffmpeg_change(fp.file.path);
       $("notify").removeAllNotifications();
     }
-  }, false);
+  },
+  reset1: function () {
+    prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
+    $("ffmpeg-input").value = prefs.ffmpegInputs;
+  },
+  reset2: function () {
+    prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+    $("ffmpeg-input2").value = prefs.ffmpegInputs2;
+  },
+}
+
+window.addEventListener("load", function () {
+  bundle = $("bundle");
   
+  $("ffmpeg-path-1").value = prefs.ffmpegPath;
+  $("ffmpeg-path-2").value = prefs.ffmpegPath;
+  $("ffmpeg-input").value = prefs.ffmpegInputs;
+  $("ffmpeg-input2").value = prefs.ffmpegInputs2;
+
   function showNotification() {
-    if ($("tabbox").selectedIndex == 2 && !prefs.ffmpegPath) {
+    if (($("tabbox").selectedIndex == 2 || $("tabbox").selectedIndex == 3) && !prefs.ffmpegPath) {
       var nb = $("notify");
       nb.removeAllNotifications();
       nb.appendNotification( bundle.getString("msg2") , null , null , nb.PRIORITY_WARNING_MEDIUM , null, null )

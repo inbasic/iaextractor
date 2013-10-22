@@ -24,6 +24,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     format        = tools.format,
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
+    prompts2      = tools.prompts2,
     update        = tools.update
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -153,6 +154,11 @@ rPanel.port.on("cmd", function (cmd) {
     break;
   case "cancel":
     listener.cancel(parseInt(arguments[1]));
+    break;
+  case "settings":
+    windowutils.activeBrowserWindow.BrowserOpenAddonsMgr(
+      "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
+    rPanel.hide();
     break;
   }
 });
@@ -389,15 +395,9 @@ cmds = {
         worker.port.on("download", function (fIndex) {
           // Show instruction
           if (!prefs.showInstruction) {
-            var prompts = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-              .getService(Ci.nsIPromptService);
-            var check = {value: true};
-            var flags = prompts.BUTTON_POS_0 * prompts.BUTTON_TITLE_IS_STRING +
-                        prompts.BUTTON_POS_1 * prompts.BUTTON_TITLE_IS_STRING;
-
-            var button = prompts.confirmEx(null, _("msg17"), _("msg18"), flags, _("msg19"), _("msg20"), "", _("msg21"), check);
-                    prefs.showInstruction = check.value;
-            if (button == 1) {
+            var tmp = prompts2(_("msg17"), _("msg18"), _("msg19"), _("msg20"), _("msg21"), true);
+            prefs.showInstruction = tmp.check.value;
+            if (tmp.button == 1) {
               timer.setTimeout(function () {
                 tabs.open("http://add0n.com/extractor.html#instruction");
               }, 1000);
@@ -462,6 +462,9 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
+  if (options.loadReason == "install" && !prefs.ffmpegPath) {
+    windowutils.activeBrowserWindow.alert (_("msg24"));
+  }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -476,12 +479,15 @@ welcome = function () {
   if (prefs.welcome) {
     timer.setTimeout(function () {
       tabs.open({
-        url: prefs.newVer == "install" ? config.urls.homepage : config.urls.update + "?v=" + self.version, 
+        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version, 
         inBackground : false
       });
+      prefs.newVer = "";
     }, 3000);
   }
-  prefs.newVer = "";
+  else {
+    prefs.newVer = "";
+  }
 }
 
 /** Monitor **/
@@ -704,7 +710,12 @@ var listener = (function () {
     },
     onDetectDone: function () {},
     onDownloadStart: function (dl) {
-      rPanel.port.emit('download-start', dl.id, dl.displayName, _("msg6"));
+      rPanel.port.emit(
+        'download-start', 
+        dl.id, 
+        dl.displayName ? dl.displayName : (new FileUtils.File(dl.target.path)).leafName, 
+        _("msg6")
+      );
     },
     onDownloadPaused: function (dl) {
       rPanel.port.emit('download-paused', dl.id, _("msg12"));
@@ -746,17 +757,38 @@ var listener = (function () {
     },
     onError: remove,
     cancel: function (id) {
-      var dm = Cc["@mozilla.org/download-manager;1"]
-        .getService(Ci.nsIDownloadManager);
-      dm.cancelDownload(id);
+      download.cancel(id);
+    }
+  }
+})();
+
+var batch = (function () {
+  var cache = {};
+  var files = {};
+  return {
+    add: function (id) {
+      cache[id] = 2;
+    },
+    execute: function (id, file, callback, pointer) {
+      cache[id] -= 1;
+      if (cache[id] == 1) {
+        files[id] = file;
+        if (callback) callback.apply(pointer);
+      }
+      else {
+        ffmpeg.ffmpeg (function () {
+          if (callback) callback.apply(pointer);
+        }, null, files[id], file);
+      }
     }
   }
 })();
 
 /** Call this with new **/
 var getVideo = (function () {
-  return function (videoID, listener, fIndex) {
-    var doExtract = prefs.doExtract;
+  return function (videoID, listener, fIndex, noAudio, callback, pointer) {
+    var doExtract = noAudio ? false : prefs.doExtract;
+    var batchID;  // For batch job
   
     function onDetect () {
       listener.onDetectStart();
@@ -771,13 +803,68 @@ var getVideo = (function () {
       });
     }
     function onFile (vInfo, title, author) {
+      // Do not generate audio file if video has no sound track
+      if (
+        (vInfo.itag >= 133 && vInfo.itag <= 138) || 
+        vInfo.itag == 160 || 
+        (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+        doExtract = false;
+      }
       // Do not generate audio file if video format is not FLV
-      if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
+      else if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
         timer.setTimeout(function () {
           notify(_('name'), _('msg5'))
         }, config.noAudioExtraction * 1000);
         doExtract = false;
+      }
+      // Download proper audio file if video-only format is selected
+      if ((vInfo.itag >= 133 && vInfo.itag <= 138) || vInfo.itag == 160 || (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+        if (!prefs.showAudioDownloadInstruction) {
+          var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
+          prefs.showAudioDownloadInstruction = tmp.check.value;
+          prefs.doBatchMode = tmp.button == 0;
+        }
+        if (prefs.doBatchMode) {
+          // Selecting the audio file
+          var tmp = vInfo.parent.formats.filter(function (a) {
+            return [140, 141, 139, 171, 172].indexOf(a.itag) != -1;
+          });
+          if (tmp && tmp.length) {
+            var afIndex;
+            if ([133, 160, 242].indexOf(vInfo.itag) != -1) {  // Low quality
+              tmp.sort(function (a, b) {
+                var i = [140, 171, 139, 172, 141].indexOf(a.itag),
+                    j = [140, 171, 139, 172, 141].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            else if ([134, 135, 243, 244, 245, 246].indexOf(vInfo.itag) != -1) { // Medium quality
+              tmp.sort(function (a, b) {
+                var i = [140, 171, 172, 141, 139].indexOf(a.itag),
+                    j = [140, 171, 172, 141, 139].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            else {  //High quality
+              tmp.sort(function (a, b) {
+                var i = [141, 172, 140, 171, 139].indexOf(a.itag),
+                    j = [141, 172, 140, 171, 139].indexOf(b.itag);
+                return i > j;
+              });
+            }
+            afIndex = tmp[0].itag;
+            batchID = Math.floor((Math.random()*10000)+1);
+            batch.add(batchID);
+            vInfo.parent.formats.forEach (function (a, index) {
+              if (a.itag == afIndex) {
+                new getVideo(videoID, listener, index, true, function (f) {
+                  batch.execute(batchID, f);
+                });
+              }
+            });
+          }
+        }
       }
       var vFile;
       //Select folder by nsIFilePicker
@@ -880,7 +967,9 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
-      listener.onDownloadStart(dr(vInfo.url, obj.vFile));
+      dr(vInfo.url, obj.vFile, null, false, function (dl) {
+        listener.onDownloadStart(dl);
+      });
       notify(
         _('name'), 
         _('msg3').replace("%1", vInfo.quality)
@@ -904,6 +993,8 @@ var getVideo = (function () {
             tabs.open(obj.vFile.parent.path);
           }
         }
+        if (callback) callback.apply(pointer, [obj.vFile]);
+        if (batchID) batch.execute(batchID, obj.vFile);
       }
       if (!doExtract) {
         return afterExtract();
@@ -911,15 +1002,23 @@ var getVideo = (function () {
       listener.onExtractStart(id);
       if (vInfo.container == "flv") {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
-          listener.onExtractDone(id);
-          afterExtract(prefs.extension == "0" ? e : null);
+          if (e && prefs.ffmpegPath) {
+            ffmpeg.ffmpeg(function () {
+              listener.onExtractDone(id);
+              afterExtract();
+            }, null, obj.vFile);
+          }
+          else {
+            listener.onExtractDone(id);
+            afterExtract(prefs.extension == "0" ? e : null);
+          }
         });
       }
       else {
-        ffmpeg.ffmpeg(obj.vFile, function () {
+        ffmpeg.ffmpeg(function () {
           listener.onExtractDone(id);
           afterExtract();
-        });
+        }, null, obj.vFile);
       }
     }
     function onSubtitle (obj) {
@@ -1031,6 +1130,29 @@ var downThemAll = (function () {
     }
   }
 })();
+
+/** Reset all settings **/
+sp.on("reset", function() {
+  if (!windowutils.activeBrowserWindow.confirm(_("msg25"))) return
+  
+  prefs.extension = 0;
+  prefs.quality = 2
+  prefs.doExtract = true;
+  prefs.doSubtitle = false;
+  prefs.subtitleLang = 0;
+  prefs.namePattern = "[file_name].[extension]";
+  prefs.dFolder = 3;
+  prefs.getFileSize = true;
+  prefs.open = false;
+  prefs.downloadHKey = "Accel + Shift + Q";
+  prefs.oneClickDownload = false;
+  prefs.silentOneClickDownload = true;
+  prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
+  prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+  prefs.doBatchMode = true;
+  prefs.welcome = true;
+  prefs.forceVisible = true
+});
 
 /** Notifier **/
 // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js

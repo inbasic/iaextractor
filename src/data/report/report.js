@@ -295,8 +295,14 @@ downloadButton.addEventListener("click", function () {
 formatsButton.addEventListener("click", function () {
   self.port.emit("cmd", "formats");
 }, true);
+$("tools").addEventListener("click", function () {
+  self.port.emit("cmd", "tools");
+}, true);
 $("embed").addEventListener("click", function () {
   self.port.emit("cmd", "embed");
+}, true);
+$("settings-button").addEventListener("click", function () {
+  self.port.emit("cmd", "settings");
 }, true);
 aCheckbox.addEventListener("change", function () {
   self.port.emit("cmd", "do-extract", aCheckbox.checked);
@@ -307,9 +313,7 @@ subCheckbox.addEventListener("change", function () {
 sCheckbox.addEventListener("change", function () {
   self.port.emit("cmd", "do-size", sCheckbox.checked);
 });
-$("tools").addEventListener("click", function () {
-  self.port.emit("cmd", "tools");
-}, true);
+
 
 //Update UI
 self.port.on("update", function(doExtract, doSubtitle, doFileSize, dIndex, vIndex, fIndex, isRed) {
