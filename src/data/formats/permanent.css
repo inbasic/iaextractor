@@ -219,35 +219,26 @@
 
 #formats-button-small {
   width: 90px;
-  height: 28px;
+  height: 29px;
   position: absolute; 
   right: 12px; 
-  top: 17px;
-  font-weight:bold;
-  font-size:11px!important;
-  padding-left: 18px!important;
-  -moz-appearance: none !important;
+  top: 14px;
+  padding-left: 27px!important;
   z-index: 2147483647; 
   cursor: pointer;
   color: #F97D00!important;
-  border: 1px solid transparent!important;
-  border-radius: 2px;
-  background: #FFF -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat 6px center!important;
-  box-shadow: -12px 0 0 #FFF;
-}
-#formats-button-small:hover {
-  border: 1px solid #c6c6c6!important;
-  border-radius: 2px;
-  background: #F0F0F0 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat 6px center!important;
-  box-shadow: -12px 0 0 #FFF, 0px 1px 0px rgba(0, 0, 0, 0.1)!important;
-}
-#formats-button-small:hover:active {
-  border-color: #c6c6c6!important;
-  background: #e9e9e9!important;
-  box-shadow: -12px 0 0 #FFF, inset 0 1px 0 #DDD!important;
-  color: #F79430!important;
-  background: #E9E9E9 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 32, 16, 16) no-repeat 6px center!important;
 }
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */
 }
+#icon-wrapper {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat center!important;
+}
+
+
+
