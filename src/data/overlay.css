@@ -1,24 +1,63 @@
-.iaextractor .normal {
-  list-style-image: url('toolbar.png');
-  -moz-image-region: rect(0, 32px, 16px, 16px);  
-}
-.iaextractor[type="gray"] .normal {
+#youtube-audio-converter {
+  list-style-image: url('toolbar2.png') !important;
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
-.iaextractor .counter {
-  list-style-image: url('toolbar.png');
-  -moz-image-region: rect(16px, 32px, 32px, 16px);  
-}
-.iaextractor[type="gray"] .counter {
+#youtube-audio-converter[type="gray"] {
   -moz-image-region: rect(16px, 16px, 32px, 0);
 }
-.iaextractor .progress {
-  border: none; 
-  background-color: #548DD4; 
-  width: 8px; 
-  height: 0; 
-  margin-bottom: 3px;
+
+#youtube-audio-converter[progress="0"] {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
 }
-.iaextractor[type="gray"] .progress {
-  background-color: #FF6A00; 
+#youtube-audio-converter[progress="1"] {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+#youtube-audio-converter[progress="2"] {
+  -moz-image-region: rect(0, 64px, 16px, 48px);
+}
+#youtube-audio-converter[progress="3"] {
+  -moz-image-region: rect(0, 80px, 16px, 64px);
+}
+#youtube-audio-converter[progress="4"] {
+  -moz-image-region: rect(0, 96px, 16px, 80px);
+}
+#youtube-audio-converter[progress="5"] {
+  -moz-image-region: rect(0, 112px, 16px, 96px);
+}
+#youtube-audio-converter[progress="6"] {
+  -moz-image-region: rect(0, 128px, 16px, 112px);
+}
+#youtube-audio-converter[progress="7"] {
+  -moz-image-region: rect(0, 144px, 16px, 128px);
+}
+#youtube-audio-converter[progress="8"] {
+  -moz-image-region: rect(0, 160px, 16px, 144px);
+}
+
+#youtube-audio-converter[type="gray"][progress="0"] {
+  -moz-image-region: rect(16px, 32px, 32px, 16px);
+}
+#youtube-audio-converter[type="gray"][progress="1"] {
+  -moz-image-region: rect(16px, 48px, 32px, 32px);
+}
+#youtube-audio-converter[type="gray"][progress="2"] {
+  -moz-image-region: rect(16px, 64px, 32px, 48px);
+}
+#youtube-audio-converter[type="gray"][progress="3"] {
+  -moz-image-region: rect(16px, 80px, 32px, 64px);
+}
+#youtube-audio-converter[type="gray"][progress="4"] {
+  -moz-image-region: rect(16px, 96px, 32px, 80px);
+}
+#youtube-audio-converter[type="gray"][progress="5"] {
+  -moz-image-region: rect(16px, 112px, 32px, 96px);
+}
+#youtube-audio-converter[type="gray"][progress="6"] {
+  -moz-image-region: rect(16px, 128px, 32px, 112px);
+}
+#youtube-audio-converter[type="gray"][progress="7"] {
+  -moz-image-region: rect(16px, 144px, 32px, 128px);
+}
+#youtube-audio-converter[type="gray"][progress="8"] {
+  -moz-image-region: rect(16px, 160px, 32px, 144px);
 }
