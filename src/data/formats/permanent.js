@@ -8,9 +8,10 @@ if (iaextractor_parent) {
   icon.setAttribute("class", "yt-uix-button-icon-wrapper"); 
   button.setAttribute("title", "Detect all possible download links");
   button.textContent = "Download";
-  button.setAttribute("class", "yt-uix-button yt-uix-button-text yt-uix-tooltip");
+  button.setAttribute("class", "yt-uix-button yt-uix-button-text");
   button.setAttribute("id", "formats-button-small");
   button.addEventListener("click", function () {
+    this.blur();
     self.port.emit("formats");
   });
   button.appendChild(icon);

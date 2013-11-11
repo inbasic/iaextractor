@@ -228,6 +228,12 @@
   cursor: pointer;
   color: #F97D00!important;
 }
+#formats-button-small:not(:hover):not(:active) {
+  background-color: white!important;
+}
+#formats-button-small:hover:active {
+  box-shadow: none!important;
+}
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */
 }
