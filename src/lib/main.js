@@ -9,7 +9,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
     Request       = require("sdk/request").Request,
-    windowutils   = require("window-utils"),
     toolbarbutton = require("./toolbarbutton"),
     userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
@@ -25,7 +24,12 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
     prompts2      = tools.prompts2,
-    update        = tools.update
+    update        = tools.update,
+    windows          = {
+      get active () { // Chrome window
+        return require('sdk/window/utils').getMostRecentBrowserWindow()
+      }
+    };
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -146,7 +150,7 @@ rPanel.port.on("cmd", function (cmd) {
     break;
   case "tools":
     rPanel.hide();
-    windowutils.activeBrowserWindow.open(
+    windows.active.open(
       config.urls.tools, 
       'iaextractor', 
       'chrome,minimizable=yes,all,resizable=yes'
@@ -156,7 +160,7 @@ rPanel.port.on("cmd", function (cmd) {
     listener.cancel(parseInt(arguments[1]));
     break;
   case "settings":
-    windowutils.activeBrowserWindow.BrowserOpenAddonsMgr(
+    windows.active.BrowserOpenAddonsMgr(
       "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
     rPanel.hide();
     break;
@@ -463,7 +467,7 @@ exports.main = function(options, callbacks) {
     welcome();
   }
   if (options.loadReason == "install" && !prefs.ffmpegPath) {
-    windowutils.activeBrowserWindow.alert (_("msg24"));
+    windows.active.alert (_("msg24"));
   }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
@@ -509,14 +513,14 @@ tabs.on('activate', monitor);
 
 /** Store toolbar button position **/
 var aftercustomizationListener = function () {
-  let button = windowutils.activeBrowserWindow.document.getElementById(config.toolbar.id);
+  let button = windows.active.document.getElementById(config.toolbar.id);
   if (!button) return;
   prefs.nextSibling = button.nextSibling.id;
 }
-windowutils.activeBrowserWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
+windows.active.addEventListener("aftercustomization", aftercustomizationListener, false); 
 exports.onUnload = function (reason) {
   //Remove toolbar listener
-  windowutils.activeBrowserWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
+  windows.active.removeEventListener("aftercustomization", aftercustomizationListener, false); 
   //Close tools window
   let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
     .getService(Ci.nsIWindowMediator);   
@@ -676,7 +680,7 @@ sp.on("dFolder", function () {
     rPanel.hide();
     var nsIFilePicker = Ci.nsIFilePicker;
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(windowutils.activeBrowserWindow, _("msg13"), nsIFilePicker.modeGetFolder);
+    fp.init(windows.active, _("msg13"), nsIFilePicker.modeGetFolder);
     var res = fp.show();
     if (res != nsIFilePicker.returnCancel) {
       _prefs.setComplexValue("userFolder", fp.file.path);
@@ -871,7 +875,7 @@ var getVideo = (function () {
       if (prefs.dFolder == 4) {
         let nsIFilePicker = Ci.nsIFilePicker;
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-        fp.init(windowutils.activeBrowserWindow, _("prompt3"), nsIFilePicker.modeSave);
+        fp.init(windows.active, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
         fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
         let res = fp.show();
@@ -1074,7 +1078,7 @@ var flashgot = (function () {
         fname : fileName(title, container, author, videoID, resolution, audioBitrate),
         description: _("msg15")
       }];
-      links.document = windowutils.activeBrowserWindow.document;
+      links.document = windows.active.document;
       flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
     }
     else {
@@ -1106,7 +1110,7 @@ var downThemAll = (function () {
       var iOService = Cc["@mozilla.org/network/io-service;1"]
         .getService(Ci.nsIIOService)
       try {
-        DTA.saveSingleItem(windowutils.activeBrowserWindow, turbo, {
+        DTA.saveSingleItem(windows.active, turbo, {
           url: new DTA.URL(iOService.newURI(link, "UTF-8", null)),
           referrer: "",
           description: _("msg15"),
@@ -1133,7 +1137,7 @@ var downThemAll = (function () {
 
 /** Reset all settings **/
 sp.on("reset", function() {
-  if (!windowutils.activeBrowserWindow.confirm(_("msg25"))) return
+  if (!windows.active.confirm(_("msg25"))) return
   
   prefs.extension = 0;
   prefs.quality = 2
@@ -1164,7 +1168,7 @@ var notify = (function () {
       alertServ.showAlertNotification(data.url("report/open.png"), title, text);
     }
     catch (e) {
-      let browser = windowutils.activeBrowserWindow.gBrowser,
+      let browser = windows.active.gBrowser,
           notificationBox = browser.getNotificationBox();
 
       notification = notificationBox.appendNotification(

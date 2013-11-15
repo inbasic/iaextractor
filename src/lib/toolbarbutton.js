@@ -2,7 +2,7 @@ const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const NS_SVG = "http://www.w3.org/2000/svg";
 const NS_XLINK = "http://www.w3.org/1999/xlink";
 
-const winUtils = require("window-utils");
+const winUtils = require("sdk/deprecated/window-utils");
 const browserURL = "chrome://browser/content/browser.xul";
 
 /** unload+.js **/
@@ -14,7 +14,7 @@ var unload = (function () {
     unloaders.length = 0;
   }
 
-  require("unload").when(unloadersUnlaod);
+  require("sdk/system/unload").when(unloadersUnlaod);
 
   function removeUnloader(unloader) {
     let index = unloaders.indexOf(unloader);
