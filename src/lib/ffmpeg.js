@@ -67,8 +67,15 @@ exports.ffmpeg = function (callback, pointer, input1, input2) {
       outExt = outExt ? outExt[1] : "";
       var tmp2 = new FileUtils.File(dir.path);
       tmp2.append("a-output." + outExt);
+      var name = (input2 || input1).leafName.replace(/\.+[^\.]*$/, "");
+      // Make sure file with the same name doesn't exist
+      var tmp3 = new FileUtils.File(input1.parent.path);
+      tmp3.append(name + "." + outExt);
+      if (tmp3.exists()) {
+        name += "-converted"
+      }
       if (tmp2.exists()) {
-        tmp2.copyTo(input1.parent, (input2 || input1).leafName.replace(/\.+[^\.]*$/, "-output.") + outExt);
+        tmp2.copyTo(input1.parent, name + "." + outExt);
       }
     
       if (callback) {
