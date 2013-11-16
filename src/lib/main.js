@@ -782,11 +782,17 @@ var batch = (function () {
       else {
         ffmpeg.ffmpeg (function () {
           if (callback) callback.apply(pointer);
-        }, null, files[id], file);
+        }, null, prefs.deleteInputs, files[id], file);
       }
     }
   }
 })();
+
+/** **/
+var isDASH = function (vInfo) {
+  var list = [139, 140, 141, 171, 172, 133, 134, 135, 136, 137, 138, 160, 242, 243, 244, 245, 246, 247, 248];
+  return list.indexOf(vInfo.itag) !== -1;
+}
 
 /** Call this with new **/
 var getVideo = (function () {
@@ -796,17 +802,17 @@ var getVideo = (function () {
   
     function onDetect () {
       listener.onDetectStart();
-      youtube.getLink(videoID, fIndex, function (e, vInfo, title, author) {
+      youtube.getLink(videoID, fIndex, function (e, vInfo, gInfo) {
         listener.onDetectDone();
         if (e) {
           notify(_('name'), e);
         }
         else {
-          onFile (vInfo, title, author);
+          onFile (vInfo, gInfo);
         }
       });
     }
-    function onFile (vInfo, title, author) {
+    function onFile (vInfo, gInfo) {
       // Do not generate audio file if video has no sound track
       if (
         (vInfo.itag >= 133 && vInfo.itag <= 138) || 
@@ -877,7 +883,7 @@ var getVideo = (function () {
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(windows.active, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
-        fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
+        fp.defaultString = fileName(videoID, vInfo, gInfo);
         let res = fp.show();
         if (res == nsIFilePicker.returnCancel) {
           // Still no id. Generating a random one
@@ -896,7 +902,7 @@ var getVideo = (function () {
         try {
           //Simple-prefs doesnt support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-          vFile.append(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
+          vFile.append(fileName(videoID, vInfo, gInfo));
         }
         catch (e) {
           notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
@@ -922,7 +928,7 @@ var getVideo = (function () {
             root = "Desk";
             break;
         }
-        videoPath.push(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
+        videoPath.push(fileName(videoID, vInfo, gInfo));
         vFile = FileUtils.getFile(root, videoPath);
       }
       var aFile, sFile;
@@ -1007,10 +1013,10 @@ var getVideo = (function () {
       if (vInfo.container == "flv") {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
           if (e && prefs.ffmpegPath) {
-            ffmpeg.ffmpeg(function () {
+            ffmpeg.ffmpeg (function () {
               listener.onExtractDone(id);
               afterExtract();
-            }, null, obj.vFile);
+            }, null, false, obj.vFile);
           }
           else {
             listener.onExtractDone(id);
@@ -1019,10 +1025,10 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg(function () {
+        ffmpeg.ffmpeg (function () {
           listener.onExtractDone(id);
           afterExtract();
-        }, null, obj.vFile);
+        }, null, (isDASH(vInfo) && prefs.deleteInputs), obj.vFile);
       }
     }
     function onSubtitle (obj) {
@@ -1035,7 +1041,7 @@ var getVideo = (function () {
     //
     if (typeof(videoID) == "object") {
       var obj = videoID[0];
-      onFile (obj.vInfo, obj.title);
+      onFile (obj.vInfo, obj);
     }
     else {
       onDetect();
@@ -1044,14 +1050,15 @@ var getVideo = (function () {
 })();
 
 /** File naming **/
-var fileName = function (title, container, author, video_id, video_resolution, audio_biterate) {
+var fileName = function (videoID, vInfo, gInfo) {
+  // Add " - DASH" to DASH only files
   return pattern = prefs.namePattern
-    .replace ("[file_name]", title)
-    .replace ("[extension]", container)
-    .replace ("[author]", author)
-    .replace ("[video_id]", video_id)
-    .replace ("[video_resolution]", video_resolution)
-    .replace ("[audio_bitrate]", audio_biterate + "K")
+    .replace ("[file_name]", gInfo.title + (isDASH(vInfo) ? " - DASH" : ""))
+    .replace ("[extension]", vInfo.container)
+    .replace ("[author]", gInfo.author)
+    .replace ("[video_id]", videoID)
+    .replace ("[video_resolution]", vInfo.resolution)
+    .replace ("[audio_bitrate]", vInfo.audioBitrate + "K")
     //
     .replace(/\+/g, " ")
     .replace(/[:\?\¿]/g, "")

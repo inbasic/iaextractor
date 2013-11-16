@@ -156,6 +156,13 @@
     "value": true
   },
   {
+    "name": "deleteInputs",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "welcome",
     "title": "",
     "type": "bool",

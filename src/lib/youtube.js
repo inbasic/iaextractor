@@ -362,7 +362,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
         detected = info.formats[fIndex];
       }
       detected.parent = info;
-      if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
+      if (callback) callback.apply(pointer, [null, detected, info]);
     });
   }
   catch (e) {

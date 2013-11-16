@@ -292,7 +292,7 @@ var drag3 = {
         $("ffmpeg-info").value = bundle.getString("msg4");
         exports.ffmpeg (function () {
           $("ffmpeg-info").value = bundle.getString("msg3");
-        }, null, dropFile);
+        }, null, false, dropFile);
       }
       catch (e) {
         alert(e);
@@ -340,7 +340,7 @@ function doMix() {
       $("audio-only-reset").collapsed = true;
       $("video-only-reset").collapsed = true;
       audio_file = video_file = null;
-    }, null, audio_file, video_file);
+    }, null, false, audio_file, video_file);
   }
   catch (e) {
     alert(e);

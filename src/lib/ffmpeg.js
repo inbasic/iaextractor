@@ -5,7 +5,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 //One input for conversion, two inputs for combining files
-exports.ffmpeg = function (callback, pointer, input1, input2) {
+exports.ffmpeg = function (callback, pointer, deleteInputs, input1, input2) {
   if (input1 && typeof (input1) == "string") {
     input1 = new FileUtils.File(input1);
   }
@@ -67,7 +67,7 @@ exports.ffmpeg = function (callback, pointer, input1, input2) {
       outExt = outExt ? outExt[1] : "";
       var tmp2 = new FileUtils.File(dir.path);
       tmp2.append("a-output." + outExt);
-      var name = (input2 || input1).leafName.replace(/\.+[^\.]*$/, "");
+      var name = (input2 || input1).leafName.replace(" - DASH", "").replace(/\.+[^\.]*$/, "");
       // Make sure file with the same name doesn't exist
       var tmp3 = new FileUtils.File(input1.parent.path);
       tmp3.append(name + "." + outExt);
@@ -76,6 +76,11 @@ exports.ffmpeg = function (callback, pointer, input1, input2) {
       }
       if (tmp2.exists()) {
         tmp2.copyTo(input1.parent, name + "." + outExt);
+      }
+    
+      if (deleteInputs) {
+        input1.remove(false);
+        if (input2) input2.remove(false);
       }
     
       if (callback) {
