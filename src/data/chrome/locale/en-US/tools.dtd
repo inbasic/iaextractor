@@ -12,7 +12,9 @@
 <!ENTITY drop2 "Drag and drop a video file (*.FLV) here">
 <!ENTITY ffmpeg-path "FFmpeg.exe location:">
 <!ENTITY browse "browse...">
-<!ENTITY ffmpeg-input "FFmpeg input arguments">
+<!ENTITY ffmpeg-input1 "FFmpeg input arguments for MP3 conversion">
+<!ENTITY ffmpeg-input3 "FFmpeg input arguments for remuxing">
+<!ENTITY ffmpeg-input4 "FFmpeg input arguments">
 <!ENTITY drop3 "Drag and drop a video file here">
 <!ENTITY drop4_1 "Drag and drop a video-only file here">
 <!ENTITY drop4_2 "Drag and drop an audio-only file here">

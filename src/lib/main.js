@@ -1159,8 +1159,11 @@ sp.on("reset", function() {
   prefs.oneClickDownload = false;
   prefs.silentOneClickDownload = true;
   prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
-  prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+  prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
+  prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
   prefs.doBatchMode = true;
+  prefs.doRemux = true;
+  prefs.deleteInputs = false;
   prefs.welcome = true;
   prefs.forceVisible = true
 });

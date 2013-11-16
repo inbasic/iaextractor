@@ -72,11 +72,23 @@ var require = function (id) {
         set ffmpegInputs (val) {
           return prefs.setCharPref("ffmpegInputs", val);
         },
-        get ffmpegInputs2 () {
-          return prefs.getCharPref("ffmpegInputs2");
+        get ffmpegInputs3 () {
+          return prefs.getCharPref("ffmpegInputs3");
         },
-        set ffmpegInputs2 (val) {
-          return prefs.setCharPref("ffmpegInputs2", val);
+        set ffmpegInputs3 (val) {
+          return prefs.setCharPref("ffmpegInputs3", val);
+        },
+        get ffmpegInputs4 () {
+          return prefs.getCharPref("ffmpegInputs4");
+        },
+        set ffmpegInputs4 (val) {
+          return prefs.setCharPref("ffmpegInputs4", val);
+        },
+        get doRemux () {
+          return prefs.getBoolPref("doRemux");
+        },
+        set doRemux (val) {
+          return prefs.setBoolPref("doRemux", val);
         }
       }
     }
@@ -180,9 +192,14 @@ var require = function (id) {
           <button id="browse" label="&browse;" oncommand="commands.browse();"/>
         </hbox>
         <hbox align="center">
-          <label value="&ffmpeg-input;" />
-          <textbox id="ffmpeg-input" flex="1" onchange="commands.ffmpeg_command(this.value)"/>
+          <label value="&ffmpeg-input1;" />
+          <textbox id="ffmpeg-input1" flex="1" onchange="commands.ffmpeg_command1(this.value)"/>
           <button label="&reset;" oncommand="commands.reset1();"/>
+        </hbox>
+        <hbox align="center">
+          <label value="&ffmpeg-input3;" />
+          <textbox id="ffmpeg-input3" flex="1" onchange="commands.ffmpeg_command3(this.value)"/>
+          <button label="&reset;" oncommand="commands.reset3();"/>
         </hbox>
         <hbox align="center" pack="center" class="info" flex="1">
           <label id="ffmpeg-info" value="&drop3;"/>
@@ -197,9 +214,9 @@ var require = function (id) {
             <button label="&browse;" oncommand="commands.browse();"/>
           </hbox>
           <hbox align="center">
-            <label value="&ffmpeg-input;" />
-            <textbox id="ffmpeg-input2" flex="1" onchange="commands.ffmpeg_command2(this.value)"/>
-            <button label="&reset;" oncommand="commands.reset2();"/>
+            <label value="&ffmpeg-input4;" />
+            <textbox id="ffmpeg-input4" flex="1" onchange="commands.ffmpeg_command4(this.value)"/>
+            <button label="&reset;" oncommand="commands.reset4();"/>
           </hbox>
         </vbox>
         <hbox flex="1">

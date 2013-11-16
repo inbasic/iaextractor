@@ -142,14 +142,28 @@
     "value": "-i %input -q:a 0 %output.mp3"
   },
   {
-    "name": "ffmpegInputs2",
+    "name": "ffmpegInputs4",
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %audio -i %video -acodec copy -vcodec copy %output.mp4"
+    "value": "-i %audio -i %video -acodec copy -vcodec copy %output"
   },
   {
     "name": "doBatchMode",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "ffmpegInputs3",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "-i %input -acodec copy -vn %output"
+  },
+  {
+    "name": "doRemux",
     "title": "",
     "description": "",
     "type": "bool",
@@ -160,7 +174,7 @@
     "title": "",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": false
   },
   {
     "name": "welcome",
