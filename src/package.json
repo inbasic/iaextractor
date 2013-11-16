@@ -132,7 +132,8 @@
   {
     "name": "ffmpegPath",
     "type": "file",
-    "title": ""
+    "title": "",
+    "description": ""
   },
   {
     "name": "ffmpegInputs",
