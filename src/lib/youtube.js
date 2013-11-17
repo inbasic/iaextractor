@@ -44,13 +44,14 @@ function _getInfo(videoID, callback, pointer) {
       141: ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio-only
       171: ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio-only
       172: ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio-only
+      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
       133: ["mp4",  "240",  null,     "DASH V",   null,  null], //Video-only
       134: ["mp4",  "360",  null,     "DASH V",   null,  null], //Video-only
       135: ["mp4",  "480",  null,     "DASH V",   null,  null], //Video-only
       136: ["mp4",  "720",  null,     "DASH V",   null,  null], //Video-only
       137: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
       138: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
-      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
+      264: ["mp4",  "1200", null,     "DASH V",   null,  null], //Video-only
       242: ["webm", "240",  null,     "DASH V",   null,  null], //Video-only
       243: ["webm", "360",  null,     "DASH V",   null,  null], //Video-only
       244: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
@@ -70,10 +71,10 @@ function _getInfo(videoID, callback, pointer) {
       audioEncoding: F[id][4],
       audioBitrate:  F[id][5],
     };
-    if ((id >= 139 && id <= 141) || (id >= 171 && id <= 172)) {
+    if ([139, 140, 141, 171, 172].indexOf(id) != -1) {
       tmp.quality = "audio-only";
     }
-    if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
+    if ([160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248].indexOf(id) != -1) {
       tmp.quality = tmp.resolution + " Video-only";
     }
     return tmp;
@@ -217,20 +218,19 @@ function _getInfo(videoID, callback, pointer) {
       delete info.adaptive_fmts;
       // Sorting audio-only files
       return objs.sort(function (a,b) {
-        var list = [141, 172, 171, 140, 139],
-            aIndex = list.indexOf(a.itag),
-            bIndex = list.indexOf(b.itag);
+        var audio = [141, 172, 171, 140, 139],
+            video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+            aaIndex = audio.indexOf(a.itag) != -1,
+            baIndex = audio.indexOf(b.itag) != -1,
+            avIndex = video.indexOf(a.itag) != -1,
+            bvIndex = video.indexOf(b.itag) != -1;
         
-        if (aIndex == -1 || bIndex == -1) {
-          return 0;
+        if (aaIndex && baIndex) {
+          return b.audioBitrate - a.audioBitrate;
         }
-        else if (aIndex != -1 && bIndex == -1) {
-          return 1;
+        if (avIndex && bvIndex) {
+          return b.bitrate - a.bitrate;
         }
-        else if (aIndex == -1 && bIndex != -1) {
-          return -1;
-        }
-        return aIndex > bIndex ? 1 : -1;
       });
     }
     // Request new codec

@@ -790,8 +790,17 @@ var batch = (function () {
 
 /** **/
 var isDASH = function (vInfo) {
-  var list = [139, 140, 141, 171, 172, 133, 134, 135, 136, 137, 138, 160, 242, 243, 244, 245, 246, 247, 248];
-  return list.indexOf(vInfo.itag) !== -1;
+  var v = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+      a = [139, 140, 141, 171, 172];
+  if (v.indexOf(vInfo.itag) != -1) {
+    return "v";
+  }
+  else if (a.indexOf(vInfo.itag) != -1) {
+    return "a"
+  }
+  else {
+    return false;
+  }
 }
 
 /** Call this with new **/
@@ -814,10 +823,7 @@ var getVideo = (function () {
     }
     function onFile (vInfo, gInfo) {
       // Do not generate audio file if video has no sound track
-      if (
-        (vInfo.itag >= 133 && vInfo.itag <= 138) || 
-        vInfo.itag == 160 || 
-        (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+      if (isDASH(vInfo) == "v") {
         doExtract = false;
       }
       // Do not generate audio file if video format is not FLV
@@ -829,7 +835,7 @@ var getVideo = (function () {
         doExtract = false;
       }
       // Download proper audio file if video-only format is selected
-      if ((vInfo.itag >= 133 && vInfo.itag <= 138) || vInfo.itag == 160 || (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+      if (isDASH(vInfo) == "v") {
         if (!prefs.showAudioDownloadInstruction) {
           var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
           prefs.showAudioDownloadInstruction = tmp.check.value;
@@ -985,8 +991,8 @@ var getVideo = (function () {
         _('msg3').replace("%1", vInfo.quality)
           .replace("%2", vInfo.container)
           .replace("%3", vInfo.resolution)
-          .replace("%6", vInfo.audioEncoding)
-          .replace("%7", vInfo.audioBitrate)
+          .replace("%6", vInfo.audioEncoding || "")
+          .replace("%7", vInfo.audioBitrate || "")
       );
       onSubtitle(obj);
     }
@@ -1162,7 +1168,7 @@ sp.on("reset", function() {
   prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
   prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
   prefs.doBatchMode = true;
-  prefs.doRemux = true;
+  prefs.doRemux = false;
   prefs.deleteInputs = false;
   prefs.welcome = true;
   prefs.forceVisible = true
