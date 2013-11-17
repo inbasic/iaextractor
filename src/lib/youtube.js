@@ -216,7 +216,7 @@ function _getInfo(videoID, callback, pointer) {
 
       delete info.url_encoded_fmt_stream_map;
       delete info.adaptive_fmts;
-      // Sorting audio-only files
+      // Sorting audio-only and video-only formats
       return objs.sort(function (a,b) {
         var audio = [141, 172, 171, 140, 139],
             video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],

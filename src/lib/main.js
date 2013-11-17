@@ -773,16 +773,21 @@ var batch = (function () {
     add: function (id) {
       cache[id] = 2;
     },
-    execute: function (id, file, callback, pointer) {
+    execute: function (id, file, type, callback, pointer) {
       cache[id] -= 1;
       if (cache[id] == 1) {
         files[id] = file;
         if (callback) callback.apply(pointer);
       }
       else {
+        var f1 = files[id], f2 = file;
+        if (type == "audio") {
+          [f1, f2] = [f2, f1];
+        }
+        
         ffmpeg.ffmpeg (function () {
           if (callback) callback.apply(pointer);
-        }, null, prefs.deleteInputs, files[id], file);
+        }, null, prefs.deleteInputs, f1, f2);
       }
     }
   }
@@ -875,7 +880,7 @@ var getVideo = (function () {
             vInfo.parent.formats.forEach (function (a, index) {
               if (a.itag == afIndex) {
                 new getVideo(videoID, listener, index, true, function (f) {
-                  batch.execute(batchID, f);
+                  batch.execute(batchID, f, "audio");
                 });
               }
             });
@@ -1010,7 +1015,7 @@ var getVideo = (function () {
           }
         }
         if (callback) callback.apply(pointer, [obj.vFile]);
-        if (batchID) batch.execute(batchID, obj.vFile);
+        if (batchID) batch.execute(batchID, obj.vFile, "video");
       }
       if (!doExtract) {
         return afterExtract();
