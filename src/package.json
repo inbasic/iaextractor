@@ -94,7 +94,8 @@
   {
     "name": "userFolder",
     "type": "directory",
-    "title": ""
+    "title": "",
+    "description": ""
   },
   {
     "name": "getFileSize",
@@ -175,7 +176,7 @@
     "title": "",
     "description": "",
     "type": "bool",
-    "value": false
+    "value": true
   },
   {
     "name": "welcome",

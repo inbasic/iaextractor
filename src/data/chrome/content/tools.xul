@@ -204,6 +204,9 @@ var require = function (id) {
         <hbox align="center" pack="center" class="info" flex="1">
           <label id="ffmpeg-info" value="&drop3;"/>
         </hbox>
+        <hbox align="center" pack="center">
+          <label id="msg1" value="&msg1;" style="display: none;"/>
+        </hbox>        
       </vbox>
       </tabpanel>
       <tabpanel orient="vertical">

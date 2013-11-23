@@ -424,4 +424,8 @@ window.addEventListener("load", function () {
   }
   showNotification();
   $("tabbox").addEventListener("select", showNotification, false);
+  
+  if (!prefs.doRemux) {
+    $("msg1").style.display = "block";
+  }
 }, false);

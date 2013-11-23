@@ -818,6 +818,14 @@ var getVideo = (function () {
       listener.onDetectStart();
       youtube.getLink(videoID, fIndex, function (e, vInfo, gInfo) {
         listener.onDetectDone();
+        //Remux audio-only streams even if doExtract is not active
+        if (!noAudio && isDASH(vInfo) == "a" && prefs.doRemux) {
+          doExtract = true;
+          
+          console.error('lllllllllllllll');
+        }
+        
+
         if (e) {
           notify(_('name'), e);
         }
@@ -1174,7 +1182,7 @@ sp.on("reset", function() {
   prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
   prefs.doBatchMode = true;
   prefs.doRemux = false;
-  prefs.deleteInputs = false;
+  prefs.deleteInputs = true;
   prefs.welcome = true;
   prefs.forceVisible = true
 });
