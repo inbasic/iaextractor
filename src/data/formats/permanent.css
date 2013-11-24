@@ -126,7 +126,7 @@
   display: block;
   line-height: 30px;
   height: 30px;
-  margin: 20px 30px 0 30px!important;
+  margin: 20px 28px 0 28px!important;
   text-decoration: none!important;
   outline: 0!important;
   overflow: hidden;
@@ -135,11 +135,11 @@
 .iaextractor-item span:first-child {
   display: inline-block;
   height: 100%;
-  width: 100%;
+  width: 200%!important;
   color: #FFF!important;
   background-color: #F79646!important;
   transition: background-color 100ms!important;
-  padding-left: 37px!important;
+  padding-left: 35px!important;
   -moz-box-sizing: border-box!important;
 }
 .iaextractor-item:hover span:first-child {

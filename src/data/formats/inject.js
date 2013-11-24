@@ -77,7 +77,7 @@ var Menu = function (doSize) {
     return;
   }
   var rect = player.getBoundingClientRect();
-  var width = 320 + (doSize ? 10 : 0);
+  var width = 320 + (doSize ? 15 : 0);
   
   if (width > rect.width) {
     self.port.emit("error", "msg16");
