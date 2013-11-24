@@ -1,7 +1,9 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
 /* General Code */
 
 body {
-  font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
+  font-family: "Open Sans";
   font-size: 15px;
   background-color: white;
   -moz-user-select: none;
