@@ -466,9 +466,9 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
-  if (options.loadReason == "install" && !prefs.ffmpegPath) {
-    windows.active.alert (_("msg24"));
-  }
+  //if (options.loadReason == "install" && !prefs.ffmpegPath) {
+  //  windows.active.alert (_("msg24"));
+  //}
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -1181,7 +1181,7 @@ sp.on("reset", function() {
   prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
   prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
   prefs.doBatchMode = true;
-  prefs.doRemux = false;
+  prefs.doRemux = true;
   prefs.deleteInputs = true;
   prefs.welcome = true;
   prefs.forceVisible = true

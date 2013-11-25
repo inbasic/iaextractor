@@ -1,7 +1,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://iaextractor/skin/tools.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools.dtd">
+<!DOCTYPE window SYSTEM "chrome://iaextractor/locale/tools2.dtd">
 
 <window id="iaextractor-tools" 
   windowtype="iaextractor:tools"
@@ -30,6 +30,9 @@ var require = function (id) {
   if (id == "sdk/timers") {
     return window;
   }
+  if (id == "sdk/request") {
+    return {Request: null}  //not being used here
+  }
   if (id == "sdk/l10n") {
     return {
       get: function (id) {
@@ -48,53 +51,44 @@ var require = function (id) {
                         .getService(Components.interfaces.nsIPrefService);
     prefs = prefs.getBranch("extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.");
     return {
-      prefs: {
-        getCharPref: prefs.getCharPref,
-        setCharPref: prefs.setCharPref,
-      
-        get ffmpegPath () {
-          try {
-            return prefs.getComplexValue("ffmpegPath", Components.interfaces.nsISupportsString).data;
+      prefs: new Proxy({}, {
+        get: function(target, name) {
+          switch (name) {
+          case "ffmpegPath":
+            try {
+              return prefs.getComplexValue("ffmpegPath", Components.interfaces.nsISupportsString).data;
+            }
+            catch (e) {
+              return "";
+            }
+          case "doRemux":
+            return prefs.getBoolPref(name);
+          default:
+            try {
+              return prefs.getCharPref(name);
+            }
+            catch (e) {
+              return "";
+            }
           }
-          catch (e) {
-            return "";
+        },
+        set: function(target, name, value) {
+          switch (name) {
+          case "ffmpegPath":
+            var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+            str.data = val;
+            prefs.setComplexValue("ffmpegPath", Components.interfaces.nsISupportsString, str);
+            break;
+          case "doRemux":
+            prefs.setBoolPref(name, value);
+            break;
+          default:
+            prefs.setCharPref(name, value);
           }
-        },
-        set ffmpegPath (val) {
-          var str = Components.classes["@mozilla.org/supports-string;1"]
-                .createInstance(Components.interfaces.nsISupportsString);
-          str.data = val;
-          prefs.setComplexValue("ffmpegPath", Components.interfaces.nsISupportsString, str);
-        },
-        get ffmpegInputs () {
-          return prefs.getCharPref("ffmpegInputs");
-        },
-        set ffmpegInputs (val) {
-          return prefs.setCharPref("ffmpegInputs", val);
-        },
-        get ffmpegInputs3 () {
-          return prefs.getCharPref("ffmpegInputs3");
-        },
-        set ffmpegInputs3 (val) {
-          return prefs.setCharPref("ffmpegInputs3", val);
-        },
-        get ffmpegInputs4 () {
-          return prefs.getCharPref("ffmpegInputs4");
-        },
-        set ffmpegInputs4 (val) {
-          return prefs.setCharPref("ffmpegInputs4", val);
-        },
-        get doRemux () {
-          return prefs.getBoolPref("doRemux");
-        },
-        set doRemux (val) {
-          return prefs.setBoolPref("doRemux", val);
         }
-      }
+      })
     }
-  }
-  if (id == "sdk/request") {
-    return {Request: null}  //not being used here
   }
 }
 </script>
@@ -104,7 +98,7 @@ var require = function (id) {
 <script src="tools.js"/>
 
 <stringbundleset>
-  <stringbundle id="bundle" src="chrome://iaextractor/locale/tools.properties"/>
+  <stringbundle id="bundle" src="chrome://iaextractor/locale/tools2.properties"/>
 </stringbundleset>
 
 <notificationbox id="notify" flex="1">

@@ -169,7 +169,7 @@
     "title": "",
     "description": "",
     "type": "bool",
-    "value": false
+    "value": true
   },
   {
     "name": "deleteInputs",
