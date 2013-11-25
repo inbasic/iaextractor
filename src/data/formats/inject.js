@@ -214,14 +214,9 @@ var Menu = function (doSize) {
   downloader.addEventListener('click', function (e) {
     var format = vInfo.formats[currentIndex];
     self.port.emit(
-      e.originalTarget == downloader.children[0] ? "flashgot" : "downThemAll", 
-      format.url, 
-      vInfo.title,
-      vInfo.author,
-      format.container,
-      vInfo.video_id,
-      format.resolution,
-      format.audioBitrate,
+      e.originalTarget == downloader.children[0] ? "flashgot" : "downThemAll",
+      format, 
+      vInfo,
       e.originalTarget == downloader.children[2] ? true : false
     );
   }, false);

@@ -77,7 +77,7 @@ var require = function (id) {
           case "ffmpegPath":
             var str = Components.classes["@mozilla.org/supports-string;1"]
                   .createInstance(Components.interfaces.nsISupportsString);
-            str.data = val;
+            str.data = value;
             prefs.setComplexValue("ffmpegPath", Components.interfaces.nsISupportsString, str);
             break;
           case "doRemux":

@@ -821,11 +821,7 @@ var getVideo = (function () {
         //Remux audio-only streams even if doExtract is not active
         if (!noAudio && isDASH(vInfo) == "a" && prefs.doRemux) {
           doExtract = true;
-          
-          console.error('lllllllllllllll');
         }
-        
-
         if (e) {
           notify(_('name'), e);
         }
@@ -1097,11 +1093,11 @@ var flashgot = (function () {
       .getService(Ci.nsISupports).wrappedJSObject;
   }
   catch (e) {}
-  return function (link, title, author, container, videoID, resolution, audioBitrate) {
+  return function (vInfo, gInfo) {
     if (flashgot) {
       var links = [{
-        href: link,
-        fname : fileName(title, container, author, videoID, resolution, audioBitrate),
+        href: vInfo.url,
+        fname : fileName(gInfo.video_id, vInfo, gInfo),
         description: _("msg15")
       }];
       links.document = windows.active.document;
@@ -1130,14 +1126,14 @@ var downThemAll = (function () {
     }
     catch (e) {}
   }
-  return function (link, title, author, container, videoID, resolution, audioBitrate, turbo) {
-    var fname = fileName(title, container, author, videoID, resolution, audioBitrate);
+  return function (vInfo, gInfo, turbo) {
+    var fname = fileName(gInfo.video_id, vInfo, gInfo);
     if (DTA.saveSingleItem) {
       var iOService = Cc["@mozilla.org/network/io-service;1"]
         .getService(Ci.nsIIOService)
       try {
         DTA.saveSingleItem(windows.active, turbo, {
-          url: new DTA.URL(iOService.newURI(link, "UTF-8", null)),
+          url: new DTA.URL(iOService.newURI(vInfo.url, "UTF-8", null)),
           referrer: "",
           description: _("msg15"),
           fileName: fname,
@@ -1148,7 +1144,7 @@ var downThemAll = (function () {
       }
       catch (e) {
         if (turbo) {
-          downThemAll(link, title, author, container, false);
+          downThemAll(vInfo, gInfo, false);
         }
       }
     }
