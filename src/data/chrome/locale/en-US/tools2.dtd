@@ -1,8 +1,8 @@
-<!ENTITY title "Tools - Youtube Video and Audio Downloader">
+<!ENTITY title "Conversion Tools - Youtube Video and Audio Downloader">
 <!ENTITY aac-to-mp3 "AAC to MP3 Converter (Online Tool)">
 <!ENTITY flv-to-aac "FLV Audio Extractor">
-<!ENTITY to-mp3 "MP3 Converter">
-<!ENTITY mixer "Combine audio and video files">
+<!ENTITY to-mp3 "Audio Extractor and Converter">
+<!ENTITY mixer "Combine Audio and Video Files">
 <!ENTITY drop1 "Drag and drop an audio file (*.AAC) here">
 <!ENTITY p1 "Requesting conversion permission">
 <!ENTITY p2 "Uploading the audio file to server">
@@ -12,8 +12,12 @@
 <!ENTITY drop2 "Drag and drop a video file (*.FLV) here">
 <!ENTITY ffmpeg-path "FFmpeg.exe location:">
 <!ENTITY browse "browse...">
-<!ENTITY ffmpeg-input "FFmpeg input arguments">
+<!ENTITY ffmpeg-input1 "FFmpeg input arguments for MP3 conversion">
+<!ENTITY ffmpeg-input3 "FFmpeg input arguments for remuxing">
+<!ENTITY ffmpeg-input3-2 '(only for audio-only streams with " - DASH" in filename)'>
+<!ENTITY ffmpeg-input4 "FFmpeg input arguments">
 <!ENTITY drop3 "Drag and drop a video file here">
 <!ENTITY drop4_1 "Drag and drop a video-only file here">
 <!ENTITY drop4_2 "Drag and drop an audio-only file here">
 <!ENTITY reset "Reset">
+<!ENTITY msg1 "Note: Remuxing is disabled. You can enable it from addon's settings">

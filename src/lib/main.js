@@ -9,7 +9,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
     Request       = require("sdk/request").Request,
-    windowutils   = require("window-utils"),
     toolbarbutton = require("./toolbarbutton"),
     userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
@@ -25,7 +24,12 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
     prompts2      = tools.prompts2,
-    update        = tools.update
+    update        = tools.update,
+    windows          = {
+      get active () { // Chrome window
+        return require('sdk/window/utils').getMostRecentBrowserWindow()
+      }
+    };
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -146,7 +150,7 @@ rPanel.port.on("cmd", function (cmd) {
     break;
   case "tools":
     rPanel.hide();
-    windowutils.activeBrowserWindow.open(
+    windows.active.open(
       config.urls.tools, 
       'iaextractor', 
       'chrome,minimizable=yes,all,resizable=yes'
@@ -156,7 +160,7 @@ rPanel.port.on("cmd", function (cmd) {
     listener.cancel(parseInt(arguments[1]));
     break;
   case "settings":
-    windowutils.activeBrowserWindow.BrowserOpenAddonsMgr(
+    windows.active.BrowserOpenAddonsMgr(
       "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
     rPanel.hide();
     break;
@@ -462,9 +466,9 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
-  if (options.loadReason == "install" && !prefs.ffmpegPath) {
-    windowutils.activeBrowserWindow.alert (_("msg24"));
-  }
+  //if (options.loadReason == "install" && !prefs.ffmpegPath) {
+  //  windows.active.alert (_("msg24"));
+  //}
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -509,14 +513,14 @@ tabs.on('activate', monitor);
 
 /** Store toolbar button position **/
 var aftercustomizationListener = function () {
-  let button = windowutils.activeBrowserWindow.document.getElementById(config.toolbar.id);
+  let button = windows.active.document.getElementById(config.toolbar.id);
   if (!button) return;
   prefs.nextSibling = button.nextSibling.id;
 }
-windowutils.activeBrowserWindow.addEventListener("aftercustomization", aftercustomizationListener, false); 
+windows.active.addEventListener("aftercustomization", aftercustomizationListener, false); 
 exports.onUnload = function (reason) {
   //Remove toolbar listener
-  windowutils.activeBrowserWindow.removeEventListener("aftercustomization", aftercustomizationListener, false); 
+  windows.active.removeEventListener("aftercustomization", aftercustomizationListener, false); 
   //Close tools window
   let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
     .getService(Ci.nsIWindowMediator);   
@@ -676,7 +680,7 @@ sp.on("dFolder", function () {
     rPanel.hide();
     var nsIFilePicker = Ci.nsIFilePicker;
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(windowutils.activeBrowserWindow, _("msg13"), nsIFilePicker.modeGetFolder);
+    fp.init(windows.active, _("msg13"), nsIFilePicker.modeGetFolder);
     var res = fp.show();
     if (res != nsIFilePicker.returnCancel) {
       _prefs.setComplexValue("userFolder", fp.file.path);
@@ -769,20 +773,40 @@ var batch = (function () {
     add: function (id) {
       cache[id] = 2;
     },
-    execute: function (id, file, callback, pointer) {
+    execute: function (id, file, type, callback, pointer) {
       cache[id] -= 1;
       if (cache[id] == 1) {
         files[id] = file;
         if (callback) callback.apply(pointer);
       }
       else {
+        var f1 = files[id], f2 = file;
+        if (type == "audio") {
+          [f1, f2] = [f2, f1];
+        }
+        
         ffmpeg.ffmpeg (function () {
           if (callback) callback.apply(pointer);
-        }, null, files[id], file);
+        }, null, prefs.deleteInputs, f1, f2);
       }
     }
   }
 })();
+
+/** **/
+var isDASH = function (vInfo) {
+  var v = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+      a = [139, 140, 141, 171, 172];
+  if (v.indexOf(vInfo.itag) != -1) {
+    return "v";
+  }
+  else if (a.indexOf(vInfo.itag) != -1) {
+    return "a"
+  }
+  else {
+    return false;
+  }
+}
 
 /** Call this with new **/
 var getVideo = (function () {
@@ -792,22 +816,23 @@ var getVideo = (function () {
   
     function onDetect () {
       listener.onDetectStart();
-      youtube.getLink(videoID, fIndex, function (e, vInfo, title, author) {
+      youtube.getLink(videoID, fIndex, function (e, vInfo, gInfo) {
         listener.onDetectDone();
+        //Remux audio-only streams even if doExtract is not active
+        if (!noAudio && isDASH(vInfo) == "a" && prefs.doRemux) {
+          doExtract = true;
+        }
         if (e) {
           notify(_('name'), e);
         }
         else {
-          onFile (vInfo, title, author);
+          onFile (vInfo, gInfo);
         }
       });
     }
-    function onFile (vInfo, title, author) {
+    function onFile (vInfo, gInfo) {
       // Do not generate audio file if video has no sound track
-      if (
-        (vInfo.itag >= 133 && vInfo.itag <= 138) || 
-        vInfo.itag == 160 || 
-        (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+      if (isDASH(vInfo) == "v") {
         doExtract = false;
       }
       // Do not generate audio file if video format is not FLV
@@ -819,7 +844,7 @@ var getVideo = (function () {
         doExtract = false;
       }
       // Download proper audio file if video-only format is selected
-      if ((vInfo.itag >= 133 && vInfo.itag <= 138) || vInfo.itag == 160 || (vInfo.itag >= 242 && vInfo.itag <= 248)) {
+      if (isDASH(vInfo) == "v") {
         if (!prefs.showAudioDownloadInstruction) {
           var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
           prefs.showAudioDownloadInstruction = tmp.check.value;
@@ -859,7 +884,7 @@ var getVideo = (function () {
             vInfo.parent.formats.forEach (function (a, index) {
               if (a.itag == afIndex) {
                 new getVideo(videoID, listener, index, true, function (f) {
-                  batch.execute(batchID, f);
+                  batch.execute(batchID, f, "audio");
                 });
               }
             });
@@ -871,9 +896,9 @@ var getVideo = (function () {
       if (prefs.dFolder == 4) {
         let nsIFilePicker = Ci.nsIFilePicker;
         let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-        fp.init(windowutils.activeBrowserWindow, _("prompt3"), nsIFilePicker.modeSave);
+        fp.init(windows.active, _("prompt3"), nsIFilePicker.modeSave);
         fp.appendFilter(_("msg14"), "*." + vInfo.container);
-        fp.defaultString = fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate);
+        fp.defaultString = fileName(videoID, vInfo, gInfo);
         let res = fp.show();
         if (res == nsIFilePicker.returnCancel) {
           // Still no id. Generating a random one
@@ -892,7 +917,7 @@ var getVideo = (function () {
         try {
           //Simple-prefs doesnt support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
-          vFile.append(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
+          vFile.append(fileName(videoID, vInfo, gInfo));
         }
         catch (e) {
           notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
@@ -918,7 +943,7 @@ var getVideo = (function () {
             root = "Desk";
             break;
         }
-        videoPath.push(fileName(title, vInfo.container, author, videoID, vInfo.resolution, vInfo.audioBitrate));
+        videoPath.push(fileName(videoID, vInfo, gInfo));
         vFile = FileUtils.getFile(root, videoPath);
       }
       var aFile, sFile;
@@ -975,8 +1000,8 @@ var getVideo = (function () {
         _('msg3').replace("%1", vInfo.quality)
           .replace("%2", vInfo.container)
           .replace("%3", vInfo.resolution)
-          .replace("%6", vInfo.audioEncoding)
-          .replace("%7", vInfo.audioBitrate)
+          .replace("%6", vInfo.audioEncoding || "")
+          .replace("%7", vInfo.audioBitrate || "")
       );
       onSubtitle(obj);
     }
@@ -994,7 +1019,7 @@ var getVideo = (function () {
           }
         }
         if (callback) callback.apply(pointer, [obj.vFile]);
-        if (batchID) batch.execute(batchID, obj.vFile);
+        if (batchID) batch.execute(batchID, obj.vFile, "video");
       }
       if (!doExtract) {
         return afterExtract();
@@ -1003,10 +1028,10 @@ var getVideo = (function () {
       if (vInfo.container == "flv") {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
           if (e && prefs.ffmpegPath) {
-            ffmpeg.ffmpeg(function () {
+            ffmpeg.ffmpeg (function () {
               listener.onExtractDone(id);
               afterExtract();
-            }, null, obj.vFile);
+            }, null, false, obj.vFile);
           }
           else {
             listener.onExtractDone(id);
@@ -1015,10 +1040,10 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg(function () {
+        ffmpeg.ffmpeg (function () {
           listener.onExtractDone(id);
           afterExtract();
-        }, null, obj.vFile);
+        }, null, (isDASH(vInfo) && prefs.deleteInputs), obj.vFile);
       }
     }
     function onSubtitle (obj) {
@@ -1031,7 +1056,7 @@ var getVideo = (function () {
     //
     if (typeof(videoID) == "object") {
       var obj = videoID[0];
-      onFile (obj.vInfo, obj.title);
+      onFile (obj.vInfo, obj);
     }
     else {
       onDetect();
@@ -1040,14 +1065,15 @@ var getVideo = (function () {
 })();
 
 /** File naming **/
-var fileName = function (title, container, author, video_id, video_resolution, audio_biterate) {
+var fileName = function (videoID, vInfo, gInfo) {
+  // Add " - DASH" to DASH only files
   return pattern = prefs.namePattern
-    .replace ("[file_name]", title)
-    .replace ("[extension]", container)
-    .replace ("[author]", author)
-    .replace ("[video_id]", video_id)
-    .replace ("[video_resolution]", video_resolution)
-    .replace ("[audio_bitrate]", audio_biterate + "K")
+    .replace ("[file_name]", gInfo.title + (isDASH(vInfo) ? " - DASH" : ""))
+    .replace ("[extension]", vInfo.container)
+    .replace ("[author]", gInfo.author)
+    .replace ("[video_id]", videoID)
+    .replace ("[video_resolution]", vInfo.resolution)
+    .replace ("[audio_bitrate]", vInfo.audioBitrate + "K")
     //
     .replace(/\+/g, " ")
     .replace(/[:\?\¿]/g, "")
@@ -1067,14 +1093,14 @@ var flashgot = (function () {
       .getService(Ci.nsISupports).wrappedJSObject;
   }
   catch (e) {}
-  return function (link, title, author, container, videoID, resolution, audioBitrate) {
+  return function (vInfo, gInfo) {
     if (flashgot) {
       var links = [{
-        href: link,
-        fname : fileName(title, container, author, videoID, resolution, audioBitrate),
+        href: vInfo.url,
+        fname : fileName(gInfo.video_id, vInfo, gInfo),
         description: _("msg15")
       }];
-      links.document = windowutils.activeBrowserWindow.document;
+      links.document = windows.active.document;
       flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
     }
     else {
@@ -1100,14 +1126,14 @@ var downThemAll = (function () {
     }
     catch (e) {}
   }
-  return function (link, title, author, container, videoID, resolution, audioBitrate, turbo) {
-    var fname = fileName(title, container, author, videoID, resolution, audioBitrate);
+  return function (vInfo, gInfo, turbo) {
+    var fname = fileName(gInfo.video_id, vInfo, gInfo);
     if (DTA.saveSingleItem) {
       var iOService = Cc["@mozilla.org/network/io-service;1"]
         .getService(Ci.nsIIOService)
       try {
-        DTA.saveSingleItem(windowutils.activeBrowserWindow, turbo, {
-          url: new DTA.URL(iOService.newURI(link, "UTF-8", null)),
+        DTA.saveSingleItem(windows.active, turbo, {
+          url: new DTA.URL(iOService.newURI(vInfo.url, "UTF-8", null)),
           referrer: "",
           description: _("msg15"),
           fileName: fname,
@@ -1118,7 +1144,7 @@ var downThemAll = (function () {
       }
       catch (e) {
         if (turbo) {
-          downThemAll(link, title, author, container, false);
+          downThemAll(vInfo, gInfo, false);
         }
       }
     }
@@ -1133,7 +1159,7 @@ var downThemAll = (function () {
 
 /** Reset all settings **/
 sp.on("reset", function() {
-  if (!windowutils.activeBrowserWindow.confirm(_("msg25"))) return
+  if (!windows.active.confirm(_("msg25"))) return
   
   prefs.extension = 0;
   prefs.quality = 2
@@ -1148,8 +1174,11 @@ sp.on("reset", function() {
   prefs.oneClickDownload = false;
   prefs.silentOneClickDownload = true;
   prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
-  prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
+  prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
+  prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
   prefs.doBatchMode = true;
+  prefs.doRemux = true;
+  prefs.deleteInputs = true;
   prefs.welcome = true;
   prefs.forceVisible = true
 });
@@ -1164,7 +1193,7 @@ var notify = (function () {
       alertServ.showAlertNotification(data.url("report/open.png"), title, text);
     }
     catch (e) {
-      let browser = windowutils.activeBrowserWindow.gBrowser,
+      let browser = windows.active.gBrowser,
           notificationBox = browser.getNotificationBox();
 
       notification = notificationBox.appendNotification(

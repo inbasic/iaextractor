@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "lib": "lib",
   "main": "main",
   
@@ -94,7 +94,8 @@
   {
     "name": "userFolder",
     "type": "directory",
-    "title": ""
+    "title": "",
+    "description": ""
   },
   {
     "name": "getFileSize",
@@ -132,7 +133,8 @@
   {
     "name": "ffmpegPath",
     "type": "file",
-    "title": ""
+    "title": "",
+    "description": ""
   },
   {
     "name": "ffmpegInputs",
@@ -142,14 +144,35 @@
     "value": "-i %input -q:a 0 %output.mp3"
   },
   {
-    "name": "ffmpegInputs2",
+    "name": "ffmpegInputs4",
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %audio -i %video -acodec copy -vcodec copy %output.mp4"
+    "value": "-i %audio -i %video -acodec copy -vcodec copy %output"
   },
   {
     "name": "doBatchMode",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "ffmpegInputs3",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": "-i %input -acodec copy -vn %output"
+  },
+  {
+    "name": "doRemux",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "deleteInputs",
     "title": "",
     "description": "",
     "type": "bool",

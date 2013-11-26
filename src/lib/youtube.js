@@ -5,7 +5,8 @@
 function _getInfo(videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=';
   
-  var formatDictionary = function (id) {
+  var formatDictionary = function (obj) {
+    var id = obj.itag;
     // itag, container, Video resolution, Video encoding, Video profile, Audio encoding, Audio bitrate (kbit/s)
     const F = {
       5:   ["flv",  "240",  "H.283",  null,       "mp3", 64],
@@ -43,13 +44,14 @@ function _getInfo(videoID, callback, pointer) {
       141: ["m4a",  "256",  null,     "DASH A",   "aac", 256],  //Audio-only
       171: ["webm", "128",  null,     "DASH A",   "ogg", 128],  //Audio-only
       172: ["webm", "256",  null,     "DASH A",   "ogg", 192],  //Audio-only
+      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
       133: ["mp4",  "240",  null,     "DASH V",   null,  null], //Video-only
       134: ["mp4",  "360",  null,     "DASH V",   null,  null], //Video-only
       135: ["mp4",  "480",  null,     "DASH V",   null,  null], //Video-only
       136: ["mp4",  "720",  null,     "DASH V",   null,  null], //Video-only
       137: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
       138: ["mp4",  "1080", null,     "DASH V",   null,  null], //Video-only
-      160: ["mp4",  "144",  null,     "DASH V",   null,  null], //Video-only
+      264: ["mp4",  "1200", null,     "DASH V",   null,  null], //Video-only
       242: ["webm", "240",  null,     "DASH V",   null,  null], //Video-only
       243: ["webm", "360",  null,     "DASH V",   null,  null], //Video-only
       244: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
@@ -59,19 +61,21 @@ function _getInfo(videoID, callback, pointer) {
       248: ["webm", "1080", null,     "DASH V",   null,  null]  //Video-only
     }
     if (!F[id]) return;
+    // Right resolution from YouTube server
+    var res = obj.size ? /\d+x(\d+)/.exec(obj.size) : null;
     var tmp = {
       container:     F[id][0],
-      resolution:    F[id][1] + "p",
+      resolution:    (res && res.length ? res[1] : F[id][1]) + "p",
       encoding:      F[id][2],
       profile:       F[id][3],
       audioEncoding: F[id][4],
       audioBitrate:  F[id][5],
     };
-    if ((id >= 139 && id <= 141) || (id >= 171 && id <= 172)) {
+    if ([139, 140, 141, 171, 172].indexOf(id) != -1) {
       tmp.quality = "audio-only";
     }
-    if ((id >= 133 && id <= 138) || id == 160 || (id >= 242 && id <= 248)) {
-      tmp.quality = F[id][1] + "p Video-only";
+    if ([160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248].indexOf(id) != -1) {
+      tmp.quality = tmp.resolution + " Video-only";
     }
     return tmp;
   }
@@ -202,17 +206,32 @@ function _getInfo(videoID, callback, pointer) {
         else {
           videoFormatsPair.url = url;
         }
-        var format = formatDictionary(videoFormatsPair.itag);
+        var format = formatDictionary(videoFormatsPair);
         if (!format) continue;
         for (var j in format) {
-          videoFormatsPair[j] = format[j]
+          videoFormatsPair[j] = format[j];
         }
         objs.push(videoFormatsPair);
       }
 
       delete info.url_encoded_fmt_stream_map;
       delete info.adaptive_fmts;
-      return objs;
+      // Sorting audio-only and video-only formats
+      return objs.sort(function (a,b) {
+        var audio = [141, 172, 171, 140, 139],
+            video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+            aaIndex = audio.indexOf(a.itag) != -1,
+            baIndex = audio.indexOf(b.itag) != -1,
+            avIndex = video.indexOf(a.itag) != -1,
+            bvIndex = video.indexOf(b.itag) != -1;
+        
+        if (aaIndex && baIndex) {
+          return b.audioBitrate - a.audioBitrate;
+        }
+        if (avIndex && bvIndex) {
+          return b.bitrate - a.bitrate;
+        }
+      });
     }
     // Request new codec
     if ((info.player || info.use_cipher_signature) && info.player != prefs.player) { // if there is no html5 player but ciphered signature ...
@@ -343,7 +362,7 @@ var getLink = function (videoID, fIndex, callback, pointer) {
         detected = info.formats[fIndex];
       }
       detected.parent = info;
-      if (callback) callback.apply(pointer, [null, detected, info.title, info.author]);
+      if (callback) callback.apply(pointer, [null, detected, info]);
     });
   }
   catch (e) {

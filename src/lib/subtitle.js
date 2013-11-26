@@ -6,16 +6,19 @@
 
 var {Cc, Ci, Cu, components} = require('chrome'),
     _            = require("sdk/l10n").get,
-    windowutils  = require("window-utils"),
-    window       = windowutils.activeBrowserWindow,
     Request      = require("sdk/request").Request,
-    youtube      = require("./youtube");
+    youtube      = require("./youtube"),
+    windows          = {
+      get active () { // Chrome window
+        return require('sdk/window/utils').getMostRecentBrowserWindow()
+      }
+    };
  
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 
 function xmlToSrt (str) {
-  var parser = new window.DOMParser();
+  var parser = new windows.active.DOMParser();
 
   var getTimes = function (node) {
     var start = parseFloat(node.getAttribute("start"));

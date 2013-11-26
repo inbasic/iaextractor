@@ -2,7 +2,7 @@ const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const NS_SVG = "http://www.w3.org/2000/svg";
 const NS_XLINK = "http://www.w3.org/1999/xlink";
 
-const winUtils = require("window-utils");
+const winUtils = require("sdk/deprecated/window-utils");
 const browserURL = "chrome://browser/content/browser.xul";
 
 /** unload+.js **/
@@ -14,7 +14,7 @@ var unload = (function () {
     unloaders.length = 0;
   }
 
-  require("unload").when(unloadersUnlaod);
+  require("sdk/system/unload").when(unloadersUnlaod);
 
   function removeUnloader(unloader) {
     let index = unloaders.indexOf(unloader);
@@ -97,30 +97,15 @@ exports.ToolbarButton = function ToolbarButton(options) {
       options.tooltiptext = options.tooltiptext || '';
 
       // create toolbar button
-      let stack = doc.createElementNS(NS_XUL, "stack");
-      stack.setAttribute("class", "toolbarbutton-icon");
-      //stack.appendChild(svg);
-      let box = doc.createElementNS(NS_XUL, "vbox");
-      box.setAttribute("flex", "1");
-      box.setAttribute("align", "center");
-      box.setAttribute("pack", "end");
-      let progressmeter = doc.createElementNS(NS_XUL, "box");
-      progressmeter.setAttribute("class", "progress");
-      box.appendChild(progressmeter);
-      let img = doc.createElementNS(NS_XUL, "image");
-      img.setAttribute("class", "normal");
-      let tbb = doc.createElementNS(NS_XUL, "toolbaritem");
+      let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("pack", "center");
       tbb.setAttribute("align", "center");
       tbb.setAttribute("removable", "true"); 
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("type", "button");
-      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional iaextractor");
+      tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
       tbb.setAttribute("label", options.label);
       tbb.setAttribute('tooltiptext', options.tooltiptext);
-      stack.appendChild(box);
-      stack.appendChild(img);
-      tbb.appendChild(stack);
 
       tbb.addEventListener("click", function(e) {
         if (e.button != 0 || e.ctrlKey) return; 
@@ -205,15 +190,11 @@ exports.ToolbarButton = function ToolbarButton(options) {
 
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      let image = tbb.childNodes[0].childNodes[1];
-      let progressbar = tbb.childNodes[0].childNodes[0].childNodes[0];
       if (!aOptions.progress) {
-        image.setAttribute("class", "normal");
-        progressbar.style.height = 0;
+        tbb.removeAttribute("progress");
       }
       else {
-        image.setAttribute("class", "counter");
-        progressbar.style.height = (9 * aOptions.progress) + "px";
+        tbb.setAttribute("progress", (aOptions.progress * 8).toFixed(0));
       }
     }, options.id);
     return aOptions.progress;

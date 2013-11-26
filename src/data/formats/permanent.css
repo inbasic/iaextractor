@@ -1,13 +1,17 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
 /** Menu **/
 
 #iaextractor-menu {
   position: relative;
-  font-family: "Open Sans", Tahoma, Helvetica, "Sans-Serif";
+  font-family: "Open Sans";
   background: #FF6C09!important;
   color: #FFF!important;
   -moz-user-select: none;
   z-index: 2147483647;
   overflow: hidden;
+  word-spacing: 0!important;
+  letter-spacing: 0!important;
 }
 #iaextractor-menu a {
   color: #FFF!important;
@@ -18,6 +22,7 @@
   line-height: 36px;
   font-size: 16px!important;
   text-align: center;
+  color: #FFF!important;
 }
 #iaextractor-tabs {
   display: none;
@@ -31,6 +36,7 @@
 #iaextractor-tabs span {
   float: left;
   cursor: pointer;
+  color: #FFF!important;
 }
 #iaextractor-tabs span:hover:active {
   opacity: 0.5;
@@ -122,7 +128,7 @@
   display: block;
   line-height: 30px;
   height: 30px;
-  margin: 20px 30px 0 30px!important;
+  margin: 20px 28px 0 28px!important;
   text-decoration: none!important;
   outline: 0!important;
   overflow: hidden;
@@ -131,10 +137,11 @@
 .iaextractor-item span:first-child {
   display: inline-block;
   height: 100%;
-  width: 100%;
+  width: 200%!important;
+  color: #FFF!important;
   background-color: #F79646!important;
   transition: background-color 100ms!important;
-  padding-left: 37px!important;
+  padding-left: 35px!important;
   -moz-box-sizing: border-box!important;
 }
 .iaextractor-item:hover span:first-child {
@@ -191,7 +198,7 @@
   top: -33px;
   padding: 5px!important;
   pointer-events: none;
-  color: black;
+  color: #000!important;
   opacity: 0;
   transition: opacity 200ms;
 }
@@ -216,35 +223,32 @@
 
 #formats-button-small {
   width: 90px;
-  height: 28px;
+  height: 29px;
   position: absolute; 
   right: 12px; 
-  top: 17px;
-  font-weight:bold;
-  font-size:11px!important;
-  padding-left: 18px!important;
-  -moz-appearance: none !important;
+  top: 14px;
+  padding-left: 27px!important;
   z-index: 2147483647; 
   cursor: pointer;
-  color: #F97D00;
-  border: 1px solid transparent!important;
-  border-radius: 2px;
-  background: #FFF -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat 6px center!important;
-  box-shadow: -12px 0 0 #FFF!important;
+  color: #F97D00!important;
 }
-#formats-button-small:hover {
-  border: 1px solid #c6c6c6!important;
-  border-radius: 2px;
-  background: #F0F0F0 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat 6px center!important;
-  box-shadow: -12px 0 0 #FFF, 0px 1px 0px rgba(0, 0, 0, 0.1)!important;
+#formats-button-small:not(:hover):not(:active) {
+  background-color: white!important;
 }
 #formats-button-small:hover:active {
-  border-color:#c6c6c6!important;
-  background:#e9e9e9!important;
-  box-shadow:-12px 0 0 #FFF, inset 0 1px 0 #DDD!important;
-  color:#F79430;
-  background:#E9E9E9 -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 32, 16, 16) no-repeat 6px center!important;
+  box-shadow: none!important;
 }
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */
 }
+#icon-wrapper {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat center!important;
+}
+
+
+

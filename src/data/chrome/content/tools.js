@@ -292,7 +292,7 @@ var drag3 = {
         $("ffmpeg-info").value = bundle.getString("msg4");
         exports.ffmpeg (function () {
           $("ffmpeg-info").value = bundle.getString("msg3");
-        }, null, dropFile);
+        }, null, false, dropFile);
       }
       catch (e) {
         alert(e);
@@ -340,7 +340,7 @@ function doMix() {
       $("audio-only-reset").collapsed = true;
       $("video-only-reset").collapsed = true;
       audio_file = video_file = null;
-    }, null, audio_file, video_file);
+    }, null, false, audio_file, video_file);
   }
   catch (e) {
     alert(e);
@@ -370,13 +370,17 @@ var commands = {
       $("browse").doCommand();
     }
   },
-  ffmpeg_command: function (value) {
+  ffmpeg_command1: function (value) {
     if (!value) return;
     prefs.ffmpegInputs = value;
   },
-  ffmpeg_command2: function (value) {
+  ffmpeg_command4: function (value) {
     if (!value) return;
-    prefs.ffmpegInputs2 = value;
+    prefs.ffmpegInputs4 = value;
+  },
+  ffmpeg_command3: function (value) {
+    if (!value) return;
+    prefs.ffmpegInputs3 = value;
   },
   browse: function () {
     var fp = Cc["@mozilla.org/filepicker;1"]
@@ -390,12 +394,16 @@ var commands = {
   },
   reset1: function () {
     prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
-    $("ffmpeg-input").value = prefs.ffmpegInputs;
+    $("ffmpeg-input1").value = prefs.ffmpegInputs;
   },
-  reset2: function () {
-    prefs.ffmpegInputs2 = "-i %audio -i %video -acodec copy -vcodec copy %output.mp4";
-    $("ffmpeg-input2").value = prefs.ffmpegInputs2;
+  reset3: function () {
+    prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
+    $("ffmpeg-input3").value = prefs.ffmpegInputs3;
   },
+  reset4: function () {
+    prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
+    $("ffmpeg-input4").value = prefs.ffmpegInputs4;
+  }
 }
 
 window.addEventListener("load", function () {
@@ -403,8 +411,9 @@ window.addEventListener("load", function () {
   
   $("ffmpeg-path-1").value = prefs.ffmpegPath;
   $("ffmpeg-path-2").value = prefs.ffmpegPath;
-  $("ffmpeg-input").value = prefs.ffmpegInputs;
-  $("ffmpeg-input2").value = prefs.ffmpegInputs2;
+  $("ffmpeg-input1").value = prefs.ffmpegInputs;
+  $("ffmpeg-input4").value = prefs.ffmpegInputs4;
+  $("ffmpeg-input3").value = prefs.ffmpegInputs3;
 
   function showNotification() {
     if (($("tabbox").selectedIndex == 2 || $("tabbox").selectedIndex == 3) && !prefs.ffmpegPath) {
@@ -415,4 +424,8 @@ window.addEventListener("load", function () {
   }
   showNotification();
   $("tabbox").addEventListener("select", showNotification, false);
+  
+  if (!prefs.doRemux) {
+    $("msg1").style.display = "block";
+  }
 }, false);
