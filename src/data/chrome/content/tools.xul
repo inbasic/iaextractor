@@ -191,7 +191,10 @@ var require = function (id) {
           <button label="&reset;" oncommand="commands.reset1();"/>
         </hbox>
         <hbox align="center">
-          <label value="&ffmpeg-input3;" />
+          <vbox>
+            <label value="&ffmpeg-input3;" />
+            <label value="&ffmpeg-input3-2;" />
+          </vbox>
           <textbox id="ffmpeg-input3" flex="1" onchange="commands.ffmpeg_command3(this.value)"/>
           <button label="&reset;" oncommand="commands.reset3();"/>
         </hbox>
