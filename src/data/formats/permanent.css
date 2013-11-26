@@ -10,6 +10,8 @@
   -moz-user-select: none;
   z-index: 2147483647;
   overflow: hidden;
+  word-spacing: 0!important;
+  letter-spacing: 0!important;
 }
 #iaextractor-menu a {
   color: #FFF!important;
