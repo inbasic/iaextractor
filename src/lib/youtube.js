@@ -311,30 +311,19 @@ var getFormat = function (value) {
     return "webm";
   }
 }
-//Do not localize
-var getQuality = function (value) {
-  switch (value) {
-  case 4:
-    return "small";
-  case 3:
-    return "medium";
-  case 2:
-    return "high";
-  case 1:
-    return "hd720";
-  case 0:
-    return "hd1080";
-  }
-}
 
 var getLink = function (videoID, fIndex, callback, pointer) {
   try {
     _getInfo(videoID, function (info) {
-      var quality = prefs.quality, detected;
       if (!fIndex) {
-        //format is already sorted high to low
         var tmp = info.formats.filter(function (a) {
+          if (a.profile == "DASH A") return false;
+          if ((!prefs.ffmpegPath || !prefs.doBatchMode) && a.profile == "DASH V") return false;
           return a.container == getFormat(prefs.extension)
+        });
+        //Sorting base on quality
+        tmp = tmp.sort(function (a, b) {
+          return parseInt(b.resolution) - parseInt(a.resolution);
         });
         if (prefs.doExtract && getFormat(prefs.extension) == "flv") {
           var tmp2 = tmp.filter(function (a) {
@@ -344,13 +333,26 @@ var getLink = function (videoID, fIndex, callback, pointer) {
             tmp = tmp2;
           }
         }
-        var qualityValue = prefs.quality;
+        var qualityValue = prefs.quality, detected;
         while (tmp.length && !detected && qualityValue > -1) {
           var b = tmp.filter(function (a) {
-            if (a.quality == getQuality(qualityValue))
-              return true;
-            else
-              return false
+            var resolution = parseInt(a.resolution);
+            //4 worst, 0 best
+            if (qualityValue == 0) {  //HD
+              return resolution >= 1080;
+            }
+            if (qualityValue == 1) {  //HD
+              return resolution >= 720 && resolution < 1080;
+            }
+            if (qualityValue == 2) {  //High
+              return resolution >= 480 && resolution < 720;
+            }
+            if (qualityValue == 3) {  //Medium
+              return resolution >= 240 && resolution < 480;
+            }
+            if (qualityValue == 4) {  //Small
+              return resolution < 240;
+            }
           });
           if (b.length) detected = b[0];
           qualityValue -= 1;
