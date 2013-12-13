@@ -784,10 +784,10 @@ var batch = (function () {
         if (type == "audio") {
           [f1, f2] = [f2, f1];
         }
-        
-        ffmpeg.ffmpeg (function () {
+        ffmpeg.ffmpeg([f1, f2], {deleteInputs: prefs.deleteInputs}, function () {
           if (callback) callback.apply(pointer);
-        }, null, prefs.deleteInputs, f1, f2);
+        });
+        
       }
     }
   }
@@ -1028,10 +1028,10 @@ var getVideo = (function () {
       if (vInfo.container == "flv") {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
           if (e && prefs.ffmpegPath) {
-            ffmpeg.ffmpeg (function () {
+            ffmpeg.ffmpeg([obj.vFile], {}, function () {
               listener.onExtractDone(id);
               afterExtract();
-            }, null, false, obj.vFile);
+            });
           }
           else {
             listener.onExtractDone(id);
@@ -1040,10 +1040,10 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg (function () {
+        ffmpeg.ffmpeg([obj.vFile], {deleteInputs: isDASH(vInfo) && prefs.deleteInputs}, function () {
           listener.onExtractDone(id);
           afterExtract();
-        }, null, (isDASH(vInfo) && prefs.deleteInputs), obj.vFile);
+        });
       }
     }
     function onSubtitle (obj) {

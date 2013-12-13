@@ -4,61 +4,91 @@ var {Cc, Ci, Cu}  = require('chrome'),
     prefs         = sp.prefs;
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
-//One input for conversion, two inputs for combining files
-exports.ffmpeg = function (callback, pointer, deleteInputs, input1, input2) {
-  if (input1 && typeof (input1) == "string") {
-    input1 = new FileUtils.File(input1);
-  }
-  if (input2 && typeof (input2) == "string") {
-    input2 = new FileUtils.File(input2);
-  }
-  
-  var doRemux = input1.leafName.indexOf(" - DASH") != -1 && prefs.doRemux;
-  
+/*
+ * inputs: array of input files, for video and audio combiner the second input is the video file
+ * options: mode (combine, extract)
+ * options: doRemux overwrite "- DASH" filename requirement
+ * options: deleteInputs delete input files
+ */
+exports.ffmpeg = function (inputs, options, callback, pointer) {
+  var extensions = [], tmpFiles = [], outputLocation;
+  // Is FFmpeg available?
   var ffmpegPath = prefs.ffmpegPath;
   if (!ffmpegPath) {
     throw _("err12");
   }
-  // Create a temporary folder
-  var ext1 = /([^\.]*)$/.exec(input1.leafName);
-  ext1 = ext1 ? ext1[1] : "";
-  if (input2) {
-    var ext2 = /([^\.]*)$/.exec(input2.leafName);
-    ext2 = ext2 ? ext2[1] : "";
+  //
+  if (!options.mode) {
+    options.mode = inputs.length == 2 ? "combine" : "extract";
   }
-  // Output extension
-  var outExt;
-  var overwriteExtension = false;
-  if (input2) {
-    outExt = ext2;
+  // Converting inputs to array
+  if (typeof (inputs) == "string") inputs = [inputs];
+  // Converting inputs to nsiFile
+  inputs.forEach (function (input, index) {
+    if (typeof (input) == "string") {
+      inputs[index] = new FileUtils.File(input);
+    }
+    var extension = /([^\.]*)$/.exec(inputs[index].leafName);
+    extensions[index] = extension ? extension[1] : "";
+  });
+  // FFmpeg command
+  var cmd;
+  if (options.mode == "combine") {
+    cmd = prefs.ffmpegInputs4;
+  }
+  else if ((inputs[0].leafName.indexOf(" - DASH") != -1 && prefs.doRemux) || options.doRemux) {
+    cmd = prefs.ffmpegInputs3;
   }
   else {
-    outExt = /\%output\.(\S+)/.exec(prefs[doRemux ? "ffmpegInputs3" : "ffmpegInputs"]);
-    if (outExt) {
-      outExt = outExt[1];
+    cmd = prefs.ffmpegInputs;
+  }
+  var tmp = /\-output\-location \"(.*)\"/.exec (cmd);
+  if (tmp && tmp.length) {
+    outputLocation = new FileUtils.File(tmp[1]);
+    cmd = cmd.replace(/\-output\-location \".*\"/, "");
+  }
+  // Determining output file extension
+  if (options.mode == "combine") { // video and audio combiner
+    extensions[2] = extensions[1];
+  }
+  else {
+    var tmp = /\%output\.(\S+)/.exec(cmd); // has user determined the output extension?
+    if (tmp && tmp.length) {
+      extensions[2] = tmp[1];
+      cmd = cmd.replace(/\%output\.\S+/, "%output");
+    }
+    else if (extensions[0] == "mp4") {
+      extensions[2] = "m4a";
+    }
+    else if (extensions[0] == "webm") {
+      extensions[2] = "ogg";
     }
     else {
-      overwriteExtension = true;
-      if (ext1 == "mp4") {
-        outExt = "m4a";
-      }
-      else {
-        outExt = ext1;
-      }
+      extensions[2] = extensions[0];
     }
   }
-  
-  var dir = FileUtils.getDir("TmpD", [Math.random().toString(36).substring(7)]);
-  input1.copyTo(dir, "a." + ext1);
-  var tmp1 = new FileUtils.File(dir.path);
-  tmp1.append("a." + ext1);
-  var tmp2;
-  if (input2) {
-    input2.copyTo(dir, "a." + ext2);
-    tmp2 = new FileUtils.File(dir.path);
-    tmp2.append("a." + ext2);
-  }
-
+  // Creating a temporary folder and copying input files
+  var tmpDir = FileUtils.getDir("TmpD", [Math.random().toString(36).substring(7)]);
+  inputs.forEach (function (input, index) {
+    var name = index + "." + extensions[index];
+    input.copyTo(tmpDir, name);
+    var tmp = new FileUtils.File(tmpDir.path);
+    tmp.append(name);    
+    tmpFiles[index] = tmp;
+  });
+  // Preparing FFmpeg command for execution
+  var args = cmd.trim().replace(/\s\s+/g, " ").split(" ");
+  args.forEach(function (arg, index) {
+    args[index] = arg
+      .replace("%audio", tmpFiles[0].path)
+      .replace("%input", tmpFiles[0].path)
+      .replace("%output", tmpFiles[0].path.replace("0." + extensions[0], "2." + extensions[2]));
+      
+      if (options.mode == "combine") {
+        args[index] = args[index].replace("%video", tmpFiles[1].path);
+      }
+  });
+  // FFmpeg execution
   ffmpeg = new FileUtils.File(ffmpegPath);
   if (!ffmpeg.exists()) {
     throw _("err13") + " " + ffmpeg.path;
@@ -67,40 +97,25 @@ exports.ffmpeg = function (callback, pointer, deleteInputs, input1, input2) {
   var process = Cc["@mozilla.org/process/util;1"]
     .createInstance(Ci.nsIProcess);
   process.init(ffmpeg);
-  var args;
-  if (!input2) {
-    args = prefs[doRemux ? "ffmpegInputs3" : "ffmpegInputs"].split(" ");
-    args.forEach(function (arg, index) {
-      args[index] = arg
-        .replace("%input", tmp1.path)
-        .replace("%output", tmp1.path.replace(/\.+[^\.]*$/, "-output") + (overwriteExtension ? "." + outExt : ""));
-    });
-  }
-  else {
-    args = prefs.ffmpegInputs4.split(" ");
-    args.forEach(function (arg, index) {
-      args[index] = arg
-        .replace("%audio", tmp1.path)
-        .replace("%video", tmp2.path)
-        .replace("%output", tmp1.path.replace(/\.+[^\.]*$/, "-output") + "." + outExt);
-    });
-  }
   process.runAsync(args, args.length, {
     observe: function(subject, topic, data) {
-      var tmp2 = new FileUtils.File(dir.path);
-      tmp2.append("a-output." + outExt);
-      var name = (input2 || input1).leafName.replace(" - DASH", "").replace(/\.+[^\.]*$/, "");
-      if (tmp2.exists()) {
-        // Make sure file with the same name doesn't exist
-        var tmp3 = new FileUtils.File(input1.parent.path);
-        tmp3.append(name + "." + outExt);
-        tmp3.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
-        tmp2.copyTo(input1.parent, tmp3.leafName);
+      var tmp = new FileUtils.File(tmpDir.path);
+      tmp.append("2." + extensions[2]);
+      if (tmp.exists()) {
+        var parent = outputLocation || inputs[0].parent;
+        tmp.copyTo(parent, (function () { // Make sure file with the same name doesn't exist
+          let a = new FileUtils.File(parent.path);
+          let name = (inputs[1] || inputs[0]).leafName.replace(" - DASH", "").replace(/\.+[^\.]*$/, "");
+          a.append(name + "." + extensions[2]);
+          a.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+          return a.leafName;
+        })());
       }
     
-      if (deleteInputs) {
-        input1.remove(false);
-        if (input2) input2.remove(false);
+      if (options.deleteInputs) {
+        inputs.forEach(function (input) {
+          input.remove(false);
+        });
       }
     
       if (callback) {

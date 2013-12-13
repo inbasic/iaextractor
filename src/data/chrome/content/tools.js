@@ -290,9 +290,9 @@ var drag3 = {
     if (dropFile instanceof Ci.nsIFile) {
       try {
         $("ffmpeg-info").value = bundle.getString("msg4");
-        exports.ffmpeg (function () {
+        exports.ffmpeg([dropFile], {}, function () {
           $("ffmpeg-info").value = bundle.getString("msg3");
-        }, null, false, dropFile);
+        });
       }
       catch (e) {
         alert(e);
@@ -332,7 +332,7 @@ function doMix() {
   $("audio-only-reset").disabled = true;
   $("video-only-reset").disabled = true;
   try {
-    exports.ffmpeg (function () {
+    exports.ffmpeg([audio_file, video_file], {}, function () {
       $("audio-only-reset").disabled = false;
       $("video-only-reset").disabled = false;
       $("video-only").value = bundle.getString("msg5");
@@ -340,7 +340,7 @@ function doMix() {
       $("audio-only-reset").collapsed = true;
       $("video-only-reset").collapsed = true;
       audio_file = video_file = null;
-    }, null, false, audio_file, video_file);
+    });
   }
   catch (e) {
     alert(e);
