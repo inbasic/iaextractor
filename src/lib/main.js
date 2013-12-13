@@ -836,7 +836,7 @@ var getVideo = (function () {
         doExtract = false;
       }
       // Do not generate audio file if video format is not FLV
-      else if (doExtract && !(vInfo.container.toLowerCase() == "flv" || prefs.ffmpegPath)) {
+      else if (doExtract && !(vInfo.container == "flv" || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
         timer.setTimeout(function () {
           notify(_('name'), _('msg5'))
@@ -958,7 +958,7 @@ var getVideo = (function () {
         },
         get aFile () {
           if (aFile_first) {
-            //To mach audio name with video name in case of duplication
+            //To match audio name with video name in case of duplication
             let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
             aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
             aFile.initWithPath(vFile.parent.path);
@@ -1025,7 +1025,7 @@ var getVideo = (function () {
         return afterExtract();
       }
       listener.onExtractStart(id);
-      if (vInfo.container == "flv") {
+      if ((vInfo.container == "flv" && vInfo.audioEncoding == "aac") || !prefs.ffmpegPath) {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
           if (e && prefs.ffmpegPath) {
             ffmpeg.ffmpeg([obj.vFile], {}, function () {
