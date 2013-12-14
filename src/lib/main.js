@@ -579,11 +579,14 @@ var hotkey = {
     }
   },
   listen: function (e) {
+    if (e.keyCode == 9 || (e.ctrlKey && e.keyCode == 87) || (e.altKey && e.keyCode == 115)) {
+      return;
+    }
     e.stopPropagation();
     e.preventDefault();
     var comb = [];
     prefs.downloadHKey = "";  //Fire listener
-    if ((e.ctrlKey || e.shiftKey || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
+    if ((e.ctrlKey || (e.shiftKey && e.altKey) || (e.shiftKey && e.ctrlKey) || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
       if (e.ctrlKey) comb.push("Accel");
       if (e.shiftKey) comb.push("Shift");
       if (e.altKey) comb.push("Alt");
