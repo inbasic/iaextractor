@@ -58,7 +58,8 @@ var config = {
     update: "http://add0n.com/extractor-updated.html",
     flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
     downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/",
-    instruction: "http://add0n.com/extractor.html#instruction"
+    instruction: "http://add0n.com/extractor.html#instruction",
+    ffmpeg: "https://downloads.sourceforge.net/project/iaextractor/FFmpeg/%os/ffmpeg"
   },
   //toolbar
   toolbar: {
@@ -466,9 +467,14 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
-  //if (options.loadReason == "install" && !prefs.ffmpegPath) {
-  //  windows.active.alert (_("msg24"));
-  //}
+  console.error(prefs.showFFmpegInstall);
+  if ((options.loadReason == "install" || options.loadReason == "upgrade") && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
+    var tmp = prompts2(_("msg27"), _("msg24"), "", "", _("msg21"), true);
+    prefs.showFFmpegInstall = tmp.check.value;
+    if (tmp.button == 0) {
+      installFFmpeg();
+    }
+  }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -492,6 +498,41 @@ welcome = function () {
   else {
     prefs.newVer = "";
   }
+}
+
+/** Install FFmpeg **/
+function installFFmpeg () {
+  var runtime = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
+  var isWindows = runtime.OS == "WINNT";
+  var pageURL = config.urls.ffmpeg.replace("%os", runtime.OS) + (isWindows ? ".exe" : "");
+  Request({
+    url: pageURL,
+    onComplete: function (response) {
+      if (response.status == 200) {
+        var url = (new RegExp(pageURL.replace("https", "http.{0,1}") + "[^\"]*")).exec(response.text);
+        if (!url) {
+          notify(_('name'), _('err18'));
+          return;
+        }
+        url = url[0].replace(/\&amp\;/g, "&");
+        var file = FileUtils.getFile("ProfD", ["ffmpeg" + (isWindows ? ".exe" : "")]);
+        if (file.exists()) {
+          file.remove(false);
+        }
+        file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 755);
+        var dr = new download.get({
+          done: function (dl) {
+            prefs.ffmpegPath = file.path;
+            notify(_('name'), _('msg26'));
+          },
+          error: function (dl) {
+            notify(_('name'), _('err17'));
+          }
+        });
+        dr(url, file);
+      }
+    }
+  }).get();
 }
 
 /** Monitor **/
