@@ -467,14 +467,6 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
   }
-  console.error(prefs.showFFmpegInstall);
-  if ((options.loadReason == "install" || options.loadReason == "upgrade") && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
-    var tmp = prompts2(_("msg27"), _("msg24"), "", "", _("msg21"), true);
-    prefs.showFFmpegInstall = tmp.check.value;
-    if (tmp.button == 0) {
-      installFFmpeg();
-    }
-  }
   //Reload about:addons to set new observer.
   for each (var tab in tabs) {
     if (tab.url == "about:addons") {
@@ -497,6 +489,15 @@ welcome = function () {
   }
   else {
     prefs.newVer = "";
+  }
+  if (!prefs.ffmpegPath && !prefs.showFFmpegInstall) {
+    timer.setTimeout(function () {
+      var tmp = prompts2(_("msg27"), _("msg24"), "", "", _("msg21"), true);
+      prefs.showFFmpegInstall = tmp.check.value;
+      if (tmp.button == 0) {
+        installFFmpeg();
+      }
+    }, 4000);
   }
 }
 
