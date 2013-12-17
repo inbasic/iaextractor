@@ -1,8 +1,9 @@
 var iaextractor_parent = window.content.document.getElementById('watch-headline-title'),
-    ibutton = window.content.document.getElementById('formats-button-small');
-if (ibutton) ibutton.parentNode.removeChild(ibutton);
+    button = window.content.document.getElementById('formats-button-small');
+
+if (button) button.parentNode.removeChild(button);
 if (iaextractor_parent) {
-  var button = document.createElement("button"),
+  button = document.createElement("button"),
       icon = document.createElement("span"); 
   icon.setAttribute("id", "icon-wrapper"); 
   icon.setAttribute("class", "yt-uix-button-icon-wrapper"); 
@@ -20,3 +21,8 @@ if (iaextractor_parent) {
 
 // Update toolbar button (HTML5 History API)
 self.port.emit("page-update");
+// Clean up
+self.on("detach", function() {
+  button = window.content.document.getElementById('formats-button-small');
+  if (button) button.parentNode.removeChild(button);
+});

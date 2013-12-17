@@ -300,3 +300,7 @@ self.port.on("file-size-response", function(url, size, i1, i2) {
 
 var menu = new Menu(self.options.doSize);
 self.port.on("info", menu.initialize);
+// Clean up
+self.on("detach", function() {
+  remove("iaextractor-menu");
+});
