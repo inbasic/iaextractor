@@ -184,7 +184,7 @@ var dmUI = {
       if (typeof (item) == "number") {
         item = dm[item];
       }
-      
+      if (!item) return;
       if (item.hasAttribute("cache")) {
         return cache[item.getAttribute("cache")];
       }
@@ -263,7 +263,8 @@ self.port.on("download-start", function(id, name, msg) {
 });
 self.port.on("download-update", function(id, percent, msg, amountTransferred, size, speed) {
   if (id == -1) return;
-  //  
+  //
+  if (!dmUI.get(id)) return;
   dmUI.get(id).progress = percent + "%";
   dmUI.get(id).progress.removeAttribute("type");
   dmUI.get(id).description = msg

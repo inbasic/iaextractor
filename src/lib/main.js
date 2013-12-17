@@ -526,7 +526,7 @@ function installFFmpeg () {
             prefs.ffmpegPath = file.path;
             notify(_('name'), _('msg26'));
           },
-          error: function (dl) {
+          error: function (dl, e) {
             notify(_('name'), _('err17'));
           }
         });
@@ -1032,8 +1032,8 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, !doExtract);
           onExtract (vInfo, dl, obj);
         },
-        error: function (dl) {
-          listener.onError(dl);
+        error: function (dl, e) {
+          if (e) notify(_('name'), e);
           listener.onDownloadDone(dl, true);
         }
       });

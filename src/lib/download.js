@@ -3,51 +3,52 @@ Cu.import("resource://gre/modules/Downloads.jsm");
 
 var get, cancel;
 if (Downloads.getList) {  // use Downloads.jsm
+  Cu.import("resource://gre/modules/Promise.jsm");
   var cache = [];
   get = function (callback, pointer) {
     return function (url, file, aPrivacyContext, aIsPrivate, callback2, pointer2) {
-      Downloads.createDownload({
-        source: {
-          url: url,
-          isPrivate: aIsPrivate
-        },
-        target: file
-      }).then(
-        function (dl) {
-          dl.start();
-          Downloads.getList(Downloads.PUBLIC).then (
-            function (list) {
-              list.add(dl);
-              var view = {
-                onDownloadChanged: function (d) {
-                  if (d != dl) return;
-                  if (callback && callback.progress) callback.progress.apply(pointer, [dl]);
-                  if (d.succeeded && d.stopped) {
-                    if (callback && callback.done) callback.done.apply(pointer, [dl]);
-                  }
-                  if (d.stopped && !(d.canceled || d.succeeded)) {
-                    if (callback && callback.paused) callback.paused.apply(pointer, [dl]);
-                  }
-                  if (d.stopped && d.canceled) {
-                    if (callback && callback.error) callback.error.apply(pointer, [dl]);
-                  }
-                  if (d.stopped) list.removeView(view)
-                }
-              }
-              list.addView(view); 
-            }, 
-            function (err) {throw err}
-          );
-          // Adapting to the old download object
-          dl.id = Math.floor(Math.random()*100000);
-          Object.defineProperty(dl, "amountTransferred", {get: function (){return dl.currentBytes}});
-          Object.defineProperty(dl, "size", {get: function (){return dl.totalBytes}});
-          cache.push({id: dl.id, dl: dl});
-          
-          if (callback2) callback2.apply(pointer2, [dl]);
-        },
-        function (err) {throw err}
-      );
+      Promise.all([
+        Downloads.createDownload({
+          source: {
+            url: url,
+            isPrivate: aIsPrivate
+          },
+          target: file
+        }),
+        Downloads.getList(Downloads.PUBLIC)
+      ]).then(function([dl, list]) {
+        // Adapting to the old download object
+        dl.id = Math.floor(Math.random()*100000);
+        Object.defineProperty(dl, "amountTransferred", {get: function (){return dl.currentBytes}});
+        Object.defineProperty(dl, "size", {get: function (){return dl.totalBytes}});
+        // Observe progress
+        list.add(dl);
+        var view = {
+          onDownloadChanged: function (d) {
+            if (d != dl) return;
+            if (callback && callback.progress) {
+              callback.progress.apply(pointer, [dl]);
+            }
+            if (d.succeeded && d.stopped) {
+              if (callback && callback.done) callback.done.apply(pointer, [dl]);
+            }
+            if (d.stopped && !(d.canceled || d.succeeded) && d.error) {
+              if (callback && callback.error) callback.error.apply(pointer, [dl, d.error.message]);
+            }
+            if (d.stopped && !(d.canceled || d.succeeded) && !d.error) {
+              if (callback && callback.paused) callback.paused.apply(pointer, [dl]);
+            }
+            if (d.stopped && d.canceled) {
+              if (callback && callback.error) callback.error.apply(pointer, [dl]);
+            }
+            if (d.stopped) list.removeView(view);
+          }
+        };
+        list.addView(view);
+        dl.start();
+        cache.push({id: dl.id, dl: dl});
+        if (callback2) callback2.apply(pointer2, [dl]);
+      }, function (err) {throw err});
     }
   }
   cancel = function (id) {
