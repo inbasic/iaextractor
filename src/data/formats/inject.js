@@ -53,14 +53,31 @@ var remove = function (elem) {
 var detect = function () {
   //Flash player
   var players = document.getElementsByTagName("embed"); 
+  if (players.length) return {
+    player: players[0],
+    method: "insertAdjacentHTML"
+  };
   //HTML5 player
   if (!players.length) {
     tmp = document.getElementsByTagName("video");
     if (tmp.length) {
-      players = [tmp[0].parentNode.parentNode];
+      return {
+        player: tmp[0].parentNode.parentNode,
+        method: "insertAdjacentHTML"
+      } 
     }
   }
-  return players.length ? players[0] : null;
+  var parentDiv = document.getElementById("player-api");
+  if (parentDiv) {
+    return {
+      player: parentDiv,
+      method: "innerHTML"
+    }
+  }
+  return {
+    player: null,
+    method: "insertAdjacentHTML"
+  }
 }
 
 // Make new menu
@@ -71,7 +88,8 @@ var Menu = function (doSize) {
     return; //Toggle
   }
   //
-  var player = detect();
+  var d = detect();
+  var player = d.player;
   if (!player) {
     self.port.emit("error", "msg4");
     return;
@@ -83,8 +101,7 @@ var Menu = function (doSize) {
     self.port.emit("error", "msg16");
     return;
   }
-  
-  player.insertAdjacentHTML("afterend", 
+  var code =     
     '<div id="iaextractor-menu">' + //injected menu
     ' <span type="title">Download Links</span> ' +    
     ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
@@ -97,8 +114,13 @@ var Menu = function (doSize) {
     ' <li><span>DownThemAll!</span></li>' +
     ' <li><span>dTa! OneClick</span></li>' +
     ' </ul>' +
-    '</div>'
-  );
+    '</div>';
+  if (d.method == "insertAdjacentHTML") {
+    player[d.method]("afterend", code);
+  }
+  else {
+    player[d.method] = code;
+  }
 
   var menu = $("iaextractor-menu"),
       items = $("iaextractor-items"),
