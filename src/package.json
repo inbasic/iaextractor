@@ -192,6 +192,12 @@
     "value": true
   },
   {
+    "name": "installFFmpeg",
+    "type": "control",
+    "label": "",
+    "title": ""
+  },
+  {
     "name": "reset",
     "type": "control",
     "label": "",
