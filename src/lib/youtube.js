@@ -60,7 +60,10 @@ function _getInfo(videoID, callback, pointer) {
       247: ["webm", "720",  null,     "DASH V",   null,  null], //Video-only
       248: ["webm", "1080", null,     "DASH V",   null,  null]  //Video-only
     }
-    if (!F[id]) return;
+    if (!F[id]) {
+      //console.error("itag not found", id);
+      return;
+    }
     // Right resolution from YouTube server
     var res = obj.size ? /\d+x(\d+)/.exec(obj.size) : null;
     var tmp = {

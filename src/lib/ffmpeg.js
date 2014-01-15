@@ -117,7 +117,9 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
           input.remove(false);
         });
       }
-    
+
+      tmpDir.remove(true);
+      
       if (callback) {
         callback.apply(pointer, []);
       }
