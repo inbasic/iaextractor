@@ -88,7 +88,7 @@ function _getInfo(videoID, callback, pointer) {
     var vars = str.split("&");
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=");
-      if (pair[0] == "url_encoded_fmt_stream_map" || pair[0] == "adaptive_fmts") {
+      if (pair[0] == "url_encoded_fmt_stream_map" || pair[0] == "adaptive_fmts" || pair[0] == "dashmpd") {
         temp[pair[0]] = unescape(pair[1]);
       }
       else {
@@ -139,26 +139,53 @@ function _getInfo(videoID, callback, pointer) {
       info.video_verticals[i] = parseInt(info.video_verticals[i], 10)
     }
     
-    var _f = function () {      // parse the formats map
+    var _f = function (callback, pointer) {      // parse the formats map
+      function decipher(s) {
+        var sig = (s + "").split("");
+        function swap(arr, b) {
+            l3 = arr[0];
+            l4 = arr[b % arr.length];
+            arr[0] = l4;
+            arr[b] = l3;
+            return arr
+        }
+        var cmd = JSON.parse(prefs.ccode || '["r","r"]');
+        cmd.forEach(function (c, i) {
+          if (typeof c !== "string") {
+            return;
+          }
+          switch (c) {
+          case "r":
+            sig = sig.reverse();
+            break;
+          case "s":
+            sig = sig.slice(cmd[i+1]);
+            break;
+          case "w":
+            sig = swap(sig, cmd[i+1]);
+            break;
+          }
+        });
+        return sig.join("");
+      }
+    
       var sep1 = ',', sep2 = '&', sep3 = '=', videoFormats;
       if (info.url_encoded_fmt_stream_map && info.adaptive_fmts) {
         videoFormats = 
-          info.url_encoded_fmt_stream_map.replace(/\\u0026/g, "&").replace(/\\\//g, '/') + 
+          info.url_encoded_fmt_stream_map + 
           sep1 + 
-          info.adaptive_fmts.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
+          info.adaptive_fmts;
       }
       else if (info.url_encoded_fmt_stream_map) {
-        videoFormats = 
-          info.url_encoded_fmt_stream_map.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
+        videoFormats = info.url_encoded_fmt_stream_map;
       }
       else if (info.adaptive_fmts) {
-        videoFormats = 
-          info.adaptive_fmts.replace(/\\u0026/g, "&").replace(/\\\//g, '/');
+        videoFormats = info.adaptive_fmts;
       }
       else {
-        return null;
+        return callback.apply(pointer, [null]);
       }
-      var objs = new Array();
+      var objs = new Array(), do141 = false;
       var videoFormatsGroup = videoFormats.split(sep1);
       for (var i = 0; i < videoFormatsGroup.length; i++) {
         var videoFormatsElem = videoFormatsGroup[i].split(sep2);
@@ -175,36 +202,12 @@ function _getInfo(videoID, callback, pointer) {
         if (videoFormatsPair['itag'] == null) continue;
         videoFormatsPair['itag'] = parseInt(videoFormatsPair['itag']);
         itag = videoFormatsPair['itag'];
+        if (itag == 140) do141 = videoFormatsPair;
         if (videoFormatsPair['sig']) {
           videoFormatsPair['url'] = url + '&signature=' + videoFormatsPair['sig'];
         }
         else if (videoFormatsPair['s']) {
-          var sig = (videoFormatsPair['s'] + "").split("");
-          function swap(arr, b) {
-              l3 = arr[0];
-              l4 = arr[b % arr.length];
-              arr[0] = l4;
-              arr[b] = l3;
-              return arr
-          }
-          var cmd = JSON.parse(prefs.ccode || '["r","r"]');
-          cmd.forEach(function (c, i) {
-            if (typeof c !== "string") {
-              return;
-            }
-            switch (c) {
-            case "r":
-              sig = sig.reverse();
-              break;
-            case "s":
-              sig = sig.slice(cmd[i+1]);
-              break;
-            case "w":
-              sig = swap(sig, cmd[i+1]);
-              break;
-            }
-          });
-          videoFormatsPair.url = url + "&signature=" + sig.join("");
+          videoFormatsPair.url = url + "&signature=" + decipher(videoFormatsPair['s']);
         }
         else {
           videoFormatsPair.url = url;
@@ -216,25 +219,81 @@ function _getInfo(videoID, callback, pointer) {
         }
         objs.push(videoFormatsPair);
       }
-
       delete info.url_encoded_fmt_stream_map;
       delete info.adaptive_fmts;
-      // Sorting audio-only and video-only formats
-      return objs.sort(function (a,b) {
-        var audio = [141, 172, 171, 140, 139],
-            video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
-            aaIndex = audio.indexOf(a.itag) != -1,
-            baIndex = audio.indexOf(b.itag) != -1,
-            avIndex = video.indexOf(a.itag) != -1,
-            bvIndex = video.indexOf(b.itag) != -1;
-        
-        if (aaIndex && baIndex) {
-          return b.audioBitrate - a.audioBitrate;
+      
+      function get141 (callback, pointer) {
+        var dashmpd = info.dashmpd;
+        if (dashmpd.indexOf(/signature/) === -1) {
+          var matchSig = (/\/s\/([a-zA-Z0-9\.]+)\//i.exec(dashmpd) || [null, null])[1];
+          if (!matchSig) dashmpd = "";
+          dashmpd = dashmpd.replace('/s/' + matchSig + '/','/signature/' + decipher(matchSig) + '/');
         }
-        if (avIndex && bvIndex) {
-          return b.bitrate - a.bitrate;
+        if (dashmpd) {
+          Request({
+            url: dashmpd,
+            onComplete: function (response) {
+              if (response.status != 200 || !response.text) {
+                callback.apply(pointer);
+              }
+              else {
+                var regexp = new RegExp('<BaseURL.+>(http[^<]+itag=141[^<]+)<\\/BaseURL>','i');
+                var res = regexp.exec(response.text);
+                if (res && res.length) {
+                  callback.apply(pointer, [res[1].replace(/&amp\;/g,'&')]);
+                }
+                else {
+                  callback.apply(pointer)
+                }
+              }
+            }
+          }).get();
         }
-      });
+        else {
+          callback.apply(pointer);
+        }
+      }
+      function srt() {  // Sorting audio-only and video-only formats
+        return objs.sort(function (a,b) {
+          var audio = [141, 172, 171, 140, 139],
+              video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+              aaIndex = audio.indexOf(a.itag) != -1,
+              baIndex = audio.indexOf(b.itag) != -1,
+              avIndex = video.indexOf(a.itag) != -1,
+              bvIndex = video.indexOf(b.itag) != -1;
+          
+          if (aaIndex && baIndex) {
+            return b.audioBitrate - a.audioBitrate;
+          }
+          if (avIndex && bvIndex) {
+            return b.bitrate - a.bitrate;
+          }
+        })
+      }
+      if (do141) {
+        get141(function (url) {
+          if (url) {
+            var obj = {}; //Cloning do141
+            for (var j in do141) {
+              obj[j] = do141[j];
+            }
+            obj.itag = 141;
+            var format = formatDictionary(obj);
+            for (var j in format) {
+              obj[j] = format[j];
+            }
+            obj.url = url;
+            objs.push(obj);
+            callback.apply(pointer, [srt()]);  
+          }
+          else {
+            callback.apply(pointer, [srt()]);  
+          }
+        });
+      }
+      else {
+        callback.apply(pointer, [srt()]);      
+      }
     }
     // Request new codec
     if ((info.player || info.use_cipher_signature) && info.player != prefs.player) { // if there is no html5 player but ciphered signature ...
@@ -252,15 +311,19 @@ function _getInfo(videoID, callback, pointer) {
             else {
               throw _("err16") + " ... " + response.text;
             }
-            info.formats = _f ();
-            if (callback) callback.apply(pointer, [info]);
+            _f (function (fmts) {
+              info.formats = fmts;
+              if (callback) callback.apply(pointer, [info]);
+            });
           }
         }
       }).get();
     }
-    else {    
-      info.formats = _f ();
-      if (callback) callback.apply(pointer, [info]);
+    else {
+      _f (function (fmts) {
+        info.formats = fmts;
+        if (callback) callback.apply(pointer, [info]);
+      });
     }
   }
 
@@ -271,8 +334,6 @@ function _getInfo(videoID, callback, pointer) {
 
       var info = quary(response.text);
       if (true) {
-
-      
         Request({
           url: "http://www.youtube.com/watch?v=" + videoID,
           onComplete: function (response) {
@@ -280,12 +341,14 @@ function _getInfo(videoID, callback, pointer) {
 
             var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
             var tmp2 = /adaptive\_fmts\"\:\ \"([^\"]*)/.exec(response.text);
+            var tmp3 = /\"dashmpd\":\s*\"([^\"]+)\"/.exec(response.text);
             if (!tmp1 && !tmp2) {
               throw 'Error: Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the HTML file.';
             }
             else {
-              info.url_encoded_fmt_stream_map = tmp1 ? tmp1[1] : null;
-              info.adaptive_fmts = tmp2 ? tmp2[1] : null;
+              info.url_encoded_fmt_stream_map = tmp1 && tmp1.length ? tmp1[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
+              info.adaptive_fmts = tmp2 && tmp2.length ? tmp2[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
+              info.dashmpd = tmp3 && tmp3.length ? tmp3[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
               var tmp2 = /html5player-([^\"]*).js/.exec(response.text);
               if (tmp2 && tmp2.length == 2) {
                 info.player = tmp2[1];

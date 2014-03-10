@@ -225,12 +225,17 @@
   width: 90px;
   height: 29px;
   position: absolute; 
-  right: 12px; 
   top: 14px;
-  padding-left: 27px!important;
   z-index: 2147483647; 
   cursor: pointer;
   color: #F97D00!important;
+  padding-left: 27px!important;
+}
+body[dir="rtl"] #formats-button-small {
+  left: 12px;
+}
+body[dir="ltr"] #formats-button-small {
+  right: 12px;
 }
 #formats-button-small:not(:hover):not(:active) {
   background-color: white!important;
@@ -249,6 +254,6 @@
   height: 16px;
   background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat center!important;
 }
-
-
-
+body[dir="rtl"] #icon-wrapper{
+  left: 0;
+}
