@@ -3,8 +3,9 @@ var iaextractor_parent = window.content.document.getElementById('watch-headline-
 
 if (button) button.parentNode.removeChild(button);
 if (iaextractor_parent) {
-  button = document.createElement("button"),
-      icon = document.createElement("span"); 
+  button = document.createElement("button");
+  button.setAttribute("dir", "ltr"); 
+  var icon = document.createElement("span"); 
   icon.setAttribute("id", "icon-wrapper"); 
   icon.setAttribute("class", "yt-uix-button-icon-wrapper"); 
   button.setAttribute("title", "Detect all possible download links");
@@ -23,6 +24,8 @@ if (iaextractor_parent) {
 self.port.emit("page-update");
 // Clean up
 self.on("detach", function() {
-  button = window.content.document.getElementById('formats-button-small');
+  try {
+    button = window.content.document.getElementById('formats-button-small');
+  } catch (e) {}
   if (button) button.parentNode.removeChild(button);
 });

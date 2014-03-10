@@ -96,13 +96,17 @@ var Menu = function (doSize) {
   }
   var rect = player.getBoundingClientRect();
   var width = 320 + (doSize ? 15 : 0);
+  var rtl = false;
+  try {
+    rtl = window.getComputedStyle(player,null).direction == "rtl";
+  } catch (e) {}
   
   if (width > rect.width) {
     self.port.emit("error", "msg16");
     return;
   }
   var code =     
-    '<div id="iaextractor-menu">' + //injected menu
+    '<div id="iaextractor-menu" dir="ltr">' + //injected menu
     ' <span type="title">Download Links</span> ' +    
     ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
     ' <div id="iaextractor-items"></div> ' +
@@ -121,7 +125,6 @@ var Menu = function (doSize) {
   else {
     player[d.method] = code;
   }
-
   var menu = $("iaextractor-menu"),
       items = $("iaextractor-items"),
       tabs = $("iaextractor-tabs"),
@@ -157,7 +160,7 @@ var Menu = function (doSize) {
   }
   menu.setAttribute("style",
     'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
-    'left: ' + (rect.width - width) + 'px;' + 
+    'left: ' + (rtl ? 0 : rect.width - width) + 'px;' + 
     'width: ' + width + 'px;' +
     'height: ' + rect.height + 'px;'
   );

@@ -476,9 +476,9 @@ exports.main = function(options, callbacks) {
       }
     }, 4000);
   }
-  //Reload about:addons to set new observer.
+  //Reload youtube pages & about:addons to set new observer.
   for each (var tab in tabs) {
-    if (tab.url == "about:addons") {
+    if (tab.url == "about:addons" || tab.url.indexOf("youtube.com/watch") !== -1) {
       tab.reload();
     }
   }
@@ -503,6 +503,7 @@ welcome = function () {
 
 /** Install FFmpeg **/
 function installFFmpeg () {
+  notify(_('name'), _('msg28'));
   var runtime = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
   var isWindows = runtime.OS == "WINNT";
   var pageURL = config.urls.ffmpeg.replace("%os", runtime.OS) + (isWindows ? ".exe" : "");
@@ -517,14 +518,21 @@ function installFFmpeg () {
         }
         url = url[0].replace(/\&amp\;/g, "&");
         var file = FileUtils.getFile("ProfD", ["ffmpeg" + (isWindows ? ".exe" : "")]);
-        if (file.exists()) {
+        if (file.exists() && file.fileSize > 10485760) {
+          if (!windows.active.confirm(_("msg29"))) return
           file.remove(false);
         }
         file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 755);
         var dr = new download.get({
           done: function (dl) {
-            prefs.ffmpegPath = file.path;
-            notify(_('name'), _('msg26'));
+            if (file.fileSize > 10485760) {
+              prefs.ffmpegPath = file.path;
+              prefs.extension = 2;
+              notify(_('name'), _('msg26'));
+            }
+            else {
+              notify(_('name'), _('err19'));
+            }
           },
           error: function (dl, e) {
             notify(_('name'), _('err17'));
