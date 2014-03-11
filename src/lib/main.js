@@ -463,6 +463,12 @@ exports.main = function(options, callbacks) {
   //Welcome page
   if (options.loadReason == "upgrade" || options.loadReason == "install") {
     prefs.newVer = options.loadReason;
+    //Reload youtube pages & about:addons to set new observer.
+    for each (var tab in tabs) {
+      if (tab.url == "about:addons" || tab.url.indexOf("youtube.com/watch") !== -1) {
+        tab.reload();
+      }
+    }
   }
   if (options.loadReason == "startup" || options.loadReason == "install") {
     welcome();
@@ -475,12 +481,6 @@ exports.main = function(options, callbacks) {
         installFFmpeg();
       }
     }, 4000);
-  }
-  //Reload youtube pages & about:addons to set new observer.
-  for each (var tab in tabs) {
-    if (tab.url == "about:addons" || tab.url.indexOf("youtube.com/watch") !== -1) {
-      tab.reload();
-    }
   }
 }
 
