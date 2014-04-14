@@ -24,8 +24,9 @@ if (iaextractor_parent) {
 self.port.emit("page-update");
 // Clean up
 self.on("detach", function() {
+  var panel;
   try {
     button = window.content.document.getElementById('formats-button-small');
   } catch (e) {}
-  if (button) button.parentNode.removeChild(button);
+  if (button && button.parentNode) button.parentNode.removeChild(button);
 });

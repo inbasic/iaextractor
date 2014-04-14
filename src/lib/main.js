@@ -9,7 +9,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
     Request       = require("sdk/request").Request,
-    toolbarbutton = require("./toolbarbutton"),
     userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
     subtitle      = require("./subtitle"),
@@ -29,7 +28,9 @@ var {Cc, Ci, Cu}  = require('chrome'),
       get active () { // Chrome window
         return require('sdk/window/utils').getMostRecentBrowserWindow()
       }
-    };
+    },
+    isAustralis   = "gCustomizeMode" in windows.active,
+    toolbarbutton = isAustralis ? require("toolbarbutton/new") : require("toolbarbutton/old");
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -66,10 +67,7 @@ var config = {
     id: "youtube-audio-converter",
     move: {
       toolbarID: "nav-bar", 
-      get insertbefore () {
-        var id = prefs.nextSibling;
-        return id ? id : "home-button"
-      },
+      insertbefore: "home-button",
       forceMove: false
     }
   },
@@ -436,6 +434,11 @@ yButton = toolbarbutton.ToolbarButton({
     if (e.button == 1) {
       cmds.onMiddleClick (e, tbb);
     }
+    if (e.button == 2) {
+      e.stopPropagation();
+      e.preventDefault();
+      cmds.onCommand (e, tbb);
+    }
     if (e.button == 0 && e.ctrlKey) {
       e.stopPropagation();
       e.preventDefault();
@@ -561,16 +564,8 @@ tabs.on('ready', function () {
 });
 tabs.on('activate', monitor);
 
-/** Store toolbar button position **/
-var aftercustomizationListener = function () {
-  let button = windows.active.document.getElementById(config.toolbar.id);
-  if (!button) return;
-  prefs.nextSibling = button.nextSibling.id;
-}
-windows.active.addEventListener("aftercustomization", aftercustomizationListener, false); 
+
 exports.onUnload = function (reason) {
-  //Remove toolbar listener
-  windows.active.removeEventListener("aftercustomization", aftercustomizationListener, false); 
   //Close tools window
   let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
     .getService(Ci.nsIWindowMediator);   

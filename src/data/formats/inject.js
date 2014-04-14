@@ -325,7 +325,7 @@ self.port.on("file-size-response", function(url, size, i1, i2) {
 
 var menu = new Menu(self.options.doSize);
 self.port.on("info", menu.initialize);
-// Clean up
+// Clean up after installation
 self.on("detach", function() {
   remove("iaextractor-menu");
 });

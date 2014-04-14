@@ -1,11 +1,8 @@
-#youtube-audio-converter {
-  list-style-image: url('toolbar2.png') !important;
+#youtube-audio-converter,
+#youtube-audio-converter[cui-areatype="toolbar"] {
+  list-style-image: url('toolbar-16.png') !important;
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
-#youtube-audio-converter[type="gray"] {
-  -moz-image-region: rect(16px, 16px, 32px, 0);
-}
-
 #youtube-audio-converter[progress="0"] {
   -moz-image-region: rect(0, 32px, 16px, 16px);
 }
@@ -34,6 +31,9 @@
   -moz-image-region: rect(0, 160px, 16px, 144px);
 }
 
+#youtube-audio-converter[type="gray"] {
+  -moz-image-region: rect(16px, 16px, 32px, 0);
+}
 #youtube-audio-converter[type="gray"][progress="0"] {
   -moz-image-region: rect(16px, 32px, 32px, 16px);
 }
@@ -60,4 +60,90 @@
 }
 #youtube-audio-converter[type="gray"][progress="8"] {
   -moz-image-region: rect(16px, 160px, 32px, 144px);
+}
+
+
+#youtube-audio-converter[cui-areatype="menu-panel"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter {
+  list-style-image: url('toolbar-32.png') !important;
+  -moz-image-region: rect(0, 32px, 32px, 0);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="0"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="0"] {
+  -moz-image-region: rect(0, 64px, 32px, 32px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="1"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="1"] {
+  -moz-image-region: rect(0, 96px, 32px, 64px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="2"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="2"] {
+  -moz-image-region: rect(0, 128px, 32px, 96px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="3"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="3"] {
+  -moz-image-region: rect(0, 160px, 32px, 128px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="4"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="4"] {
+  -moz-image-region: rect(0, 192px, 32px, 160px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="5"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="5"] {
+  -moz-image-region: rect(0, 224px, 32px, 192px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="6"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="6"] {
+  -moz-image-region: rect(0, 256px, 32px, 224px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="7"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="7"] {
+  -moz-image-region: rect(0, 288px, 32px, 256px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="8"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="8"] {
+  -moz-image-region: rect(0, 320px, 32px, 288px);
+}
+
+
+#youtube-audio-converter[cui-areatype="menu-panel"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[type="gray"] {
+  list-style-image: url('toolbar-32.png') !important;
+  -moz-image-region: rect(32px, 32px, 64px, 0);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="0"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="0"][type="gray"] {
+  -moz-image-region: rect(32px, 64px, 64px, 32px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="1"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="1"][type="gray"] {
+  -moz-image-region: rect(32px, 96px, 64px, 64px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="2"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="2"][type="gray"] {
+  -moz-image-region: rect(32px, 128px, 64px, 96px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="3"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="3"][type="gray"] {
+  -moz-image-region: rect(32px, 160px, 64px, 128px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="4"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="4"][type="gray"] {
+  -moz-image-region: rect(32px, 192px, 64px, 160px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="5"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="5"][type="gray"] {
+  -moz-image-region: rect(32px, 224px, 64px, 192px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="6"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="6"][type="gray"] {
+  -moz-image-region: rect(32px, 256px, 64px, 224px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="7"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="7"][type="gray"] {
+  -moz-image-region: rect(32px, 288px, 64px, 256px);
+}
+#youtube-audio-converter[cui-areatype="menu-panel"][progress="8"][type="gray"],
+toolbarpaletteitem[place="palette"] > #youtube-audio-converter[progress="8"][type="gray"] {
+  -moz-image-region: rect(32px, 320px, 64px, 288px);
 }
