@@ -62,7 +62,6 @@
   -moz-image-region: rect(16px, 160px, 32px, 144px);
 }
 
-
 #youtube-audio-converter[cui-areatype="menu-panel"],
 toolbarpaletteitem[place="palette"] > #youtube-audio-converter {
   list-style-image: url('toolbar-32.png') !important;

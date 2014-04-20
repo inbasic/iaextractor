@@ -22,7 +22,20 @@ exports.ToolbarButton = function (options) {
       if (options.onClick) {
         tbb.addEventListener("click", function (e) {
           options.onClick(e, tbb);
+          return true;
         });
+      }
+      if (options.panel) {
+        tbb.addEventListener("contextmenu", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          try {
+            options.panel.show(tbb);
+          }
+          catch (e) {
+            options.panel.show(null, tbb);
+          }
+        }, true);
       }
       if (options.onContext) {
         const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

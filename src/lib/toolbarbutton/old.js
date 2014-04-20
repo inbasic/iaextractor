@@ -119,6 +119,18 @@ exports.ToolbarButton = function ToolbarButton(options) {
           options.onClick(e, tbb);
         }, true);
       }
+      if (options.panel) {
+        tbb.addEventListener("contextmenu", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          try {
+            options.panel.show(tbb);
+          }
+          catch (e) {
+            options.panel.show(null, tbb);
+          }
+        }, true);
+      }
       if (options.onContext) {
         let menupopup = doc.createElementNS(NS_XUL, "menupopup");
         let menuitem = doc.createElementNS(NS_XUL, "menuitem");

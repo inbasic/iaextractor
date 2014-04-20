@@ -94,7 +94,7 @@ var iPanel, rPanel, cmds, yButton, IDExtractor, welcome;
 /** Inject menu and button into YouTube pages **/
 pageMod.PageMod({
   include: ["*.youtube.com"],
-  contentScriptFile: data.url("formats/permanent.js"),
+  contentScriptFile: prefs.inject ? data.url("formats/permanent.js") : [],
   contentStyleFile: data.url("formats/permanent.css"),
   onAttach: function(worker) {
     worker.port.on("formats", function() {
@@ -433,11 +433,6 @@ yButton = toolbarbutton.ToolbarButton({
   onClick: function (e, tbb) { //Linux problem for onClick
     if (e.button == 1) {
       cmds.onMiddleClick (e, tbb);
-    }
-    if (e.button == 2) {
-      e.stopPropagation();
-      e.preventDefault();
-      cmds.onCommand (e, tbb);
     }
     if (e.button == 0 && e.ctrlKey) {
       e.stopPropagation();
@@ -1232,7 +1227,8 @@ sp.on("reset", function() {
   prefs.doRemux = true;
   prefs.deleteInputs = true;
   prefs.welcome = true;
-  prefs.forceVisible = true
+  prefs.forceVisible = true;
+  prefs.inject = true;
 });
 
 /** Notifier **/

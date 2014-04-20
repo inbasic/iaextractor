@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.5b1",
+  "version": "0.3.5b3",
   "lib": "lib",
   "main": "main",
   
@@ -115,6 +115,13 @@
     "title": "",
     "description": "",
     "value": "Accel + Shift + Q"
+  },
+  {
+    "name": "inject",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
   },
   {
     "name": "oneClickDownload",
