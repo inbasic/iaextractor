@@ -1,7 +1,22 @@
-﻿var prefs   = require("sdk/simple-prefs").prefs,
-    Request = require("sdk/request").Request,
-    _       = require("sdk/l10n").get;
-
+﻿var prefs         = require("sdk/simple-prefs").prefs,
+    Request       = require("sdk/request").Request,
+    _             = require("sdk/l10n").get,
+    {Cc, Ci, Cu}  = require('chrome');
+     
+/* Get content without cookie's involved */
+function curl (url, callback) {
+  var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+    .createInstance(Ci.nsIXMLHttpRequest);
+  req.open('GET', url, true);
+  req.onreadystatechange = function () {
+    if (req.readyState == 4) {
+      callback({text: req.responseText, status: req.status});
+    }
+  };
+  req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
+  req.send(null);
+}
+     
 function _getInfo(videoID, callback, pointer) {
   const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=';
   
@@ -333,34 +348,27 @@ function _getInfo(videoID, callback, pointer) {
       if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
 
       var info = quary(response.text);
-      if (true) {
-        Request({
-          url: "http://www.youtube.com/watch?v=" + videoID,
-          onComplete: function (response) {
-            if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
 
-            var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
-            var tmp2 = /adaptive\_fmts\"\:\ \"([^\"]*)/.exec(response.text);
-            var tmp3 = /\"dashmpd\":\s*\"([^\"]+)\"/.exec(response.text);
-            if (!tmp1 && !tmp2) {
-              throw 'Error: Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the HTML file.';
-            }
-            else {
-              info.url_encoded_fmt_stream_map = tmp1 && tmp1.length ? tmp1[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
-              info.adaptive_fmts = tmp2 && tmp2.length ? tmp2[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
-              info.dashmpd = tmp3 && tmp3.length ? tmp3[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
-              var tmp2 = /html5player-([^\"]*).js/.exec(response.text);
-              if (tmp2 && tmp2.length == 2) {
-                info.player = tmp2[1];
-              }
-              parser(info);
-            }
+      curl("http://www.youtube.com/watch?v=" + videoID, function (response) {
+        if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
+
+        var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
+        var tmp2 = /adaptive\_fmts\"\:\ \"([^\"]*)/.exec(response.text);
+        var tmp3 = /\"dashmpd\":\s*\"([^\"]+)\"/.exec(response.text);
+        if (!tmp1 && !tmp2) {
+          throw 'Error: Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the HTML file.';
+        }
+        else {
+          info.url_encoded_fmt_stream_map = tmp1 && tmp1.length ? tmp1[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
+          info.adaptive_fmts = tmp2 && tmp2.length ? tmp2[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
+          info.dashmpd = tmp3 && tmp3.length ? tmp3[1].replace(/\\u0026/g, "&").replace(/\\\//g, '/') : null;
+          var tmp2 = /html5player-([^\"]*).js/.exec(response.text);
+          if (tmp2 && tmp2.length == 2) {
+            info.player = tmp2[1];
           }
-        }).get();
-      } 
-      else {
-        parser(info);
-      }
+          parser(info);
+        }
+      });
     }
   }).get();
 }

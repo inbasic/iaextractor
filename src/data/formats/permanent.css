@@ -221,7 +221,7 @@
 
 /** Injected button **/
 
-#formats-button-small {
+#formats-button-small:not([type=feather]) {
   width: 90px;
   height: 29px;
   position: absolute; 
@@ -229,7 +229,11 @@
   z-index: 2147483647; 
   cursor: pointer;
   color: #F97D00!important;
-  padding-left: 27px!important;
+  font-weight: 700;
+}
+#formats-button-small[type=feather] {
+  padding: 4px;
+  margin: 0 8px;
 }
 body[dir="rtl"] #formats-button-small {
   left: 12px;
@@ -237,23 +241,24 @@ body[dir="rtl"] #formats-button-small {
 body[dir="ltr"] #formats-button-small {
   right: 12px;
 }
-#formats-button-small:not(:hover):not(:active) {
-  background-color: white!important;
+#formats-button-small:not([type=feather]):not(:hover):not(:active) {
+  background-color: rgba(255,255,255,0.9)!important;
 }
-#formats-button-small:hover:active {
+#formats-button-small:not([type=feather]):hover:active {
   box-shadow: none!important;
 }
 #formats-button-small::-moz-focus-inner {
   border: 0;  /* remove dotted outline */
 }
-#icon-wrapper {
-  position: absolute;
-  top: 5px;
-  left: 6px;
+#formats-button-small span {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 3px;
   width: 16px;
   height: 16px;
   background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png), 0, 16, 16, 0) no-repeat center!important;
 }
-body[dir="rtl"] #icon-wrapper{
+
+body[dir="rtl"] #formats-button-small span {
   left: 0;
 }

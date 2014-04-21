@@ -459,7 +459,7 @@ exports.main = function(options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason == "upgrade" || options.loadReason == "install") {
+  if (options.loadReason == "upgrade" || options.loadReason == "downgrade" || options.loadReason == "install") {
     prefs.newVer = options.loadReason;
     //Reload youtube pages & about:addons to set new observer.
     for each (var tab in tabs) {
