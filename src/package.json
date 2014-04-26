@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.5",
+  "version": "0.3.6b1",
   "lib": "lib",
   "main": "main",
   
@@ -163,6 +163,13 @@
     "description": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "pretendHD",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": false
   },
   {
     "name": "ffmpegInputs3",

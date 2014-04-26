@@ -900,14 +900,14 @@ var getVideo = (function () {
           });
           if (tmp && tmp.length) {
             var afIndex;
-            if ([133, 160, 242].indexOf(vInfo.itag) != -1) {  // Low quality
+            if ([133, 160, 242].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality
               tmp.sort(function (a, b) {
                 var i = [140, 171, 139, 172, 141].indexOf(a.itag),
                     j = [140, 171, 139, 172, 141].indexOf(b.itag);
                 return i > j;
               });
             }
-            else if ([134, 135, 243, 244, 245, 246].indexOf(vInfo.itag) != -1) { // Medium quality
+            else if ([134, 135, 243, 244, 245, 246].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality
               tmp.sort(function (a, b) {
                 var i = [140, 171, 172, 141, 139].indexOf(a.itag),
                     j = [140, 171, 172, 141, 139].indexOf(b.itag);
@@ -1229,6 +1229,7 @@ sp.on("reset", function() {
   prefs.welcome = true;
   prefs.forceVisible = true;
   prefs.inject = true;
+  prefs.pretendHD = false;
 });
 
 /** Notifier **/
