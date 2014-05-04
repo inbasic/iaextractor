@@ -6,6 +6,8 @@ exports.ToolbarButton = function (options) {
   var listen = {
     onWidgetBeforeDOMChange: function(tbb, aNextNode, aContainer, aIsRemoval) {
       if (tbb.id != options.id) return;
+      if (tbb.isInstalled) return;
+      tbb.isInstalled = true;
       
       tbb.addEventListener("command", function(e) {
         if (e.ctrlKey) return;
