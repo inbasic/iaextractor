@@ -900,27 +900,38 @@ var getVideo = (function () {
           });
           if (tmp && tmp.length) {
             var afIndex;
-            if ([133, 160, 242].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality
-              tmp.sort(function (a, b) {
-                var i = [140, 171, 139, 172, 141].indexOf(a.itag),
-                    j = [140, 171, 139, 172, 141].indexOf(b.itag);
+            function sort (tmp, toArr) {
+              return tmp.sort(function (a, b) {
+                var i = toArr.indexOf(a.itag),
+                    j = toArr.indexOf(b.itag);
+                if (i == -1 && j == -1) return 0;
+                if (i != -1 && j == -1) return -1;
+                if (i == -1 && j != -1) return +1;
                 return i > j;
               });
             }
-            else if ([134, 135, 243, 244, 245, 246].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality
-              tmp.sort(function (a, b) {
-                var i = [140, 171, 172, 141, 139].indexOf(a.itag),
-                    j = [140, 171, 172, 141, 139].indexOf(b.itag);
-                return i > j;
-              });
+            
+            if ([133, 160].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (mp4)
+              tmp = sort(tmp, [140, 171, 139, 172, 141]);
             }
-            else {  //High quality
-              tmp.sort(function (a, b) {
-                var i = [141, 172, 140, 171, 139].indexOf(a.itag),
-                    j = [141, 172, 140, 171, 139].indexOf(b.itag);
-                return i > j;
-              });
+            else if ([242].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (webm)
+              tmp = sort(tmp, [171, 172]);
             }
+            else if ([134, 135].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (mp4)
+              tmp = sort(tmp, [140, 171, 172, 141, 139]);
+            }
+            else if ([243, 244, 245, 246].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (webm)
+              tmp = sort(tmp, [171, 172]);
+            }
+            else {
+              if ([242, 243, 244, 245, 246, 247, 248].indexOf(vInfo.itag) != -1) {  //High quality (webm)
+                tmp = sort(tmp, [172, 171]);
+              }
+              else {  //High quality (mp4) [136, 137, 138, 264]
+                tmp = sort(tmp, [141, 172, 140, 171, 139]);
+              }
+            }
+
             afIndex = tmp[0].itag;
             batchID = Math.floor((Math.random()*10000)+1);
             batch.add(batchID);
