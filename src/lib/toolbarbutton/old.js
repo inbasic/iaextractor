@@ -177,8 +177,12 @@ exports.ToolbarButton = function ToolbarButton(options) {
           }
           if (!b4) b4 = $("home-button");
         }
-
-        tb.insertItem(options.id, b4, null, false);
+        try {
+          tb.insertItem(options.id, b4, null, false);
+        }
+        catch(e) {
+          tb.insertItem(options.id, null, null, false);
+        }
       }
       
       var saveTBNodeInfo = function(e) {
@@ -275,7 +279,12 @@ exports.ToolbarButton = function ToolbarButton(options) {
         var b4 = $(insertbefore);
 
         if (tb) {
-          tb.insertItem(options.id, b4, null, false);
+          try {
+            tb.insertItem(options.id, b4, null, false);
+          }
+          catch(e) {
+            tb.insertItem(options.id, null, null, false);
+          }
           tb.setAttribute("currentset", tb.currentSet); 
           doc.persist(tb.id, "currentset");
         }
