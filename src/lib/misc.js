@@ -1,18 +1,12 @@
-var {Cc, Ci} = require("chrome"),
-    Request  = require("sdk/request").Request,
-    prefs    = require("sdk/simple-prefs").prefs;
+var {Cc, Ci, Cu} = require("chrome"),
+    Request      = require("sdk/request").Request,
+    prefs        = require("sdk/simple-prefs").prefs;
+    
+Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
 function format (size) {
-  if (size >= Math.pow(2, 30)) {
-    return (size / Math.pow(2, 30)).toFixed(1) + " GB";
-  }
-  if (size >= Math.pow(2, 20)) {
-    return (size / Math.pow(2, 20)).toFixed(1) + " MB";
-  }
-  if (size >= Math.pow(2, 10)) {
-    return (size / Math.pow(2, 10)).toFixed(1) + " KB";
-  }
-  return size + " B";
+  if (!size) return NaN;
+  return DownloadUtils.convertByteUnits(size).join(" ");
 }
 exports.format = format;
 

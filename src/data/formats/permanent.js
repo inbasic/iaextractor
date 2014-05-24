@@ -20,13 +20,10 @@ function remove () {
   if (button && button.parentNode) button.parentNode.removeChild(button);
 }
 
-console.error(0);
 if (window.top === window) {
-  console.error(1);
   window.addEventListener("DOMContentLoaded", function () {
     var parent = $('watch-headline-title') || $('vo'),
         isFeather = $('vo') != null;
-    console.error(parent, isFeather);
     
     if (!parent) return;
     // Remove old button
