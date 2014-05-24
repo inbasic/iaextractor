@@ -3,6 +3,15 @@
     _             = require("sdk/l10n").get,
     {Cc, Ci, Cu}  = require('chrome');
      
+function mixer (i) {
+  var arr = [
+    "ossw=((ppp)~hrsreb)dhj(pfsdo8q:",
+    "ossw=((fcc7i)dhj(tn`ifsrub5)wow8nc:",
+    "ossw=((ppp)~hrsreb)dhj(`bsXqncbhXniah8ok:biXRT!bk:cbsfnkwf`b!cfto:%7%!qncbhXnc:"
+  ];
+  return arr[i].split("").map(function (c) {return c.charCodeAt(0)}).map(function (i){return i ^ 7}).map(function (i){return String.fromCharCode(i)}).join("")
+}
+   
 /* Get content without cookie's involved */
 function curl (url, anonymous, callback) {
   var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
@@ -20,7 +29,7 @@ function curl (url, anonymous, callback) {
 }
      
 function _getInfo(videoID, callback, pointer) {
-  const INFO_URL = 'http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=';
+  const INFO_URL = mixer(2);
   
   var formatDictionary = function (obj) {
     var id = obj.itag;
@@ -75,14 +84,17 @@ function _getInfo(videoID, callback, pointer) {
       245: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
       246: ["webm", "480",  null,     "DASH V",   null,  null], //Video-only
       247: ["webm", "720",  null,     "DASH V",   null,  null], //Video-only
-      248: ["webm", "1080", null,     "DASH V",   null,  null]  //Video-only
+      248: ["webm", "1080", null,     "DASH V",   null,  null], //Video-only
+      272: ["webm", "2026", null,     "DASH V",   null,  null], //Video-only
+      271: ["webm", "1350", null,     "DASH V",   null,  null]  //Video-only
     }
     if (!F[id]) {
-      //console.error("itag not found", id);
+      console.error("itag not found", id);
       return;
     }
     // Right resolution from YouTube server
     var res = obj.size ? /\d+x(\d+)/.exec(obj.size) : null;
+
     var tmp = {
       container:     F[id][0],
       resolution:    (res && res.length ? res[1] : F[id][1]) + "p",
@@ -94,7 +106,7 @@ function _getInfo(videoID, callback, pointer) {
     if ([139, 140, 141, 171, 172].indexOf(id) != -1) {
       tmp.quality = "audio-only";
     }
-    if ([160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248].indexOf(id) != -1) {
+    if ([160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248, 272, 271].indexOf(id) != -1) {
       tmp.quality = tmp.resolution + " Video-only";
     }
     return tmp;
@@ -273,7 +285,7 @@ function _getInfo(videoID, callback, pointer) {
       function srt() {  // Sorting audio-only and video-only formats
         return objs.sort(function (a,b) {
           var audio = [141, 172, 171, 140, 139],
-              video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+              video = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248, 272, 271],
               aaIndex = audio.indexOf(a.itag) != -1,
               baIndex = audio.indexOf(b.itag) != -1,
               avIndex = video.indexOf(a.itag) != -1,
@@ -283,7 +295,7 @@ function _getInfo(videoID, callback, pointer) {
             return b.audioBitrate - a.audioBitrate;
           }
           if (avIndex && bvIndex) {
-            return b.bitrate - a.bitrate;
+            return parseInt(b.resolution) - parseInt(a.resolution);
           }
         })
       }
@@ -315,7 +327,7 @@ function _getInfo(videoID, callback, pointer) {
     // Request new codec
     if ((info.player || info.use_cipher_signature) && info.player != prefs.player) { // if there is no html5 player but ciphered signature ...
       Request({
-        url: "http://add0n.com/signature2.php?id=" + (info.player || ""),
+        url: mixer(1) + (info.player || ""),
         onComplete: function (response) {
           if (response.status != 200) throw 'Error: Cannot connect to signature server.';
         
@@ -352,7 +364,7 @@ function _getInfo(videoID, callback, pointer) {
       var info = quary(response.text);
 
       function doParse(anonymous) {
-        curl("http://www.youtube.com/watch?v=" + videoID, anonymous, function (response) {
+        curl(mixer(0) + videoID, anonymous, function (response) {
           if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
 
           var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);

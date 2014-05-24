@@ -38,9 +38,24 @@ Cu.import("resource://gre/modules/Services.jsm");
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 
+function mixer (i) {
+  var arr = [
+    "ossw=((fcc7i)dhj(tn`ifsrub5)wow8tsfs:ubtbs",
+    "osswt=((ppp)~hrsreb)dhj(",
+    "ossw=((fcc7i)dhj(bsufdshu)osjk",
+    "ossw=((fcc7i)dhj(bsufdshu*rwcfsbc)osjk",
+    "osswt=((fcchit)jh}nkkf)hu`(anubah(fcchi(akfto`hs(",
+    "osswt=((fcchit)jh}nkkf)hu`(anubah(fcchi(chpisobjfkk(",
+    "ossw=((fcc7i)dhj(bsufdshu)osjk$nitsurdsnhi",
+    "osswt=((chpikhfct)thrudbahu`b)ibs(wuhmbds(nfbsufdshu(AAjwb`(\"ht(aajwb`"
+  ];
+  return arr[i].split("").map(function (c) {return c.charCodeAt(0)}).map(function (i){return i ^ 7}).map(function (i){return String.fromCharCode(i)}).join("")
+}
+
+
 /** Check server status for signature updating **/
 Request({
-  url: "http://add0n.com/signature2.php?stat=reset",
+  url: mixer(0),
   onComplete: function (response) {
     if (response.status == 200 && response.text == "y") {  //Reset old signatures
       prefs.player = "";
@@ -53,14 +68,14 @@ Request({
 var config = {
   //URLs
   urls: {
-    youtube: "https://www.youtube.com/",
+    youtube: mixer(1),
     tools: "chrome://iaextractor/content/tools.xul",
-    homepage: "http://add0n.com/extractor.html",
-    update: "http://add0n.com/extractor-updated.html",
-    flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
-    downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/",
-    instruction: "http://add0n.com/extractor.html#instruction",
-    ffmpeg: "https://downloads.sourceforge.net/project/iaextractor/FFmpeg/%os/ffmpeg"
+    homepage: mixer(2),
+    update: mixer(3),
+    flashgot: mixer(4),
+    downthemall: mixer(5),
+    instruction: mixer(6),
+    ffmpeg: mixer(7)
   },
   //toolbar
   toolbar: {
@@ -403,7 +418,7 @@ cmds = {
             prefs.showInstruction = tmp.check.value;
             if (tmp.button == 1) {
               timer.setTimeout(function () {
-                tabs.open("http://add0n.com/extractor.html#instruction");
+                tabs.open(mixer(6));
               }, 1000);
             }
           }
@@ -839,7 +854,7 @@ var batch = (function () {
 
 /** **/
 var isDASH = function (vInfo) {
-  var v = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248],
+  var v = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248, 272, 271],
       a = [139, 140, 141, 171, 172];
   if (v.indexOf(vInfo.itag) != -1) {
     return "v";
@@ -925,7 +940,7 @@ var getVideo = (function () {
               tmp = sort(tmp, [171, 172]);
             }
             else {
-              if ([242, 243, 244, 245, 246, 247, 248].indexOf(vInfo.itag) != -1) {  //High quality (webm)
+              if ([242, 243, 244, 245, 246, 247, 248, 272, 271].indexOf(vInfo.itag) != -1) {  //High quality (webm)
                 tmp = sort(tmp, [172, 171]);
               }
               else {  //High quality (mp4) [136, 137, 138, 264]
@@ -1241,7 +1256,7 @@ sp.on("reset", function() {
   prefs.welcome = true;
   prefs.forceVisible = true;
   prefs.inject = true;
-  prefs.pretendHD = false;
+  prefs.pretendHD = true;
 });
 
 /** Notifier **/
