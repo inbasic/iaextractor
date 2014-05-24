@@ -317,7 +317,7 @@ function _getInfo(videoID, callback, pointer) {
       Request({
         url: "http://add0n.com/signature2.php?id=" + (info.player || ""),
         onComplete: function (response) {
-          if (response.status != 200) throw 'Error: Cannot connect to Youtube server.';
+          if (response.status != 200) throw 'Error: Cannot connect to signature server.';
         
           if (response.text) {
             if (response.text && response.text.indexOf("Error") == -1) {

@@ -19,7 +19,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     data          = self.data,
     prefs         = sp.prefs,
     fileSize      = tools.fileSize,
-    format        = tools.format,
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
     prompts2      = tools.prompts2,
@@ -95,6 +94,7 @@ var iPanel, rPanel, cmds, yButton, IDExtractor, welcome;
 pageMod.PageMod({
   include: ["*.youtube.com"],
   contentScriptFile: prefs.inject ? data.url("formats/permanent.js") : [],
+  contentScriptWhen: "start",
   contentStyleFile: data.url("formats/permanent.css"),
   onAttach: function(worker) {
     worker.port.on("formats", function() {
