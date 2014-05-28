@@ -359,9 +359,14 @@ cmds = {
     IDExtractor(tabs.activeTab.url, function (videoID) {
       if (!videoID) return;
       iPanel.show(tbb);
-      youtube.getInfo(videoID, function (vInfo, e) {
-        iPanel.port.emit('info', vInfo);
-      });
+      youtube.videoInfo(videoID).then(
+        function (info) {
+          iPanel.port.emit('info', info);
+        },
+        function (e) {
+          notify(_("name"), e);
+        }
+      );
     });
   },
   onCtrlClick: function () {
@@ -424,9 +429,14 @@ cmds = {
           }
           cmds.onCommand(null, null, true, fIndex);
         });
-        youtube.getInfo(videoID, function (vInfo) {
-          worker.port.emit('info', vInfo);
-        });
+        youtube.videoInfo(videoID).then(
+          function (info) {
+            worker.port.emit('info', info);
+          },
+          function (e) {
+            notify(_("name"), e);
+          }
+        );
         worker.port.on("flashgot", flashgot);
         worker.port.on("downThemAll", downThemAll); 
         worker.port.on("error", function(code) {
@@ -852,21 +862,6 @@ var batch = (function () {
   }
 })();
 
-/** **/
-var isDASH = function (vInfo) {
-  var v = [160, 133, 134, 135, 136, 137, 138, 264, 242, 243, 244, 245, 246, 247, 248, 272, 271],
-      a = [139, 140, 141, 171, 172];
-  if (v.indexOf(vInfo.itag) != -1) {
-    return "v";
-  }
-  else if (a.indexOf(vInfo.itag) != -1) {
-    return "a"
-  }
-  else {
-    return false;
-  }
-}
-
 /** Call this with new **/
 var getVideo = (function () {
   return function (videoID, listener, fIndex, noAudio, callback, pointer) {
@@ -874,24 +869,81 @@ var getVideo = (function () {
     var batchID;  // For batch job
   
     function onDetect () {
+      function indexToContainer (value) {
+        return ["flv", "3gp", "mp4", "webm"][value]
+      }
+    
+    
       listener.onDetectStart();
-      youtube.getLink(videoID, fIndex, function (e, vInfo, gInfo) {
-        listener.onDetectDone();
-        //Remux audio-only streams even if doExtract is not active
-        if (!noAudio && isDASH(vInfo) == "a" && prefs.doRemux) {
-          doExtract = true;
+      youtube.videoInfo(videoID).then(
+        function (info) {
+          var format, qualityValue = prefs.quality;
+          
+          if (fIndex) {
+            format = info.formats[fIndex];
+          }
+          if (!fIndex) {
+            var tmp = info.formats.filter(function (a) {
+              if (a.dash === "a") return false;
+              if ((!prefs.ffmpegPath || !prefs.doBatchMode) && a.dash === "v") return false;
+              return a.container == indexToContainer(prefs.extension);
+            });
+            //Sorting base on quality (the current sort is based on video type)
+            tmp = tmp.sort(function (a, b) {
+              var m = qualityValue === 3 || qualityValue === 4 ? -1 : 1;
+              return (parseInt(b.resolution) - parseInt(a.resolution)) * m;
+            });
+            if (prefs.doExtract && indexToContainer(prefs.extension) == "flv") {
+              var tmp2 = tmp.filter(function (a) {
+                return a.audioEncoding == "aac"
+              });
+              if (tmp2.length) {
+                tmp = tmp2;
+              }
+            }
+            while (tmp.length && !format && qualityValue > -1) {
+              var b = tmp.filter(function (a) {
+                var resolution = parseInt(a.resolution);
+                //4 worst, 0 best
+                if (qualityValue == 0) {  //HD
+                  return resolution >= 1080;
+                }
+                if (qualityValue == 1) {  //HD
+                  return resolution >= 720 && resolution < 1080;
+                }
+                if (qualityValue == 2) {  //High
+                  return resolution >= 480 && resolution < 720;
+                }
+                if (qualityValue == 3) {  //Medium
+                  return resolution >= 240 && resolution < 480;
+                }
+                if (qualityValue == 4) {  //Small
+                  return resolution < 240;
+                }
+              });
+              if (b.length) format = b[0];
+              qualityValue -= 1;
+            }
+            if (!format && tmp.length) detected = tmp[0]
+            if (!format) format = info.formats[0]; //Get highest quality
+          }
+          format.parent = info;
+          //
+          listener.onDetectDone();
+          //Remux audio-only streams even if doExtract is not active
+          if (!noAudio && format.dash == "a" && prefs.doRemux) {
+            doExtract = true;
+          }
+          onFile (format, info);
+        },
+        function (e) {
+          notify(_("name"), e);
         }
-        if (e) {
-          notify(_('name'), e);
-        }
-        else {
-          onFile (vInfo, gInfo);
-        }
-      });
+      );
     }
     function onFile (vInfo, gInfo) {
       // Do not generate audio file if video has no sound track
-      if (isDASH(vInfo) == "v") {
+      if (vInfo.dash == "v") {
         doExtract = false;
       }
       // Do not generate audio file if video format is not FLV
@@ -903,7 +955,7 @@ var getVideo = (function () {
         doExtract = false;
       }
       // Download proper audio file if video-only format is selected
-      if (isDASH(vInfo) == "v") {
+      if (vInfo.dash == "v") {
         if (!prefs.showAudioDownloadInstruction) {
           var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
           prefs.showAudioDownloadInstruction = tmp.check.value;
@@ -912,7 +964,7 @@ var getVideo = (function () {
         if (prefs.doBatchMode) {
           // Selecting the audio file
           var tmp = vInfo.parent.formats.filter(function (a) {
-            return [140, 141, 139, 171, 172].indexOf(a.itag) != -1;
+            return a.dash === "a";
           });
           if (tmp && tmp.length) {
             var afIndex;
@@ -927,27 +979,26 @@ var getVideo = (function () {
               });
             }
             
-            if ([133, 160].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (mp4)
+            if (youtube.tagInfo.video.mp4.low.indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (mp4)
               tmp = sort(tmp, [140, 171, 139, 172, 141]);
             }
-            else if ([242].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (webm)
-              tmp = sort(tmp, [171, 172]);
+            else if (youtube.tagInfo.video.webm.low.indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (webm)
+              tmp = sort(tmp, youtube.tagInfo.audio.ogg.reverse());
             }
-            else if ([134, 135].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (mp4)
+            else if (youtube.tagInfo.video.mp4.medium.indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (mp4)
               tmp = sort(tmp, [140, 171, 172, 141, 139]);
             }
-            else if ([243, 244, 245, 246].indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (webm)
-              tmp = sort(tmp, [171, 172]);
+            else if (youtube.tagInfo.video.webm.medium.indexOf(vInfo.itag) != -1 && !prefs.pretendHD) { // Medium quality (webm)
+              tmp = sort(tmp, youtube.tagInfo.audio.ogg.reverse());
             }
             else {
-              if ([242, 243, 244, 245, 246, 247, 248, 272, 271].indexOf(vInfo.itag) != -1) {  //High quality (webm)
-                tmp = sort(tmp, [172, 171]);
+              if ([].concat(youtube.tagInfo.video.webm.low, youtube.tagInfo.video.webm.medium, youtube.tagInfo.video.webm.high).indexOf(vInfo.itag) != -1) {  //High quality (webm)
+                tmp = sort(tmp, youtube.tagInfo.audio.ogg);
               }
-              else {  //High quality (mp4) [136, 137, 138, 264]
+              else {  //High quality (mp4)
                 tmp = sort(tmp, [141, 172, 140, 171, 139]);
               }
             }
-
             afIndex = tmp[0].itag;
             batchID = Math.floor((Math.random()*10000)+1);
             batch.add(batchID);
@@ -1110,7 +1161,7 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg([obj.vFile], {deleteInputs: isDASH(vInfo) && prefs.deleteInputs}, function () {
+        ffmpeg.ffmpeg([obj.vFile], {deleteInputs: vInfo.dash && prefs.deleteInputs}, function () {
           listener.onExtractDone(id);
           afterExtract();
         });
@@ -1138,7 +1189,7 @@ var getVideo = (function () {
 var fileName = function (videoID, vInfo, gInfo) {
   // Add " - DASH" to DASH only files
   return pattern = prefs.namePattern
-    .replace ("[file_name]", gInfo.title + (isDASH(vInfo) ? " - DASH" : ""))
+    .replace ("[file_name]", gInfo.title + (vInfo.dash ? " - DASH" : ""))
     .replace ("[extension]", vInfo.container)
     .replace ("[author]", gInfo.author)
     .replace ("[video_id]", videoID)
