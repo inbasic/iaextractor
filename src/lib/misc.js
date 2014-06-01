@@ -5,7 +5,7 @@ var {Cc, Ci, Cu} = require("chrome"),
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
 function format (size) {
-  if (!size) return NaN;
+  if (!size || size == "0") return NaN;
   return DownloadUtils.convertByteUnits(size).join(" ");
 }
 exports.format = format;

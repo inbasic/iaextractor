@@ -18,11 +18,16 @@ function mixer (i) {
 
 /* Get content without cookie's involved */
 function curl (url, anonymous) {
-  var d = new Promise.defer();
+  var d = new Promise.defer(), req;
 
-  var req = typeof variable != 'undefined' ? 
-    new XMLHttpRequest() : 
-    Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+  if (typeof XMLHttpRequest !== 'undefined') {
+    req = new XMLHttpRequest ();
+  }
+  else {
+    req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+      .createInstance(Ci.nsIXMLHttpRequest);
+  }
+
   req.open('GET', url, true);
   req.onreadystatechange = function () {
     if (req.readyState == 4) {
@@ -269,7 +274,6 @@ function getFormats (videoID) {
     );
   }
   fetch(false);
-  
   return d.promise;
 }
 
@@ -303,7 +307,6 @@ function getExtra (videoID) {
     },
     d.reject
   );
-
   return d.promise;
 }
 
@@ -318,7 +321,7 @@ function getInfo (videoID) {
     }
     var obj = r[1] instanceof Error ? {} : r[1];
     if (!(r[0] instanceof Error)) { // Overwrite links from page if possible
-      for (let j in r[0]) {
+      for (var j in r[0]) {
         obj[j] = r[0][j];
       }
     }
@@ -383,6 +386,7 @@ function updateSig (info) {
   var d = new Promise.defer(),
       isEncrypted = info.url_encoded_fmt_stream_map.indexOf("&s=") != -1 || info.adaptive_fmts.indexOf("&s=") != -1,
       doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
+
   if (doUpdate) {
     curl(mixer(1) + (info.player || "")).then(function (response) {
       if (response.status != 200) {
@@ -412,10 +416,12 @@ function updateSig (info) {
   return d.promise;
 }
 
-function decipher(s) {
+function decipher (s) {
   var sig = (s + "").split("");
   function swap(arr, b) {
-      [arr[0], arr[b]] = [arr[b % arr.length], arr[0]];
+      var aa = arr[b % arr.length], bb = arr[0];
+      arr[0] = aa;
+      arr[b] = bb;
       return arr
   }
   
@@ -439,7 +445,7 @@ function decipher(s) {
   return sig.join("");
 }
 
-function extractFormats(info) {
+function extractFormats (info) {
   var d = new Promise.defer(), objs = [], do141 = false;
 
   [info.url_encoded_fmt_stream_map, info.adaptive_fmts].
@@ -540,7 +546,7 @@ function find141 (info, obj140) {
 
 /* Sorting audio-only and video-only formats */
 function sortFormats (info) {
-  info.formats = info.formats.sort(function (a,b) {
+  info.formats = info.formats.sort(function (a, b) {
     var aaIndex = a.dash == "a",
         baIndex = b.dash == "a",
         avIndex = a.dash == "v",
@@ -552,17 +558,30 @@ function sortFormats (info) {
     if (avIndex && bvIndex) {
       return parseInt(b.resolution) - parseInt(a.resolution);
     }
+    if (aaIndex && bvIndex) {
+      return 1;
+    }
+    if (avIndex && baIndex) {
+      return -1;
+    }
+    if (!aaIndex && !avIndex && (baIndex || bvIndex)) {
+      return -1;
+    }
+    if (!baIndex && !bvIndex && (aaIndex || avIndex)) {
+      return 1;
+    }
   });
 
   return info;
 }
 
-
-exports.tagInfo = tagInfo;
-exports.videoInfo = function (videoID) {
-  return getInfo(videoID)
-    .then(postInfo)
-    .then(updateSig)
-    .then(extractFormats)
-    .then(sortFormats);
+if (typeof exports !== 'undefined') {
+  exports.tagInfo = tagInfo;
+  exports.videoInfo = function (videoID) {
+    return getInfo(videoID)
+      .then(postInfo)
+      .then(updateSig)
+      .then(extractFormats)
+      .then(sortFormats);
+  }
 }

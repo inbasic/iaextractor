@@ -293,6 +293,10 @@ var Menu = function (doSize) {
         var text = html("span");
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
+        if (elem.dash) {
+          dropdown.setAttribute("dash", elem.dash);
+          dropdown.setAttribute("title", elem.dash === "v" ? "video-only (no sound)" : "audio-only (no video)");
+        }
         var i = html("i");
         dropdown.appendChild(i);
         a.appendChild(text);
