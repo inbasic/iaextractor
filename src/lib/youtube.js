@@ -2,20 +2,6 @@
     prefs         = require("sdk/simple-prefs").prefs;
 Cu.import("resource://gre/modules/Promise.jsm");
 
-function mixer (i) {
-  var arr = [
-    "ossw=((ppp)~hrsreb)dhj(pfsdo8q:",
-    "ossw=((fcc7i)dhj(tn`ifsrub4)wow8nc:",
-    "ossw=((ppp)~hrsreb)dhj(`bsXqncbhXniah8ok:biXRT!bk:cbsfnkwf`b!cfto:%7%!qncbhXnc:"
-  ];
-  return arr[i]
-    .split("")
-    .map(function (c) {return c.charCodeAt(0)})
-    .map(function (i){return i ^ 7})
-    .map(function (i){return String.fromCharCode(i)})
-    .join("");
-}
-
 /* Get content without cookie's involved */
 function curl (url, anonymous) {
   var d = new Promise.defer(), req;
@@ -245,7 +231,7 @@ function getFormats (videoID) {
     return str.replace(/\\u0026/g, "&").replace(/\\\//g, '/')
   }
   function fetch (anonymous) {
-    curl(mixer(0) + videoID, anonymous).then(
+    curl("http://www.youtube.com/watch?v=" + videoID, anonymous).then(
       function (response) {
         if (response.status != 200) {
           return d.reject(Error("Cannot connect to the YouTube page server."));
@@ -262,10 +248,10 @@ function getFormats (videoID) {
         }
         else {
           d.resolve({
-            url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : null,
-            adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : null,
-            dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : null,
-            player: tmp4 && tmp4.length ? tmp4[1] : null,
+            url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : "",
+            adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : "",
+            dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : "",
+            player: tmp4 && tmp4.length ? tmp4[1] : "",
             response: response
           });
         }
@@ -297,7 +283,7 @@ function getExtra (videoID) {
     return temp;
   }
 
-  curl(mixer(2) + videoID, false).then(
+  curl('http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=' + videoID, false).then(
     function (response) {
       if (response.status != 200) {
         return d.reject(Error("Cannot connect to the YouTube info server."));
@@ -384,11 +370,12 @@ function postInfo (info) {
 /* Update signature */
 function updateSig (info) {
   var d = new Promise.defer(),
-      isEncrypted = info.url_encoded_fmt_stream_map.indexOf("&s=") != -1 || info.adaptive_fmts.indexOf("&s=") != -1,
+      isEncrypted = 
+        ("url_encoded_fmt_stream_map" in info && info.url_encoded_fmt_stream_map.indexOf("&s=") != -1) || 
+        ("adaptive_fmts" in info && info.adaptive_fmts.indexOf("&s=") != -1),
       doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
-
   if (doUpdate) {
-    curl(mixer(1) + (info.player || "")).then(function (response) {
+    curl("http://add0n.com/signature3.php?id=" + (info.player || "")).then(function (response) {
       if (response.status != 200) {
         return info.response ? 
           d.resolve(signatureLocal(info)) : 
