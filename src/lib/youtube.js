@@ -110,7 +110,7 @@ var formatDictionary = (function () {
   return function (obj) {
     var itag = obj.itag;
     if (!KNOWN[itag]) {
-      // console.error("itag not found", itag);
+      console.error("itag not found", itag);
       return;
     }
     // get resolution from YouTube server
