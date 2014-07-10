@@ -110,7 +110,7 @@ var formatDictionary = (function () {
   return function (obj) {
     var itag = obj.itag;
     if (!KNOWN[itag]) {
-      console.error("itag not found", itag);
+      // console.error("itag not found", itag);
       return;
     }
     // get resolution from YouTube server
@@ -433,7 +433,7 @@ function decipher (s) {
 }
 
 function extractFormats (info) {
-  var d = new Promise.defer(), objs = [], do141 = false;
+  var d = new Promise.defer(), objs = [];
 
   [info.url_encoded_fmt_stream_map, info.adaptive_fmts].
     filter(function (a){ return a}).
@@ -473,24 +473,18 @@ function extractFormats (info) {
         pairs[j] = format[j];
       }
       objs.push(pairs);
-      if (itag == 140) do141 = pairs;
     });
 
   info.formats = objs;
   delete info.url_encoded_fmt_stream_map;
   delete info.adaptive_fmts;
   
-  if (do141) {
-    d.resolve(find141(info, do141));
-  }
-  else {
-    d.resolve(info);
-  }
+  d.resolve(findOtherItags(info));
   return d.promise;
 }
 
 /* Appending itag 141 to info */
-function find141 (info, obj140) {
+function findOtherItags (info) {
   var d = new Promise.defer(), dashmpd = info.dashmpd;
   
   if (dashmpd.indexOf(/signature/) === -1) {
@@ -503,26 +497,31 @@ function find141 (info, obj140) {
       if (response.status != 200 || !response.text) {
         return d.resolve(info);
       }
-      var regexp = new RegExp('<BaseURL.+>(http[^<]+itag=141[^<]+)<\\/BaseURL>','i');
-      var res = regexp.exec(response.text);
-      if (res && res.length) {
-        var url = res[1].replace(/&amp\;/g,'&');
-        var obj = {}; //Cloning obj140   
-        for (var j in obj140) {
-          obj[j] = obj140[j];
+      function doTag (itag) {
+        var cObj = info.formats.filter(f => f.itag === itag - 1);
+        if (!cObj || !cObj.length) return;
+        cObj = cObj[0];
+      
+        var regexp = new RegExp('<BaseURL.+>(http[^<]+itag=' + itag + '[^<]+)<\\/BaseURL>','i');
+        var res = regexp.exec(response.text);
+        if (res && res.length) {
+          var url = res[1].replace(/&amp\;/g,'&');
+          var obj = {}; //Cloning obj140   
+          for (var j in cObj) {
+            obj[j] = cObj[j];
+          }
+          obj.itag = itag;
+          var format = formatDictionary(obj);
+          for (var j in format) {
+            obj[j] = format[j];
+          }
+          obj.url = url;
+          info.formats.push(obj);
         }
-        obj.itag = 141;
-        var format = formatDictionary(obj);
-        for (var j in format) {
-          obj[j] = format[j];
-        }
-        obj.url = url;
-        info.formats.push(obj);
-        d.resolve(info);
       }
-      else {
-        d.resolve(info);
-      }
+      doTag(141);
+      doTag(172);
+      d.resolve(info);
     });
   }
   else {
