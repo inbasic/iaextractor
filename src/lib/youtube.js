@@ -1,9 +1,10 @@
 ﻿var {Cc, Ci, Cu}  = require('chrome'),
-    prefs         = require("sdk/simple-prefs").prefs;
+    prefs         = require("sdk/simple-prefs").prefs,
+    self          = require("sdk/self");
 Cu.import("resource://gre/modules/Promise.jsm");
 
 /* Get content without cookie's involved */
-function curl (url, anonymous) {
+function curl (url, anonymous, method, headers) {
   var d = new Promise.defer(), req;
 
   if (typeof XMLHttpRequest !== 'undefined') {
@@ -14,12 +15,16 @@ function curl (url, anonymous) {
       .createInstance(Ci.nsIXMLHttpRequest);
   }
 
-  req.open('GET', url, true);
+  req.open(method ? method : 'GET', url, true);
+  for (var h in headers) {
+    req.setRequestHeader(h, headers[h]);
+  }
   req.onreadystatechange = function () {
     if (req.readyState == 4) {
       d.resolve({
         text: req.responseText, 
-        status: req.status
+        status: req.status,
+        req: req
       });
     }
   };
@@ -30,6 +35,34 @@ function curl (url, anonymous) {
   
   return d.promise;
 }
+
+/***/
+var api = function (id, info) {
+  return [
+    "http://inbasic.net/api_v1.php?id=" + id, 
+    false, 
+    "POST", 
+    {
+      'k': (id + info.token || "vjVQa1PpcFPT2L_nPXwwv_Ihvu_szbK6AwwhxQxGPfM=")
+        .split("")
+        .map(function (c) {return c.charCodeAt(0)})
+        .map(function (i){return i ^ 7})
+        .map(function (i){return String.fromCharCode(i)})
+        .join(""),
+      'l': id.length,
+      'v': self.version
+    }
+  ];
+}
+/***/
+
+/** Check server status for signature updating **/
+curl("http://inbasic.net/stat_v1.html?rand=" + Math.random().toString(36).substring(7)).then(function (o) {
+  if (o.status == 200 && o.text == "y") {  //Reset old signatures
+    prefs.player = "";
+    prefs.ccode = "";
+  }
+});
 
 var tagInfo = (function () {
   var audio = {
@@ -154,72 +187,104 @@ function signatureLocal(info) {
   }
   scriptURL = "https:" + scriptURL.replace(/\\/g,'');
   curl(scriptURL).then (function (response) {
-    var functionName = findMatch(response.text, /\.signature\s*=\s*(\w+)\(\w+\)/);
-    if (functionName == null) return d.reject(Error("signatureLocal: Cannot resolve signature;2"));
-    var regCode = new RegExp('function ' + functionName +
-      '\\s*\\(\\w+\\)\\s*{\\w+=\\w+\\.split\\(""\\);(.+);return \\w+\\.join');
-    var functionCode = findMatch(response.text, regCode);
-    if (functionCode == null) {
-      return d.reject(Error("signatureLocal: Cannot resolve signature;3"));
-    }
-    var regSlice = new RegExp('slice\\s*\\(\\s*(.+)\\s*\\)');
-    var regSwap = new RegExp('\\w+\\s*\\(\\s*\\w+\\s*,\\s*([0-9]+)\\s*\\)');
-    var regInline = new RegExp('\\w+\\[0\\]\\s*=\\s*\\w+\\[([0-9]+)\\s*%\\s*\\w+\\.length\\]');
-    var functionCodePieces = functionCode.split(';');
-    var decodeArray = [], signatureLength = 81;
-    for (var i = 0; i < functionCodePieces.length; i++) {
-      functionCodePieces[i] = functionCodePieces[i].trim();
-      if (functionCodePieces[i].length == 0) { 
-      } 
-      else if (functionCodePieces[i].indexOf('slice') >= 0) { // slice
-        var slice = findMatch(functionCodePieces[i], regSlice);
-        slice = parseInt(slice, 10);
-        if (isInteger(slice)) {
-          decodeArray.push("s", slice);
-          signatureLength += slice;
-        } 
-        else {
-          return d.reject(Error("signatureLocal: Cannot resolve signature;4"));
+    try {
+      var sigFunName = findMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
+      if (sigFunName == null) {
+        return d.reject(Error("signatureLocal: Cannot resolve signature;2"));
+      }
+      sigFunName = sigFunName.replace('$', '\\$');
+      var regCode = new RegExp(
+        'function \\s*' + sigFunName + '\\s*\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
+      );
+      var functionCode = findMatch(response.text, regCode);
+      if (functionCode == null) {
+        return d.reject(Error("signatureLocal: Cannot resolve signature;3"));
+      }
+      var revFunName = findMatch(
+        response.text,
+        /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.reverse\s*\(\s*\)\s*}/
+      );
+      if (revFunName) revFunName = revFunName.replace('$', '\\$');
+      var slcFuncName = findMatch(
+        response.text,
+        /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*,\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.(?:slice|splice)\(.+\)\s*}/
+      );
+      if (slcFuncName) slcFuncName = slcFuncName.replace('$', '\\$');
+      var regSlice = new RegExp(
+        '\\.(?:' + 'slice' + (slcFuncName ? '|' + slcFuncName : '') + ')\\s*\\(\\s*(?:[a-zA-Z_$][\\w$]*\\s*,)?\\s*([0-9]+)\\s*\\)'
+      );
+      var regReverse = new RegExp(
+        '\\.(?:' + 'reverse' + (revFunName ? '|' + revFunName : '') + ')\\s*\\([^\\)]*\\)'
+      );
+      var regSwap = new RegExp('[\\w$]+\\s*\\(\\s*[\\w$]+\\s*,\\s*([0-9]+)\\s*\\)');
+      var regInline = new RegExp(
+        '[\\w$]+\\[0\\]\\s*=\\s*[\\w$]+\\[([0-9]+)\\s*%\\s*[\\w$]+\\.length\\]'
+      );
+      var funcPieces = functionCode.split(';');
+      var decodeArray = [],
+        signatureLength = 81;
+      for (var i = 0; i < funcPieces.length; i++) {
+        funcPieces[i] = funcPieces[i].trim();
+        var codeLine = funcPieces[i];
+        if (codeLine.length > 0) {
+          var arrSlice = codeLine.match(regSlice);
+          var arrReverse = codeLine.match(regReverse);
+          if (arrSlice && arrSlice.length >= 2) { // slice
+            var slice = parseInt(arrSlice[1], 10);
+            if (isInteger(slice)) {
+              decodeArray.push("s", slice);
+              signatureLength += slice;
+            } else {
+              d.reject(Error("signatureLocal: Cannot resolve signature;4"));
+            }
+          } else if (arrReverse && arrReverse.length >= 1) { // reverse
+            decodeArray.push("r");
+          } else if (codeLine.indexOf('[0]') >= 0) { // inline swap
+            if (i + 2 < funcPieces.length &&
+              funcPieces[i + 1].indexOf('.length') >= 0 &&
+              funcPieces[i + 1].indexOf('[0]') >= 0) {
+              var inline = findMatch(funcPieces[i + 1], regInline);
+              inline = parseInt(inline, 10);
+              decodeArray.push("w", inline);
+              i += 2;
+            } else {
+              return d.reject(Error("signatureLocal: Cannot resolve signature;5"));
+            }
+          } else if (codeLine.indexOf(',') >= 0) { // swap
+            var swap = findMatch(codeLine, regSwap);
+            swap = parseInt(swap, 10);
+            if (isInteger(swap)) {
+              decodeArray.push("w", swap);
+            } else {
+              return d.reject(Error("signatureLocal: Cannot resolve signature;6"));
+            }
+          } else {
+            return d.reject(Error("signatureLocal: Cannot resolve signature;7"));
+          }
         }
-      } 
-      else if (functionCodePieces[i].indexOf('reverse') >= 0) {
-        decodeArray.push("r");
-      } 
-      else if (functionCodePieces[i].indexOf('[0]') >= 0) {
-        if (i + 2 < functionCodePieces.length &&
-          functionCodePieces[i + 1].indexOf('.length') >= 0 &&
-          functionCodePieces[i + 1].indexOf('[0]') >= 0) {
-          var inline = findMatch(functionCodePieces[i + 1], regInline);
-          inline = parseInt(inline, 10);
-          decodeArray.push("w", inline);
-          i += 2;
-        } 
-        else {
-          return d.reject(Error("signatureLocal: Cannot resolve signature;5"));
-        }
-      } 
-      else if (functionCodePieces[i].indexOf(',') >= 0) {
-        var swap = findMatch(functionCodePieces[i], regSwap);
-        swap = parseInt(swap, 10);
-        if (isInteger(swap)) {
-          decodeArray.push("w", swap);
-        } 
-        else {
-          return d.reject(Error("signatureLocal: Cannot resolve signature;6"));
-        }
-      } 
-      else {
-        return d.reject(Error("signatureLocal: Cannot resolve signature;7"));
+      }
+      if (decodeArray) {
+        prefs.ccode = JSON.stringify(decodeArray);
+        prefs.player = info.player;
+
+        var url = doCorrections({formats: [{url: info.formats[0].url}]}).formats[0].url;
+        curl(url, false, "HEAD").then(function (o) {
+          size = o.req.getResponseHeader("Content-Length");
+          if (parseInt(size)) {
+            d.resolve(doCorrections(info));
+          }
+          else {
+            prefs.ccode = "";
+            prefs.player = "";
+            d.reject(Error("signatureLocal: Signature cannot be verified"));
+          }
+        });
+      } else {
+        d.reject(Error("signatureLocal: Cannot resolve signature;8"));
       }
     }
-
-    if (decodeArray) {
-      prefs.ccode = JSON.stringify(decodeArray);
-      prefs.player = info.player;
-      d.resolve(info);
-    }
-    else {
-      d.reject(Error("signatureLocal: Cannot resolve signature;8"));  
+    catch (e) {
+      d.reject(Error("signatureLocal: Cannot resolve signature;8"));
     }
   });
   return d.promise;
@@ -370,36 +435,27 @@ function postInfo (info) {
 /* Update signature */
 function updateSig (info) {
   var d = new Promise.defer(),
-      isEncrypted = 
-        ("url_encoded_fmt_stream_map" in info && info.url_encoded_fmt_stream_map.indexOf("&s=") != -1) || 
-        ("adaptive_fmts" in info && info.adaptive_fmts.indexOf("&s=") != -1),
-      doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
-  if (doUpdate) {
-    curl("http://add0n.com/signature3.php?id=" + (info.player || "")).then(function (response) {
-      if (response.status != 200) {
-        return info.response ? 
-          d.resolve(signatureLocal(info)) : 
-          d.reject(Error("Cannot connect to the Signature server."));
+      id = (info.player || "");
+  curl.apply(this, api(id, info)).then(function (response) {
+    if (response.status != 200) {
+      return d.reject(Error("Cannot connect to the Signature server."));
+    }
+    if (response.text) {
+      if (response.text && response.text.indexOf("Error") == -1) {
+        var tmp = response.text.split("\n");
+        prefs.player = tmp[0];
+        prefs.ccode = tmp[1];
+        
+        d.resolve(info);
       }
-      if (response.text) {
-        if (response.text && response.text.indexOf("Error") == -1) {
-          var tmp = response.text.split("\n");
-          prefs.player = tmp[0];
-          prefs.ccode = tmp[1];
-          
-          d.resolve(info);
-        }
-        else {
-          return info.response ? 
-            d.resolve(signatureLocal(info)) : 
-            d.reject(Error("Signature server error: " + response.text));
-        }
+      else {
+        d.reject(Error("Signature server error: " + response.text));
       }
-    });
-  }
-  else {
-    d.resolve(info);
-  }
+    }
+    else {
+      d.reject(Error("Signature server returned null"));
+    }
+  });
   return d.promise;
 }
 
@@ -430,6 +486,38 @@ function decipher (s) {
     }
   });
   return sig.join("");
+}
+
+function verify (info) {
+  var isEncrypted = info.formats[0].s;
+      doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
+
+  if (doUpdate) {
+    return signatureLocal(info).then(
+      function (info) {
+        return info
+      }, 
+      function (e) {
+        //console.error(e);
+        return updateSig(info).then(doCorrections)
+      }
+    );
+  }
+  else if (isEncrypted && !doUpdate) {
+    return doCorrections(info);
+  }
+  else {
+    return info
+  }
+}
+
+function doCorrections (info) {
+  info.formats.forEach(function (o, i) {
+    info.formats[i].url = o.url.replace(/\&s\=([^\&]*)/, function (a, s) {
+      return "&signature=" + decipher(s)
+    });
+  });
+  return info;
 }
 
 function extractFormats (info) {
@@ -464,7 +552,7 @@ function extractFormats (info) {
         pairs.url += '&signature=' + pairs['sig'];
       }
       if (pairs.s) {
-        pairs.url += "&signature=" + decipher(pairs['s']);
+        pairs.url += "&s=" + pairs['s'];
       }
       
       var format = formatDictionary(pairs);
@@ -566,8 +654,8 @@ if (typeof exports !== 'undefined') {
   exports.videoInfo = function (videoID) {
     return getInfo(videoID)
       .then(postInfo)
-      .then(updateSig)
       .then(extractFormats)
+      .then(verify)
       .then(sortFormats);
   }
 }

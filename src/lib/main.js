@@ -38,17 +38,6 @@ Cu.import("resource://gre/modules/Services.jsm");
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
 
-/** Check server status for signature updating **/
-Request({
-  url: "http://add0n.com/signature2.php?stat=reset",
-  onComplete: function (response) {
-    if (response.status == 200 && response.text == "y") {  //Reset old signatures
-      prefs.player = "";
-      prefs.ccode = "";
-    }
-  }
-}).get();
-
 /** Internal configurations **/
 var config = {
   //URLs
@@ -1021,7 +1010,7 @@ var getVideo = (function () {
       //Select folder by userFolder
       else if (prefs.dFolder == 5) {
         try {
-          //Simple-prefs doesnt support complex type
+          //Simple-prefs doesn't support complex type
           vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
           vFile.append(fileName(videoID, vInfo, gInfo));
         }
