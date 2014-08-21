@@ -582,22 +582,14 @@ function findOtherItags (info) {
         return d.resolve(info);
       }
       function doTag (itag) {
-        var cObj = info.formats.filter(function (f) {
-          return f.itag === itag - 1;
-        });
-        if (!cObj || !cObj.length) return;
-        cObj = cObj[0];
-      
         var regexp = new RegExp('<BaseURL.+>(http[^<]+itag=' + itag + '[^<]+)<\\/BaseURL>','i');
         var res = regexp.exec(response.text);
         if (res && res.length) {
           var url = res[1].replace(/&amp\;/g,'&');
-          var obj = {}; //Cloning obj140   
-          for (var j in cObj) {
-            obj[j] = cObj[j];
-          }
+          var obj = {};  
           obj.itag = itag;
           var format = formatDictionary(obj);
+          if (!format) return;
           for (var j in format) {
             obj[j] = format[j];
           }
@@ -605,8 +597,22 @@ function findOtherItags (info) {
           info.formats.push(obj);
         }
       }
-      doTag(141);
-      doTag(172);
+      
+      var availableItags = info.formats.map(function (o) {
+        return o.itag;
+      });
+      var itags = response.text
+        .match(/itag=\d+/g)
+        .map(function (s) {
+          return s.substr(5);
+        })
+        .map(function (i) {
+          return parseInt(i);
+        })
+        .filter(function (i) {
+          return availableItags.indexOf(i) === -1;
+        });
+      itags.forEach(doTag);
       d.resolve(info);
     });
   }
