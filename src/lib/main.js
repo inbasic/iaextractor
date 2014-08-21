@@ -1121,8 +1121,8 @@ var fileName = function (videoID, vInfo, gInfo) {
     .replace ("[extension]", vInfo.container)
     .replace ("[author]", gInfo.author)
     .replace ("[video_id]", videoID)
-    .replace ("[video_resolution]", vInfo.resolution)
-    .replace ("[audio_bitrate]", vInfo.audioBitrate + "K")
+    .replace ("[video_resolution]", vInfo.resolution || "")
+    .replace ("[audio_bitrate]", vInfo.audioBitrate ? (vInfo.audioBitrate + "K") : "")
     //
     .replace(/\+/g, " ")
     .replace(/[:\?\¿]/g, "")

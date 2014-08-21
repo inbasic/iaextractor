@@ -2,7 +2,8 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _             = require("sdk/l10n").get,
     sp            = require("sdk/simple-prefs"),
     data          = require("sdk/self").data,
-    prefs         = sp.prefs;
+    prefs         = sp.prefs,
+    notify        = require("./misc").notify;
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import(data.url("subprocess/subprocess.jsm"));
@@ -12,6 +13,12 @@ Cu.import(data.url("subprocess/subprocess.jsm"));
  * options: doRemux overwrite "- DASH" filename requirement
  * options: deleteInputs delete input files
  */
+ 
+function isError(str) {
+  return str.indexOf("Error") !== -1 || 
+    str.indexOf("incorrect codec parameters") !== -1;
+}
+ 
 exports.ffmpeg = function (inputs, options, callback, pointer) {
   var extensions = [], tmpFiles = [], outputLocation;
   // Is FFmpeg available?
@@ -115,14 +122,13 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
           return a.leafName;
         })());
       }
-    
-      if (options.deleteInputs && result.stderr.indexOf("Error") === -1) {
+      if (options.deleteInputs && !isError(result.stderr)) {
         inputs.forEach(function (input) {
           input.remove(false);
         });
       }
-      else {
-        console.error(result.stderr);
+      if (isError(result.stderr)) {
+        notify(_("name"), _("err24") + "\n\n" + result.stderr.substr(result.stderr.length - 500));
       }
 
       tmpDir.remove(true);

@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
   
   "url": "",
-  "version": "0.3.7b3",
+  "version": "0.3.7",
   "lib": "lib",
   "main": "main",
   
@@ -148,14 +148,14 @@
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %input -q:a 0 %output.mp3"
+    "value": "-loglevel error -i %input -q:a 0 %output.mp3"
   },
   {
     "name": "ffmpegInputs4",
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %audio -i %video -acodec copy -vcodec copy %output"
+    "value": "-loglevel error -i %audio -i %video -acodec copy -vcodec copy %output"
   },
   {
     "name": "doBatchMode",
@@ -176,7 +176,7 @@
     "title": "",
     "description": "",
     "type": "string",
-    "value": "-i %input -acodec copy -vn %output"
+    "value": "-loglevel error -i %input -acodec copy -vn %output"
   },
   {
     "name": "doRemux",

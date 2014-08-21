@@ -14,16 +14,10 @@
   xmlns:h="http://www.w3.org/1999/xhtml">
 
 <script type="text/javascript">
-/* This chrome window uses "lib/download.js" and "lib/extract.js" from addon-sdk 
- * library. This is a minimal implimentation of require function to prevent 
- * code duplications!
- */
-var connect = {};
-Components.utils.import("resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/shared/connect.jsm", connect);
-console.error(connect, connect.glow, connect.glow.require)
-
-exports = {};
-var require = connect.glow.require;
+  var connect = {};
+  Components.utils.import("resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/shared/connect.jsm", connect);
+  exports = {};
+  var require = connect.glow.require;
 </script>
 <script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/download.js"/>
 <script src="resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/lib/extract.js"/>
@@ -35,7 +29,7 @@ var require = connect.glow.require;
 </stringbundleset>
 
 <notificationbox id="notify" flex="1">
-<tabbox id="tabbox" flex="1" selectedIndex="1" persist="selectedIndex">
+<tabbox id="tabbox" flex="1" selectedIndex="2" persist="selectedIndex">
   <tabs>
     <tab label="&aac-to-mp3;"/>
     <tab label="&flv-to-aac;"/>

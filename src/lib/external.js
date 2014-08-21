@@ -106,6 +106,10 @@ function installFFmpeg () {
             if (file.fileSize > 10485760) {
               _prefs.setComplexFile("ffmpegPath", file);
               prefs.extension = 2;
+              //make sure file has executable permission
+              timer.setTimeout(function () {
+                file.permissions = 0755;  
+              }, 500);
               notify(_('name'), _('msg26'));
             }
             else {
