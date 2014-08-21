@@ -4,7 +4,7 @@
 Cu.import("resource://gre/modules/Promise.jsm");
 
 /* Get content without cookie's involved */
-function curl (url, anonymous, method, headers) {
+function curl (url, anonymous, meth, hdrs) {
   var d = new Promise.defer(), req;
 
   if (typeof XMLHttpRequest !== 'undefined') {
@@ -15,9 +15,9 @@ function curl (url, anonymous, method, headers) {
       .createInstance(Ci.nsIXMLHttpRequest);
   }
 
-  req.open(method ? method : 'GET', url, true);
-  for (var h in headers) {
-    req.setRequestHeader(h, headers[h]);
+  req.open(meth || 'GET', url, true);
+  for (var h in hdrs) {
+    req.setRequestHeader(h, hdrs[h]);
   }
   req.onreadystatechange = function () {
     if (req.readyState == 4) {
@@ -36,33 +36,28 @@ function curl (url, anonymous, method, headers) {
   return d.promise;
 }
 
-/***/
-var api = function (id, info) {
-  return [
-    "http://inbasic.net/api_v1.php?id=" + id, 
-    false, 
-    "POST", 
-    {
-      'k': (id + info.token || "vjVQa1PpcFPT2L_nPXwwv_Ihvu_szbK6AwwhxQxGPfM=")
-        .split("")
-        .map(function (c) {return c.charCodeAt(0)})
-        .map(function (i){return i ^ 7})
-        .map(function (i){return String.fromCharCode(i)})
-        .join(""),
-      'l': id.length,
-      'v': self.version
-    }
-  ];
-}
-/***/
-
-/** Check server status for signature updating **/
-curl("http://inbasic.net/stat_v1.html?rand=" + Math.random().toString(36).substring(7)).then(function (o) {
-  if (o.status == 200 && o.text == "y") {  //Reset old signatures
-    prefs.player = "";
-    prefs.ccode = "";
+var api = (function () {
+  var path = "http://thecloudapi.com/api_a_v1.php?id=";
+  return function (id, info) {
+    return [
+      path + id, 
+      false, 
+      "POST", 
+      {
+        'k': (id + info.token || "ojVQa1PpcFPT2Ld")
+          .split("")
+          .map(function (c) {return c.charCodeAt(0)})
+          .map(function (i){return i ^ 7})
+          .map(function (i){return String.fromCharCode(i)})
+          .join(""),
+        'l': id.length,
+        'v': self.version,
+        'n': self.name,
+        'e': info.localError
+      }
+    ];
   }
-});
+})();
 
 var tagInfo = (function () {
   var audio = {
@@ -143,7 +138,6 @@ var formatDictionary = (function () {
   return function (obj) {
     var itag = obj.itag;
     if (!KNOWN[itag]) {
-      // console.error("itag not found", itag);
       return;
     }
     // get resolution from YouTube server
@@ -165,30 +159,28 @@ var formatDictionary = (function () {
   }
 })();
 
-/* local signature detection */
+/* local signature detection 
+ * inspired from https://github.com/gantt/downloadyoutube
+ */
 function signatureLocal(info) {
   var d = new Promise.defer();
   
-  function findMatch(text, regexp) {
-    var matches=text.match(regexp);
-    return (matches)?matches[1]:null;
+  function doMatch(text, regexp) {
+    var matches = text.match(regexp);
+    return matches ? matches[1] : null;
   }
-  function isString(s) {
-    return (typeof s === 'string' || s instanceof String);
-  }
-    
   function isInteger(n) {
     return (typeof n === 'number' && n % 1 == 0);
   }
   
-  var scriptURL = findMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
+  var scriptURL = doMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
   if (!scriptURL) {
     return d.reject(Error("signatureLocal: Cannot resolve signature;1"));
   }
   scriptURL = "https:" + scriptURL.replace(/\\/g,'');
   curl(scriptURL).then (function (response) {
     try {
-      var sigFunName = findMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
+      var sigFunName = doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
       if (sigFunName == null) {
         return d.reject(Error("signatureLocal: Cannot resolve signature;2"));
       }
@@ -196,16 +188,16 @@ function signatureLocal(info) {
       var regCode = new RegExp(
         'function \\s*' + sigFunName + '\\s*\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
       );
-      var functionCode = findMatch(response.text, regCode);
+      var functionCode = doMatch(response.text, regCode);
       if (functionCode == null) {
         return d.reject(Error("signatureLocal: Cannot resolve signature;3"));
       }
-      var revFunName = findMatch(
+      var revFunName = doMatch(
         response.text,
         /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.reverse\s*\(\s*\)\s*}/
       );
       if (revFunName) revFunName = revFunName.replace('$', '\\$');
-      var slcFuncName = findMatch(
+      var slcFuncName = doMatch(
         response.text,
         /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*,\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.(?:slice|splice)\(.+\)\s*}/
       );
@@ -220,9 +212,7 @@ function signatureLocal(info) {
       var regInline = new RegExp(
         '[\\w$]+\\[0\\]\\s*=\\s*[\\w$]+\\[([0-9]+)\\s*%\\s*[\\w$]+\\.length\\]'
       );
-      var funcPieces = functionCode.split(';');
-      var decodeArray = [],
-        signatureLength = 81;
+      var funcPieces = functionCode.split(';'), decodeArray = [], signatureLength = 81;
       for (var i = 0; i < funcPieces.length; i++) {
         funcPieces[i] = funcPieces[i].trim();
         var codeLine = funcPieces[i];
@@ -230,35 +220,42 @@ function signatureLocal(info) {
           var arrSlice = codeLine.match(regSlice);
           var arrReverse = codeLine.match(regReverse);
           if (arrSlice && arrSlice.length >= 2) { // slice
-            var slice = parseInt(arrSlice[1], 10);
+            var slice = parseInt(arrSlice[1]);
             if (isInteger(slice)) {
               decodeArray.push("s", slice);
               signatureLength += slice;
-            } else {
+            } 
+            else {
               d.reject(Error("signatureLocal: Cannot resolve signature;4"));
             }
-          } else if (arrReverse && arrReverse.length >= 1) { // reverse
+          } 
+          else if (arrReverse && arrReverse.length >= 1) { // reverse
             decodeArray.push("r");
-          } else if (codeLine.indexOf('[0]') >= 0) { // inline swap
+          } 
+          else if (codeLine.indexOf('[0]') >= 0) { // inline swap
             if (i + 2 < funcPieces.length &&
               funcPieces[i + 1].indexOf('.length') >= 0 &&
               funcPieces[i + 1].indexOf('[0]') >= 0) {
-              var inline = findMatch(funcPieces[i + 1], regInline);
-              inline = parseInt(inline, 10);
+              var inline = doMatch(funcPieces[i + 1], regInline);
+              inline = parseInt(inline);
               decodeArray.push("w", inline);
               i += 2;
-            } else {
+            } 
+            else {
               return d.reject(Error("signatureLocal: Cannot resolve signature;5"));
             }
-          } else if (codeLine.indexOf(',') >= 0) { // swap
-            var swap = findMatch(codeLine, regSwap);
-            swap = parseInt(swap, 10);
+          } 
+          else if (codeLine.indexOf(',') >= 0) { // swap
+            var swap = doMatch(codeLine, regSwap);
+            swap = parseInt(swap);
             if (isInteger(swap)) {
               decodeArray.push("w", swap);
-            } else {
+            } 
+            else {
               return d.reject(Error("signatureLocal: Cannot resolve signature;6"));
             }
-          } else {
+          } 
+          else {
             return d.reject(Error("signatureLocal: Cannot resolve signature;7"));
           }
         }
@@ -279,7 +276,8 @@ function signatureLocal(info) {
             d.reject(Error("signatureLocal: Signature cannot be verified"));
           }
         });
-      } else {
+      } 
+      else {
         d.reject(Error("signatureLocal: Cannot resolve signature;8"));
       }
     }
@@ -316,7 +314,7 @@ function getFormats (videoID) {
             url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : "",
             adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : "",
             dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : "",
-            player: tmp4 && tmp4.length ? tmp4[1] : "",
+            player: tmp4 && tmp4.length ? tmp4[1].replace(/\\\//g, "/") : "",
             response: response
           });
         }
@@ -436,6 +434,7 @@ function postInfo (info) {
 function updateSig (info) {
   var d = new Promise.defer(),
       id = (info.player || "");
+
   curl.apply(this, api(id, info)).then(function (response) {
     if (response.status != 200) {
       return d.reject(Error("Cannot connect to the Signature server."));
@@ -445,7 +444,6 @@ function updateSig (info) {
         var tmp = response.text.split("\n");
         prefs.player = tmp[0];
         prefs.ccode = tmp[1];
-        
         d.resolve(info);
       }
       else {
@@ -467,7 +465,6 @@ function decipher (s) {
       arr[b] = bb;
       return arr
   }
-  
   var cmd = JSON.parse(prefs.ccode || '["r","r"]');
   cmd.forEach(function (c, i) {
     if (typeof c !== "string") {
@@ -491,14 +488,13 @@ function decipher (s) {
 function verify (info) {
   var isEncrypted = info.formats[0].s;
       doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
-
   if (doUpdate) {
     return signatureLocal(info).then(
       function (info) {
         return info
       }, 
       function (e) {
-        //console.error(e);
+        info.localError = e.message;
         return updateSig(info).then(doCorrections)
       }
     );
@@ -586,7 +582,9 @@ function findOtherItags (info) {
         return d.resolve(info);
       }
       function doTag (itag) {
-        var cObj = info.formats.filter(f => f.itag === itag - 1);
+        var cObj = info.formats.filter(function (f) {
+          return f.itag === itag - 1;
+        });
         if (!cObj || !cObj.length) return;
         cObj = cObj[0];
       
@@ -649,13 +647,11 @@ function sortFormats (info) {
   return info;
 }
 
-if (typeof exports !== 'undefined') {
-  exports.tagInfo = tagInfo;
-  exports.videoInfo = function (videoID) {
-    return getInfo(videoID)
-      .then(postInfo)
-      .then(extractFormats)
-      .then(verify)
-      .then(sortFormats);
-  }
+exports.tagInfo = tagInfo;
+exports.videoInfo = function (videoID) {
+  return getInfo(videoID)
+    .then(postInfo)
+    .then(extractFormats)
+    .then(verify)
+    .then(sortFormats);
 }

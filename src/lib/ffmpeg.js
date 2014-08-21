@@ -1,9 +1,11 @@
 var {Cc, Ci, Cu}  = require('chrome'),
     _             = require("sdk/l10n").get,
     sp            = require("sdk/simple-prefs"),
+    data          = require("sdk/self").data,
     prefs         = sp.prefs;
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
+Cu.import(data.url("subprocess/subprocess.jsm"));
 /*
  * inputs: array of input files, for video and audio combiner the second input is the video file
  * options: mode (combine, extract)
@@ -52,12 +54,7 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     extensions[2] = extensions[1];
   }
   else {
-    var tmp = /\%output\.(\S+)/.exec(cmd); // has user determined the output extension?
-    if (tmp && tmp.length) {
-      extensions[2] = tmp[1];
-      cmd = cmd.replace(/\%output\.\S+/, "%output");
-    }
-    else if (extensions[0] == "mp4") {
+    if (extensions[0] == "mp4") {
       extensions[2] = "m4a";
     }
     else if (extensions[0] == "webm") {
@@ -67,6 +64,13 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
       extensions[2] = extensions[0];
     }
   }
+  // has user determined the output extension?
+  var tmp = /\%output\.(\S+)/.exec(cmd); 
+  if (tmp && tmp.length) {
+    extensions[2] = tmp[1];
+    cmd = cmd.replace(/\%output\.\S+/, "%output");
+  }
+
   // Creating a temporary folder and copying input files
   var tmpDir = FileUtils.getDir("TmpD", [Math.random().toString(36).substring(7)]);
   inputs.forEach (function (input, index) {
@@ -94,11 +98,11 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     throw _("err13") + " " + ffmpeg.path;
     return;
   }
-  var process = Cc["@mozilla.org/process/util;1"]
-    .createInstance(Ci.nsIProcess);
-  process.init(ffmpeg);
-  process.runAsync(args, args.length, {
-    observe: function(subject, topic, data) {
+  
+  subprocess.call({
+    command:     ffmpeg,
+    arguments:   args,
+    done: function(result) {
       var tmp = new FileUtils.File(tmpDir.path);
       tmp.append("2." + extensions[2]);
       if (tmp.exists()) {
@@ -112,10 +116,13 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
         })());
       }
     
-      if (options.deleteInputs) {
+      if (options.deleteInputs && result.stderr.indexOf("Error") === -1) {
         inputs.forEach(function (input) {
           input.remove(false);
         });
+      }
+      else {
+        console.error(result.stderr);
       }
 
       tmpDir.remove(true);

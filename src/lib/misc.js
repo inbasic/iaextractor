@@ -1,6 +1,12 @@
 var {Cc, Ci, Cu} = require("chrome"),
     Request      = require("sdk/request").Request,
-    prefs        = require("sdk/simple-prefs").prefs;
+    prefs        = require("sdk/simple-prefs").prefs,
+    data         = require("sdk/self").data,
+    windows          = {
+      get active () { // Chrome window
+        return require('sdk/window/utils').getMostRecentBrowserWindow()
+      }
+    };
     
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
@@ -28,6 +34,9 @@ var _prefs = (function () {
         .createInstance(Ci.nsISupportsString);
       str.data = val;
       pservice.setComplexValue(id, Ci.nsISupportsString, str);
+    },
+    setComplexFile: function (id, file) {
+      pservice.setComplexValue(id, Ci.nsIFile, file);
     }
   }    
 })();
@@ -93,3 +102,27 @@ var calculate = function (url, callback, pointer) {
   req.send(null);
 }
 exports.fileSize = calculate;
+
+/** Notifier **/
+exports.notify = function (title, text) {
+  try {
+    let alertServ = Cc["@mozilla.org/alerts-service;1"].
+                    getService(Ci.nsIAlertsService);
+    alertServ.showAlertNotification(data.url("report/open.png"), title, text);
+  }
+  catch (e) {
+    let browser = windows.active.gBrowser,
+        notificationBox = browser.getNotificationBox();
+
+    notification = notificationBox.appendNotification(
+      text, 
+      'jetpack-notification-box',
+      data.url("report/open.png"), 
+      notificationBox.PRIORITY_INFO_MEDIUM, 
+      []
+    );
+    timer.setTimeout(function() {
+      notification.close();
+    }, config.desktopNotification * 1000);
+  }
+}

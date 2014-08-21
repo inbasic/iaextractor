@@ -8,7 +8,6 @@ var {Cc, Ci, Cu}  = require('chrome'),
     panel         = require("sdk/panel"),
     _             = require("sdk/l10n").get,
     pageMod       = require("sdk/page-mod"),
-    Request       = require("sdk/request").Request,
     userstyles    = require("./userstyles"),
     youtube       = require("./youtube"),
     subtitle      = require("./subtitle"),
@@ -16,6 +15,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     extract       = require("./extract"),
     ffmpeg        = require("./ffmpeg"),
     tools         = require("./misc"),
+    external      = require("./external"),
     data          = self.data,
     prefs         = sp.prefs,
     format        = tools.format,
@@ -23,7 +23,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     _prefs        = tools.prefs,
     prompts       = tools.prompts,
     prompts2      = tools.prompts2,
-    update        = tools.update,
+    notify        = tools.notify,
     windows          = {
       get active () { // Chrome window
         return require('sdk/window/utils').getMostRecentBrowserWindow()
@@ -34,6 +34,10 @@ var {Cc, Ci, Cu}  = require('chrome'),
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+
+var connect = {};
+Cu.import(data.url("shared/connect.jsm"), connect);
+connect.glow.require = require;
 
 /** Load style **/
 userstyles.load(data.url("overlay.css"));
@@ -48,8 +52,7 @@ var config = {
     update: "http://add0n.com/extractor-updated.html",
     flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
     downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/",
-    instruction: "http://add0n.com/extractor.html#instruction",
-    ffmpeg: "https://downloads.sourceforge.net/project/iaextractor/FFmpeg/%os/ffmpeg"
+    instruction: "http://add0n.com/extractor.html#instruction"
   },
   //toolbar
   toolbar: {
@@ -472,13 +475,7 @@ exports.main = function(options, callbacks) {
     welcome();
   }
   if (options.loadReason == "install" && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
-    timer.setTimeout(function () {
-      var tmp = prompts2(_("msg27"), _("msg24"), "", "", _("msg21"), true);
-      prefs.showFFmpegInstall = tmp.check.value;
-      if (tmp.button == 0) {
-        installFFmpeg();
-      }
-    }, 4000);
+    external.checkFFmpeg();
   }
 }
 
@@ -497,49 +494,6 @@ welcome = function () {
   else {
     prefs.newVer = "";
   }
-}
-
-/** Install FFmpeg **/
-function installFFmpeg () {
-  notify(_('name'), _('msg28'));
-  var runtime = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
-  var isWindows = runtime.OS == "WINNT";
-  var pageURL = config.urls.ffmpeg.replace("%os", runtime.OS) + (isWindows ? ".exe" : "");
-  Request({
-    url: pageURL,
-    onComplete: function (response) {
-      if (response.status == 200) {
-        var url = (new RegExp(pageURL.replace("https", "http.{0,1}") + "[^\"]*")).exec(response.text);
-        if (!url) {
-          notify(_('name'), _('err18'));
-          return;
-        }
-        url = url[0].replace(/\&amp\;/g, "&");
-        var file = FileUtils.getFile("ProfD", ["ffmpeg" + (isWindows ? ".exe" : "")]);
-        if (file.exists() && file.fileSize > 10485760) {
-          if (!windows.active.confirm(_("msg29"))) return
-          file.remove(false);
-        }
-        file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 755);
-        var dr = new download.get({
-          done: function (dl) {
-            if (file.fileSize > 10485760) {
-              prefs.ffmpegPath = file.path;
-              prefs.extension = 2;
-              notify(_('name'), _('msg26'));
-            }
-            else {
-              notify(_('name'), _('err19'));
-            }
-          },
-          error: function (dl, e) {
-            notify(_('name'), _('err17'));
-          }
-        });
-        dr(url, file);
-      }
-    }
-  }).get();
 }
 
 /** Monitor **/
@@ -1254,7 +1208,7 @@ var downThemAll = (function () {
 
 /** Install FFmpeg from addon's Settings **/
 sp.on("installFFmpeg", function() {
-  installFFmpeg();
+  external.installFFmpeg();
 });
 /** Reset all settings **/
 sp.on("reset", function() {
@@ -1283,30 +1237,3 @@ sp.on("reset", function() {
   prefs.inject = true;
   prefs.pretendHD = true;
 });
-
-/** Notifier **/
-// https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
-var notify = (function () {
-  return function (title, text) {
-    try {
-      let alertServ = Cc["@mozilla.org/alerts-service;1"].
-                      getService(Ci.nsIAlertsService);
-      alertServ.showAlertNotification(data.url("report/open.png"), title, text);
-    }
-    catch (e) {
-      let browser = windows.active.gBrowser,
-          notificationBox = browser.getNotificationBox();
-
-      notification = notificationBox.appendNotification(
-        text, 
-        'jetpack-notification-box',
-        data.url("report/open.png"), 
-        notificationBox.PRIORITY_INFO_MEDIUM, 
-        []
-      );
-      timer.setTimeout(function() {
-        notification.close();
-      }, config.desktopNotification * 1000);
-    }
-  }
-})();
