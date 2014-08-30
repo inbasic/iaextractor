@@ -9,9 +9,14 @@ function $ (id) {
     return null;
   }
 }
-function html (tag, atts) {
+function html (tag, atts, parent) {
   var elem = document.createElement(tag);
-  atts.forEach(a => elem.setAttribute(a[0], a[1]));
+  for (var name in atts) {
+    elem.setAttribute(name, atts[name]);
+  }
+  if (parent) {
+    parent.appendChild(elem);
+  }
   return elem;
 }
 
@@ -22,27 +27,36 @@ function remove () {
 
 if (window.top === window) {
   window.addEventListener("DOMContentLoaded", function () {
-    var parent = $('watch-headline-title') || $('vo'),
+    var parent = $('watch8-secondary-actions') || $('vo'),
         isFeather = $('vo') != null;
     
     if (!parent) return;
     // Remove old button
     remove();
     // Add new button
-    var button = html(
-      "button", 
-      [["dir", "ltr"], ["id", "formats-button-small"], ["title", "Detect all possible download links"]]
-        .concat(isFeather ? [["class", "b"], ["type", "feather"]] : [["class", "yt-uix-button yt-uix-button-text"]])
-    );
+    var button = html("button", {
+      "id": "formats-button-small", 
+      "title": "Detect all possible download links",
+      "class": "yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon yt-uix-tooltip"
+    }, parent);
     button.addEventListener("click", function () {
       this.blur();
       self.port.emit("formats");
     });
-    var icon = html("span", isFeather ? [] : ["class", "yt-uix-button-icon-wrapper"]);
 
-    button.appendChild(icon);
-    button.appendChild(document.createTextNode('Download'));
-    parent.appendChild(button);
+    var title = html("span", {
+      "class": "yt-uix-button-content"
+    });
+    title.textContent = "Download";
+    var imgContainer = html("span", {
+      "class": "yt-uix-button-icon-wrapper"
+    });
+    var img = html("img", {
+      "class": "yt-uix-button-icon yt-sprite",
+      "src": "resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png"
+    }, imgContainer);
+    button.appendChild(imgContainer);
+    button.appendChild(title);
   }, false);
 }
 
@@ -50,3 +64,5 @@ if (window.top === window) {
 self.on("detach", function() {
   remove();
 });
+
+//rtl, Feather
