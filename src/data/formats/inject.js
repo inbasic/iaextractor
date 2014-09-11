@@ -285,7 +285,10 @@ var Menu = function (doSize) {
       selected.style.width = tabWidth + 'px';
 
       vInfo.formats.forEach (function (elem, index) {
-        var url = elem.url + "&keepalive=yes&title=" + encodeURIComponent(vInfo.title);
+        var url = elem.url + "&title=" + encodeURIComponent(vInfo.title);
+        if (url.indexOf("keepalive=yes") === -1) {
+          url += "&keepalive=yes";
+        }
         var a = html("a");
         a.setAttribute("class", "iaextractor-item");
         a.setAttribute("href", url);

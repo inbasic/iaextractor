@@ -64,5 +64,3 @@ if (window.top === window) {
 self.on("detach", function() {
   remove();
 });
-
-//rtl, Feather

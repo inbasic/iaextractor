@@ -462,9 +462,11 @@ exports.main = function(options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason == "upgrade" || options.loadReason == "downgrade" || options.loadReason == "install") {
+  if (options.loadReason == "upgrade" || options.loadReason == "install") {
     prefs.newVer = options.loadReason;
-    //Reload youtube pages & about:addons to set new observer.
+  }
+  //Reload youtube pages & about:addons to set new observer.
+  if (options.loadReason == "upgrade" || options.loadReason == "downgrade" || options.loadReason == "install") {
     for each (var tab in tabs) {
       if (tab.url == "about:addons" || tab.url.indexOf("youtube.com/watch") !== -1) {
         tab.reload();
@@ -482,18 +484,20 @@ exports.main = function(options, callbacks) {
 /** Welcome page **/
 welcome = function () {
   if (!prefs.newVer) return;
+  
   if (prefs.welcome) {
-    timer.setTimeout(function () {
+    timer.setTimeout(function (p) {
       tabs.open({
-        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version, 
+        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + "?p=" + (p || "-1"), 
         inBackground : false
       });
       prefs.newVer = "";
-    }, 3000);
+    }, 3000, prefs.version);
   }
   else {
     prefs.newVer = "";
   }
+  prefs.version = self.version;
 }
 
 /** Monitor **/
