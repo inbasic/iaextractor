@@ -8,17 +8,13 @@ exports.ToolbarButton = function (options) {
       if (tbb.id != options.id) return;
       if (tbb.isInstalled) return;
       tbb.isInstalled = true;
-      
+
       tbb.addEventListener("command", function(e) {
         if (e.ctrlKey) return;
         if (e.originalTarget.localName == "menu" || e.originalTarget.localName == "menuitem") return;
 
         if (options.onCommand) {
           options.onCommand(e, tbb);
-        }
-
-        if (options.panel) {
-          options.panel.show(tbb);
         }
       }, true);
       if (options.onClick) {
@@ -41,7 +37,7 @@ exports.ToolbarButton = function (options) {
       }
       if (options.onContext) {
         const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-        
+
         let doc = tbb.ownerDocument.defaultView.document;
         let menupopup = doc.createElementNS(NS_XUL, "menupopup");
         let menuitem = doc.createElementNS(NS_XUL, "menuitem");
@@ -65,19 +61,19 @@ exports.ToolbarButton = function (options) {
     label : options.label,
     tooltiptext : options.tooltiptext
   });
-  
+
   //Destroy on unload
   require("sdk/system/unload").when(function () {
     CustomizableUI.removeListener(listen);
     CustomizableUI.destroyWidget(options.id);
   });
-  
+
   return {
     destroy: function () {
       CustomizableUI.destroyWidget(options.id);
     },
     moveTo: function () {
-    
+
     },
     get label() button.label,
     set label(value) {
@@ -98,7 +94,7 @@ exports.ToolbarButton = function (options) {
       options.saturate = value;
       button.instances.forEach(function (i) {
         var tbb = i.anchor.ownerDocument.defaultView.document.getElementById(options.id);
-        
+
         if (!value) {
           tbb.setAttribute("type", "gray");
         }

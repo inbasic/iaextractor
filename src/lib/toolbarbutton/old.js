@@ -107,11 +107,8 @@ exports.ToolbarButton = function ToolbarButton(options) {
         if (e.ctrlKey) return;
         if (e.originalTarget.localName == "menu" || e.originalTarget.localName == "menuitem") return;
 
-        if (options.onCommand)
+        if (options.onCommand) {
           options.onCommand(e, tbb);
-
-        if (options.panel) {
-          options.panel.show(tbb);
         }
       }, true);
       if (options.onClick) {
@@ -184,14 +181,14 @@ exports.ToolbarButton = function ToolbarButton(options) {
           tb.insertItem(options.id, null, null, false);
         }
       }
-      
+
       var saveTBNodeInfo = function(e) {
         toolbarID = tbb.parentNode.getAttribute("id") || "";
         insertbefore = (tbb.nextSibling || "")
             && tbb.nextSibling.getAttribute("id").replace(/^wrapper-/i, "");
 
         prefs.nextSibling = insertbefore;
-        prefs.toolbarID = toolbarID;  
+        prefs.toolbarID = toolbarID;
       };
 
       window.addEventListener("aftercustomization", saveTBNodeInfo, false);
@@ -210,7 +207,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
     onUntrack: function (window) {}
   };
   var tracker = winUtils.WindowTracker(delegate);
-  
+
   function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
       if (!aOptions.progress) {
@@ -234,9 +231,9 @@ exports.ToolbarButton = function ToolbarButton(options) {
     options.saturate = aOptions.value;
     return aOptions.value;
   }
-  
-  
-  
+
+
+
   return {
     destroy: function() {
       if (destroyed) return;
@@ -264,7 +261,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
         toolbarID = "nav-bar";
         insertbefore = "home-button";
       }
-      
+
       // change the current position for open windows
       for each (var window in utils.windows()) {
         if (browserURL != window.location) return;
@@ -285,7 +282,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
           catch(e) {
             tb.insertItem(options.id, null, null, false);
           }
-          tb.setAttribute("currentset", tb.currentSet); 
+          tb.setAttribute("currentset", tb.currentSet);
           doc.persist(tb.id, "currentset");
         }
       };
