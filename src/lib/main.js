@@ -58,7 +58,7 @@ var config = {
   toolbar: {
     id: "youtube-audio-converter",
     move: {
-      toolbarID: "nav-bar", 
+      toolbarID: "nav-bar",
       insertbefore: "home-button",
       forceMove: false
     }
@@ -81,7 +81,7 @@ var config = {
   }
 }
 
-var iPanel, rPanel, cmds, yButton, IDExtractor, welcome;
+var iPanel, rPanel, cmds, yButton, IDExtractor;
 
 /** Inject menu and button into YouTube pages **/
 pageMod.PageMod({
@@ -142,11 +142,20 @@ rPanel.port.on("cmd", function (cmd) {
     break;
   case "tools":
     rPanel.hide();
-    windows.active.open(
-      config.urls.tools, 
-      'iaextractor', 
-      'chrome,minimizable=yes,all,resizable=yes'
-    );
+    var isXUL = require("sdk/preferences/service").get("extensions.jid1-kps5PrGBNtzSLQ@jetpack.version");
+    if (isXUL) {
+      windows.active.open(
+        "chrome://imconverter/content/ui.xul",
+        'iaextractor',
+        'chrome,minimizable=yes,all,resizable=yes'
+      ).focus();
+    }
+    else {
+      notify(_("name"), _("msg30"));
+      timer.setTimeout(function () {
+        tabs.open("https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/");
+      }, 1000);
+    }
     break;
   case "cancel":
     listener.cancel(parseInt(arguments[1]));
@@ -160,13 +169,13 @@ rPanel.port.on("cmd", function (cmd) {
 });
 rPanel.on("show", function() {
   rPanel.port.emit(
-    "update", 
-    prefs.doExtract, 
-    prefs.doSubtitle, 
-    prefs.getFileSize, 
-    prefs.dFolder, 
-    prefs.quality, 
-    prefs.extension, 
+    "update",
+    prefs.doExtract,
+    prefs.doSubtitle,
+    prefs.getFileSize,
+    prefs.dFolder,
+    prefs.quality,
+    prefs.extension,
     yButton.saturate
   );
 });
@@ -178,7 +187,7 @@ IDExtractor = (function () {
     var index = urls.push(url) - 1;
     IDs[index] = id;
   }
-  
+
   return function (url, callback, pointer) {
     //Cache XMLHttpRequest of non YouTube pages
     if (typeof(url) == "object" && url.origin) {
@@ -191,7 +200,7 @@ IDExtractor = (function () {
         IDs[index] = [];
       }
       IDs[index].push(obj);
-      
+
       return;
     }
     //Is it in the cache?
@@ -220,34 +229,8 @@ IDExtractor = (function () {
         }
       });
     }
-    //User page
-    if (/http.*:.*youtube.com\/user/.test(url)) {
-      var tmp = function () {
-        try {
-          var players = document.getElementsByTagName("embed"); // Flash player
-          if (players.length) {
-            var flashvars = players[0].getAttribute("flashvars");
-            if (!flashvars) return null;
-            var id = /\&video_id=([^\&]*)/.exec(flashvars);
-            if (id && id.length) {
-              return id[1];
-            }
-            return null;
-          }
-          else {  //HTML5 player
-            var videos = document.getElementsByTagName("video");
-            if (!videos || !videos.length) return null;
-            return videos[0].getAttribute("data-youtube-id");
-          }
-        }
-        catch(e) {
-          return null
-        }
-      }
-      fetchId(tmp + "");
-    }
     //movie
-    else if (/http.*:.*youtube.com\/movie/.test(url)) {
+    if (/http.*:.*youtube.com\/movie/.test(url)) {
       var tmp = function () {
         try {
           var divs = document.getElementsByClassName('ux-thumb-wrap');
@@ -262,20 +245,27 @@ IDExtractor = (function () {
     //Other YouTube pages
     else if (/http.*:.*youtube.com/.test(url)) {
       var tmp = function () {
-        try {
-          var embed = document.getElementsByTagName("embed")[0];
-          var str = decodeURIComponent(embed.getAttribute("flashvars"));
-          var id = /video\_id\=([^\&]*)/.exec(str);
-          return id[1];
+        var embeds = (document.querySelector("body") || document).getElementsByTagName("embed");
+        var html5s = (document.querySelector("body") || document).getElementsByTagName("video");
+
+        var players = [].concat.apply([].concat.apply([], embeds), html5s)
+        .sort(function (a, b) {
+          return b.getBoundingClientRect().width - a.getBoundingClientRect().width;
+        });
+        if (players.length) {
+          if (players[0].localName === "embed") {
+            try {
+              var str = decodeURIComponent(players[0].getAttribute("flashvars"));
+              var id = /video\_id\=([^\&]*)/.exec(str);
+              return id[1];
+            }
+            catch (e) {}
+          }
+          else {
+            return players[0].getAttribute("data-youtube-id");
+          }
         }
-        catch (e) {}
-        try {
-          var video = document.getElementsByTagName("video")[0];
-          return video.getAttribute("data-youtube-id");
-        }
-        catch (e) {}
-        
-        return null
+        return null;
       }
       fetchId(tmp + "");
     }
@@ -289,12 +279,12 @@ IDExtractor = (function () {
 cmds = {
   /**
    * onCommand
-   * 
+   *
    * @param {Event} mouse event.
    * @param {Object} Toolbar button object, used to detect the position of panel.
    * @param {Boolean} auto start download after link detection
    * @param {Number} index of YouTube link in vInfo object
-   * 
+   *
    * no return output
    */
   onCommand: function (e, tbb, download, fIndex) {
@@ -327,7 +317,7 @@ cmds = {
         height: config.panels.iPanel.height,
         contentURL: data.url('info.html'),
         contentScriptFile: [
-          data.url('info/jsoneditor/jsoneditor.js'), 
+          data.url('info/jsoneditor/jsoneditor.js'),
           data.url('info/info.js')
         ],
         contentScriptWhen: "ready"
@@ -381,7 +371,7 @@ cmds = {
   onShiftClick: function () {
     let url = tabs.activeTab.url;
     IDExtractor(url, function (videoID) {
-        if (videoID) {
+      if (videoID) {
         let worker = tabs.activeTab.attach({
           contentScriptFile: data.url("formats/inject.js"),
           contentScriptOptions: {
@@ -415,7 +405,7 @@ cmds = {
           }
         );
         worker.port.on("flashgot", flashgot);
-        worker.port.on("downThemAll", downThemAll); 
+        worker.port.on("downThemAll", downThemAll);
         worker.port.on("error", function(code) {
           notify(_("name"), _(code));
         });
@@ -462,7 +452,8 @@ exports.main = function(options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason == "upgrade" || options.loadReason == "install") {
+  //if (options.loadReason == "upgrade" || options.loadReason == "install") {
+  if (options.loadReason == "install") {
     prefs.newVer = options.loadReason;
   }
   //Reload youtube pages & about:addons to set new observer.
@@ -482,20 +473,20 @@ exports.main = function(options, callbacks) {
 }
 
 /** Welcome page **/
-welcome = function () {
-  if (!prefs.newVer) return;
-  
-  if (prefs.welcome) {
-    timer.setTimeout(function (p) {
-      tabs.open({
-        url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + "?p=" + (p || "-1"), 
-        inBackground : false
-      });
+function welcome () {
+  if (prefs.newVer) {
+    if (prefs.welcome) {
+      timer.setTimeout(function (p) {
+        tabs.open({
+          url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + "?p=" + (p || "-1"),
+          inBackground : false
+        });
+        prefs.newVer = "";
+      }, 3000, prefs.version);
+    }
+    else {
       prefs.newVer = "";
-    }, 3000, prefs.version);
-  }
-  else {
-    prefs.newVer = "";
+    }
   }
   prefs.version = self.version;
 }
@@ -521,7 +512,7 @@ tabs.on('activate', monitor);
 exports.onUnload = function (reason) {
   //Close tools window
   let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
-    .getService(Ci.nsIWindowMediator);   
+    .getService(Ci.nsIWindowMediator);
   let enumerator = wm.getEnumerator("iaextractor:tools");
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext();
@@ -606,7 +597,7 @@ var hotkey = {
       Services.obs.removeObserver(hotkey.observer, "addon-options-displayed");
     }
     catch (e) {}
-  } 
+  }
 }
 
 /** HTTP Observer **/
@@ -645,9 +636,9 @@ var http = (function () {
                 if (cache.indexOf(url) == -1) {
                   cache.push(url);
                   var notificationCallbacks =
-                    channel.notificationCallbacks ? 
+                    channel.notificationCallbacks ?
                       channel.notificationCallbacks : channel.loadGroup.notificationCallbacks;
-               
+
                   if (notificationCallbacks) {
                     var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
                     IDExtractor({
@@ -691,7 +682,7 @@ sp.on("dFolder", function () {
     }
   }
 });
-  
+
 /** Detect a YouTube download link, download it and extract the audio**/
 var listener = (function () {
   var objs = [];
@@ -702,13 +693,13 @@ var listener = (function () {
       }
     });
     objs = objs.filter(function (a){return a});
-    
+
     if (!objs.length) {
       yButton.tooltiptext = config.tooltip;
       yButton.progress = 0;
     }
   }
-  
+
   return {
     onDetectStart: function () {
       rPanel.port.emit('detect', _("msg7"));
@@ -716,9 +707,9 @@ var listener = (function () {
     onDetectDone: function () {},
     onDownloadStart: function (dl) {
       rPanel.port.emit(
-        'download-start', 
-        dl.id, 
-        dl.displayName ? dl.displayName : (new FileUtils.File(dl.target.path)).leafName, 
+        'download-start',
+        dl.id,
+        dl.displayName ? dl.displayName : (new FileUtils.File(dl.target.path)).leafName,
         _("msg6")
       );
     },
@@ -736,26 +727,26 @@ var listener = (function () {
       rPanel.port.emit('extract', id, _("msg10"), true);
     },
     onProgress: function (dl) {
-      rPanel.port.emit('download-update', 
-        dl.id, 
-        dl.amountTransferred / dl.size * 100, 
-        _("msg11"), 
-        format(dl.amountTransferred), 
-        format(dl.size), 
+      rPanel.port.emit('download-update',
+        dl.id,
+        dl.amountTransferred / dl.size * 100,
+        _("msg11"),
+        format(dl.amountTransferred),
+        format(dl.size),
         format(dl.speed)
       );
       //
       var exist = false;
       objs.forEach(function (obj) {if (dl.id == obj.id) exist = true;});
       if (!exist) objs.push(dl);
-      
+
       var ttSize = 0, tSize = 0;
       objs.forEach(function (obj) {
         tSize += obj.size;
         ttSize += obj.amountTransferred;
       });
       yButton.progress = ttSize / tSize;
-      yButton.tooltiptext = 
+      yButton.tooltiptext =
         _("tooltip4").replace("%1", (tSize/1024/1024).toFixed(1)) +
         "\n" +
         _("tooltip5").replace("%1", (ttSize/tSize*100).toFixed(1));
@@ -788,7 +779,7 @@ var batch = (function () {
         ffmpeg.ffmpeg([f1, f2], {deleteInputs: prefs.deleteInputs}, function () {
           if (callback) callback.apply(pointer);
         });
-        
+
       }
     }
   }
@@ -799,18 +790,18 @@ var getVideo = (function () {
   return function (videoID, listener, fIndex, noAudio, callback, pointer) {
     var doExtract = noAudio ? false : prefs.doExtract;
     var batchID;  // For batch job
-  
+
     function onDetect () {
       function indexToContainer (value) {
         return ["flv", "3gp", "mp4", "webm"][value]
       }
-    
-    
+
+
       listener.onDetectStart();
       youtube.videoInfo(videoID).then(
         function (info) {
           var format, qualityValue = prefs.quality;
-          
+
           if (fIndex) {
             format = info.formats[fIndex];
           }
@@ -856,7 +847,7 @@ var getVideo = (function () {
               if (b.length) format = b[0];
               qualityValue -= 1;
             }
-            if (!format && tmp.length) detected = tmp[0]
+            if (!format && tmp.length) format = tmp[0]
             if (!format) format = info.formats[0]; //Get highest quality
           }
           format.parent = info;
@@ -910,7 +901,7 @@ var getVideo = (function () {
                 return i > j;
               });
             }
-            
+
             if (youtube.tagInfo.video.mp4.low.indexOf(vInfo.itag) != -1 && !prefs.pretendHD) {  // Low quality (mp4)
               tmp = sort(tmp, [140, 171, 139, 172, 141]);
             }
@@ -1049,7 +1040,7 @@ var getVideo = (function () {
         listener.onDownloadStart(dl);
       });
       notify(
-        _('name'), 
+        _('name'),
         _('msg3').replace("%1", vInfo.quality)
           .replace("%2", vInfo.container)
           .replace("%3", vInfo.resolution)
@@ -1100,7 +1091,7 @@ var getVideo = (function () {
       }
     }
     function onSubtitle (obj) {
-      if (!prefs.doSubtitle) return;
+      if (false) return;
 
       subtitle.get(videoID, prefs.subtitleLang, obj.sFile, function (e) {
         if (e) notify(_('name'), e);
@@ -1170,7 +1161,7 @@ var downThemAll = (function () {
   var DTA = {};
   try {
     Cu.import("resource://dta/api.jsm", DTA);
-  } 
+  }
   catch (e) {
     try {
       var glue = {}
@@ -1217,7 +1208,7 @@ sp.on("installFFmpeg", function() {
 /** Reset all settings **/
 sp.on("reset", function() {
   if (!windows.active.confirm(_("msg25"))) return
-  
+
   prefs.extension = 0;
   prefs.quality = 2
   prefs.doExtract = true;

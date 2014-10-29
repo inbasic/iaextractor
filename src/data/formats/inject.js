@@ -51,32 +51,40 @@ var remove = function (elem) {
 
 // Detect video player
 var detect = function () {
-  //Flash player
-  var players = document.getElementsByTagName("embed"); 
-  if (players.length) return {
-    player: players[0],
-    method: "insertAdjacentHTML"
-  };
-  //HTML5 player
-  if (!players.length) {
-    tmp = document.getElementsByTagName("video");
-    if (tmp.length) {
+  var embeds = (document.querySelector("body") || document).getElementsByTagName("embed");
+  var html5s = (document.querySelector("body") || document).getElementsByTagName("video");
+
+  var players = [].concat.apply([].concat.apply([], embeds), html5s)
+  .sort(function (a, b) {
+    return b.getBoundingClientRect().width - a.getBoundingClientRect().width;
+  });
+
+  if (players.length) {
+    if (players[0].localName === "embed") { //Flash player
       return {
-        player: tmp[0].parentNode.parentNode,
+        player: players[0],
         method: "insertAdjacentHTML"
-      } 
+      }
+    }
+    else {  //HTML5 player
+      return {
+        player: players[0].parentNode.parentNode,
+        method: "insertAdjacentHTML"
+      }
     }
   }
-  var parentDiv = document.getElementById("player-api");
-  if (parentDiv) {
+  else {
+    var parentDiv = document.getElementById("player-api");
+    if (parentDiv) {
+      return {
+        player: parentDiv,
+        method: "innerHTML"
+      }
+    }
     return {
-      player: parentDiv,
-      method: "innerHTML"
+      player: null,
+      method: "insertAdjacentHTML"
     }
-  }
-  return {
-    player: null,
-    method: "insertAdjacentHTML"
   }
 }
 
@@ -96,18 +104,19 @@ var Menu = function (doSize) {
   }
   var rect = player.getBoundingClientRect();
   var width = 320 + (doSize ? 15 : 0);
+
   var rtl = false;
   try {
     rtl = window.getComputedStyle(player,null).direction == "rtl";
   } catch (e) {}
-  
+
   if (width > rect.width) {
     self.port.emit("error", "msg16");
     return;
   }
-  var code =     
+  var code =
     '<div id="iaextractor-menu" dir="ltr">' + //injected menu
-    ' <span type="title">Download Links</span> ' +    
+    ' <span type="title">Download Links</span> ' +
     ' <span id="iaextractor-close" class="iaextractor-button"></span>' +
     ' <div id="iaextractor-items"></div> ' +
     ' <span id="iaextractor-load"></span>' +
@@ -132,7 +141,7 @@ var Menu = function (doSize) {
       selected = $("iaextractor-selected"),
       load = $("iaextractor-load"),
       visible = [];
- 
+
   var position = function(el, times) {
     var el = document.getElementsByClassName(el);
     for (var i = 0; i < el.length; i++) {
@@ -145,8 +154,8 @@ var Menu = function (doSize) {
       if (i == 0) items.childNodes[i].setAttribute("class", "center");
       if (i > 0) items.childNodes[i].setAttribute("class", "right");
     }
-    position("center", 1);   
-    position("right", 2);     
+    position("center", 1);
+    position("right", 2);
     visible.unshift(0);
     items.childNodes[0].style.opacity = "1";
     tabs.children[0].setAttribute("selected", "true");
@@ -159,16 +168,16 @@ var Menu = function (doSize) {
     downloader.children[i].setAttribute("style", 'width: ' + width/3 + 'px;');
   }
   menu.setAttribute("style",
-    'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' + 
-    'left: ' + (rtl ? 0 : rect.width - width) + 'px;' + 
+    'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' +
+    'left: ' + (rtl ? 0 : rect.width - width) + 'px;' +
     'width: ' + width + 'px;' +
     'height: ' + rect.height + 'px;'
   );
-  load.setAttribute("style", 
+  load.setAttribute("style",
     'margin-top: ' + (rect.height - 126) / 2 + 'px;' +
     'margin-left: ' + (width - 64) / 2 + 'px;'
   );
-  items.setAttribute("style", 
+  items.setAttribute("style",
     'width: ' + width * 3 + 'px;' +
     'margin-left: -' + width + 'px;'
   );
@@ -202,7 +211,7 @@ var Menu = function (doSize) {
         tabs.children[i].removeAttribute("selected");
         position("left", 0);
       }
-      else if (i > index) { 
+      else if (i > index) {
         items.childNodes[i].setAttribute("class", "right");
         tabs.children[i].removeAttribute("selected");
         position("right", 2);
@@ -240,7 +249,7 @@ var Menu = function (doSize) {
     var format = vInfo.formats[currentIndex];
     self.port.emit(
       e.originalTarget == downloader.children[0] ? "flashgot" : "downThemAll",
-      format, 
+      format,
       vInfo,
       e.originalTarget == downloader.children[2] ? true : false
     );
@@ -304,10 +313,10 @@ var Menu = function (doSize) {
         dropdown.appendChild(i);
         a.appendChild(text);
         a.appendChild(dropdown);
-        text.textContent = 
+        text.textContent =
           elem.container.toUpperCase() + " " + map(elem.quality) +
           (elem.audioEncoding ? " - " + elem.audioEncoding.toUpperCase() + " " + elem.audioBitrate + "K" : "");
-          
+
         var i = Math.floor(index / numbersPerPage);
         items.children[i].appendChild(a);
         //Requesting File Size
@@ -315,7 +324,7 @@ var Menu = function (doSize) {
           self.port.emit("file-size-request", url, i, items.children[i].children.length - 1);
         }
       });
-      select();    
+      select();
     }
   }
 }

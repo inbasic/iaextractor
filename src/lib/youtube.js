@@ -558,7 +558,10 @@ function extractFormats (info) {
       }
       objs.push(pairs);
     });
-
+    
+  if (!objs || !objs.length) {
+    d.reject(Error("extractFormats: No link is found"));
+  }
   info.formats = objs;
   delete info.url_encoded_fmt_stream_map;
   delete info.adaptive_fmts;
