@@ -187,6 +187,13 @@
     "value": true
   },
   {
+    "name": "showNotifications",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "welcome",
     "title": "",
     "type": "bool",

@@ -7,7 +7,7 @@ var {Cc, Ci, Cu} = require("chrome"),
         return require('sdk/window/utils').getMostRecentBrowserWindow()
       }
     };
-    
+
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
 function format (size) {
@@ -38,7 +38,7 @@ var _prefs = (function () {
     setComplexFile: function (id, file) {
       pservice.setComplexValue(id, Ci.nsIFile, file);
     }
-  }    
+  }
 })();
 exports.prefs = _prefs;
 
@@ -105,6 +105,8 @@ exports.fileSize = calculate;
 
 /** Notifier **/
 exports.notify = function (title, text) {
+  if (!prefs.showNotifications) return;
+
   try {
     let alertServ = Cc["@mozilla.org/alerts-service;1"].
                     getService(Ci.nsIAlertsService);
@@ -115,10 +117,10 @@ exports.notify = function (title, text) {
         notificationBox = browser.getNotificationBox();
 
     notification = notificationBox.appendNotification(
-      text, 
+      text,
       'jetpack-notification-box',
-      data.url("report/open.png"), 
-      notificationBox.PRIORITY_INFO_MEDIUM, 
+      data.url("report/open.png"),
+      notificationBox.PRIORITY_INFO_MEDIUM,
       []
     );
     timer.setTimeout(function() {
