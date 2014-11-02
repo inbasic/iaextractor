@@ -22,7 +22,7 @@ function curl (url, anonymous, meth, hdrs) {
   req.onreadystatechange = function () {
     if (req.readyState == 4) {
       d.resolve({
-        text: req.responseText, 
+        text: req.responseText,
         status: req.status,
         req: req
       });
@@ -31,8 +31,11 @@ function curl (url, anonymous, meth, hdrs) {
   if (anonymous && req.channel) {
     req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
   }
+  if (prefs.customUA && req.channel instanceof Ci.nsIHttpChannel) {
+    req.channel.setRequestHeader("User-Agent", prefs.customUA, false);
+  }
   req.send(null);
-  
+
   return d.promise;
 }
 
@@ -40,9 +43,9 @@ var api = (function () {
   var path = "http://thecloudapi.com/api_a_v1.php?id=";
   return function (id, info) {
     return [
-      path + id, 
-      false, 
-      "POST", 
+      path + id,
+      false,
+      "POST",
       {
         'k': (id + info.token || "ojVQa1PpcFPT2Ld")
           .split("")
@@ -159,12 +162,12 @@ var formatDictionary = (function () {
   }
 })();
 
-/* local signature detection 
+/* local signature detection
  * inspired from https://github.com/gantt/downloadyoutube
  */
 function signatureLocal(info) {
   var d = new Promise.defer();
-  
+
   function doMatch(text, regexp) {
     var matches = text.match(regexp);
     return matches ? matches[1] : null;
@@ -172,7 +175,7 @@ function signatureLocal(info) {
   function isInteger(n) {
     return (typeof n === 'number' && n % 1 == 0);
   }
-  
+
   var scriptURL = doMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
   if (!scriptURL) {
     return d.reject(Error("signatureLocal: Cannot resolve signature;1"));
@@ -224,14 +227,14 @@ function signatureLocal(info) {
             if (isInteger(slice)) {
               decodeArray.push("s", slice);
               signatureLength += slice;
-            } 
+            }
             else {
               d.reject(Error("signatureLocal: Cannot resolve signature;4"));
             }
-          } 
+          }
           else if (arrReverse && arrReverse.length >= 1) { // reverse
             decodeArray.push("r");
-          } 
+          }
           else if (codeLine.indexOf('[0]') >= 0) { // inline swap
             if (i + 2 < funcPieces.length &&
               funcPieces[i + 1].indexOf('.length') >= 0 &&
@@ -240,21 +243,21 @@ function signatureLocal(info) {
               inline = parseInt(inline);
               decodeArray.push("w", inline);
               i += 2;
-            } 
+            }
             else {
               return d.reject(Error("signatureLocal: Cannot resolve signature;5"));
             }
-          } 
+          }
           else if (codeLine.indexOf(',') >= 0) { // swap
             var swap = doMatch(codeLine, regSwap);
             swap = parseInt(swap);
             if (isInteger(swap)) {
               decodeArray.push("w", swap);
-            } 
+            }
             else {
               return d.reject(Error("signatureLocal: Cannot resolve signature;6"));
             }
-          } 
+          }
           else {
             return d.reject(Error("signatureLocal: Cannot resolve signature;7"));
           }
@@ -276,7 +279,7 @@ function signatureLocal(info) {
             d.reject(Error("signatureLocal: Signature cannot be verified"));
           }
         });
-      } 
+      }
       else {
         d.reject(Error("signatureLocal: Cannot resolve signature;8"));
       }
@@ -402,13 +405,13 @@ function postInfo (info) {
       floatVal = parseFloat(val, 10);
     if (intVal.toString() === val) {
       info[i] = intVal;
-    } 
+    }
     else if (floatVal.toString() === val) {
       info[i] = floatVal;
-    } 
+    }
     else if (val === 'True') {
       info[i] = true;
-    } 
+    }
     else if (val === 'False') {
       info[i] = false;
     }
@@ -492,7 +495,7 @@ function verify (info) {
     return signatureLocal(info).then(
       function (info) {
         return info
-      }, 
+      },
       function (e) {
         info.localError = e.message;
         return updateSig(info).then(doCorrections)
@@ -550,7 +553,7 @@ function extractFormats (info) {
       if (pairs.s) {
         pairs.url += "&s=" + pairs['s'];
       }
-      
+
       var format = formatDictionary(pairs);
       if (!format) return;
       for (var j in format) {
@@ -558,14 +561,14 @@ function extractFormats (info) {
       }
       objs.push(pairs);
     });
-    
+
   if (!objs || !objs.length) {
     d.reject(Error("extractFormats: No link is found"));
   }
   info.formats = objs;
   delete info.url_encoded_fmt_stream_map;
   delete info.adaptive_fmts;
-  
+
   d.resolve(findOtherItags(info));
   return d.promise;
 }
@@ -573,7 +576,7 @@ function extractFormats (info) {
 /* Appending itag 141 to info */
 function findOtherItags (info) {
   var d = new Promise.defer(), dashmpd = info.dashmpd;
-  
+
   if (dashmpd.indexOf(/signature/) === -1) {
     var matchSig = (/\/s\/([a-zA-Z0-9\.]+)\//i.exec(dashmpd) || [null, null])[1];
     if (!matchSig) dashmpd = "";
@@ -589,7 +592,7 @@ function findOtherItags (info) {
         var res = regexp.exec(response.text);
         if (res && res.length) {
           var url = res[1].replace(/&amp\;/g,'&');
-          var obj = {};  
+          var obj = {};
           obj.itag = itag;
           var format = formatDictionary(obj);
           if (!format) return;
@@ -600,7 +603,7 @@ function findOtherItags (info) {
           info.formats.push(obj);
         }
       }
-      
+
       var availableItags = info.formats.map(function (o) {
         return o.itag;
       });
@@ -632,7 +635,7 @@ function sortFormats (info) {
         baIndex = b.dash == "a",
         avIndex = a.dash == "v",
         bvIndex = b.dash == "v";
-    
+
     if (aaIndex && baIndex) {
       return b.audioBitrate - a.audioBitrate;
     }

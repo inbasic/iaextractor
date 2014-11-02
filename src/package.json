@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.3.10b4",
+  "version": "0.3.10b5",
   "lib": "lib",
   "main": "main",
 
@@ -192,6 +192,13 @@
     "description": "",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "customUA",
+    "title": "",
+    "description": "",
+    "type": "string",
+    "value": ""
   },
   {
     "name": "welcome",
