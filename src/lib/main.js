@@ -1111,6 +1111,10 @@ var getVideo = (function () {
 /** File naming **/
 var fileName = function (videoID, vInfo, gInfo) {
   // Add " - DASH" to DASH only files
+  var pdate = "";
+  if (gInfo.response && gInfo.response.text) {
+    pdate = /Published on (\w{3} \d{1,2}\, \d{1,4})/.exec(gInfo.response.text);
+  }
   return pattern = prefs.namePattern
     .replace ("[file_name]", gInfo.title + (vInfo.dash ? " - DASH" : ""))
     .replace ("[extension]", vInfo.container)
@@ -1118,6 +1122,7 @@ var fileName = function (videoID, vInfo, gInfo) {
     .replace ("[video_id]", videoID)
     .replace ("[video_resolution]", vInfo.resolution || "")
     .replace ("[audio_bitrate]", vInfo.audioBitrate ? (vInfo.audioBitrate + "K") : "")
+    .replace ("[published_date]", pdate && pdate.length ? pdate[1] : "")
     //
     .replace(/\+/g, " ")
     .replace(/[:\?\¿]/g, "")
