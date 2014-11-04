@@ -71,12 +71,12 @@ var tagInfo = (function () {
     mp4: {
       low: [134, 133, 160],
       medium: [135],
-      high: [264, 138, 299, 137, 266, 298, 136]
+      high: [138, 266, 264, 299, 137, 298, 136]
     },
     webm: {
       low: [243, 242],
       medium: [246, 245, 244],
-      high: [303, 272, 271, 248, 302, 247]
+      high: [272, 271, 303, 248, 302, 247]
     }
   }
   return {
@@ -124,13 +124,13 @@ var formatDictionary = (function () {
     133: ["mp4",  "240",  null,  null, "v"], //Video-only
     134: ["mp4",  "360",  null,  null, "v"], //Video-only
     135: ["mp4",  "480",  null,  null, "v"], //Video-only
+    298: ["mp4",  "720",  null,  null, "v"], //Video-only (60fps)
     136: ["mp4",  "720",  null,  null, "v"], //Video-only
+    299: ["mp4",  "1080", null,  null, "v"], //Video-only (60fps)
     137: ["mp4",  "1080", null,  null, "v"], //Video-only
     138: ["mp4",  "2160", null,  null, "v"], //Video-only
     266: ["mp4",  "2160", null,  null, "v"], //Video-only
-    298: ["mp4",  "720",  null,  null, "v"], //Video-only (60fps)
-    299: ["mp4",  "1080", null,  null, "v"], //Video-only (60fps)
-    264: ["mp4",  "1200", null,  null, "v"], //Video-only
+    264: ["mp4",  "1440", null,  null, "v"], //Video-only
     242: ["webm", "240",  null,  null, "v"], //Video-only
     243: ["webm", "360",  null,  null, "v"], //Video-only
     244: ["webm", "480",  null,  null, "v"], //Video-only
@@ -140,8 +140,8 @@ var formatDictionary = (function () {
     247: ["webm", "720",  null,  null, "v"], //Video-only
     303: ["webm", "1080", null,  null, "v"], //Video-only (60fps)
     248: ["webm", "1080", null,  null, "v"], //Video-only
-    272: ["webm", "2026", null,  null, "v"], //Video-only
-    271: ["webm", "1350", null,  null, "v"], //Video-only
+    272: ["webm", "2160", null,  null, "v"], //Video-only
+    271: ["webm", "1440", null,  null, "v"], //Video-only
   }
   return function (obj) {
     var itag = obj.itag;

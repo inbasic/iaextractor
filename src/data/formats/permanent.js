@@ -69,7 +69,7 @@ if (window.top === window) {
     var isAjax = /class[\w\s"'-=]+spf\-link/.test(pagecontainer.innerHTML);
     var content = document.getElementById('content');
     if (isAjax && content) { // Ajax UI
-      var mo = window.MutationObserver || window.WebKitMutationObserver;
+      var mo = window.MutationObserver;
       if (typeof mo !== 'undefined') {
         var observer = new mo(function (mutations) {
           mutations.forEach(function (mutation) {

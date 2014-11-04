@@ -194,6 +194,13 @@
     "value": true
   },
   {
+    "name": "showWEBM",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "showMP4",
     "title": "",
     "description": "",
@@ -209,13 +216,6 @@
   },
   {
     "name": "show3GP",
-    "title": "",
-    "description": "",
-    "type": "bool",
-    "value": true
-  },
-  {
-    "name": "showWEBM",
     "title": "",
     "description": "",
     "type": "bool",
