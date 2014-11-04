@@ -662,10 +662,27 @@ function sortFormats (info) {
 }
 
 exports.tagInfo = tagInfo;
-exports.videoInfo = function (videoID) {
-  return getInfo(videoID)
-    .then(postInfo)
-    .then(extractFormats)
-    .then(verify)
-    .then(sortFormats);
-}
+exports.videoInfo = (function () {
+  var objs = {};
+  return function (videoID) {
+    var o = objs[videoID];
+    if (o) {
+      var n = new Date();
+      if (n - o.timestamp < 30000) { // data is fresh enough (less than 30 secs)
+        return Promise.resolve(o.obj);
+      }
+    }
+    return getInfo(videoID)
+      .then(postInfo)
+      .then(extractFormats)
+      .then(verify)
+      .then(sortFormats)
+      .then(function (info) {
+        objs[videoID] = {
+          obj: info,
+          timestamp: new Date()
+        }
+        return info;
+      });
+  }
+})();

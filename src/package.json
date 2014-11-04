@@ -194,6 +194,34 @@
     "value": true
   },
   {
+    "name": "showMP4",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "showFLV",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "show3GP",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "showWEBM",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": true
+  },
+  {
     "name": "customUA",
     "title": "",
     "description": "",

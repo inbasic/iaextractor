@@ -287,7 +287,7 @@ cmds = {
    *
    * no return output
    */
-  onCommand: function (e, tbb, download, fIndex) {
+  onCommand: function (e, tbb, download, itag) {
     if (tbb) {
       if (!prefs.oneClickDownload || !prefs.silentOneClickDownload) {
         rPanel.show(tbb);
@@ -302,7 +302,7 @@ cmds = {
     let url = tabs.activeTab.url;
     IDExtractor(url, function (videoID) {
       if (download && videoID) {
-        new getVideo(videoID, listener, fIndex);
+        new getVideo(videoID, listener, itag);
       }
       else {
         tabs.open(config.urls.youtube);
@@ -375,7 +375,11 @@ cmds = {
         let worker = tabs.activeTab.attach({
           contentScriptFile: data.url("formats/inject.js"),
           contentScriptOptions: {
-            doSize: prefs.getFileSize
+            doSize: prefs.getFileSize,
+            showFLV: prefs.showFLV,
+            showWEBM: prefs.showWEBM,
+            showMP4: prefs.showMP4,
+            show3GP: prefs.show3GP
           }
         });
         worker.port.on("file-size-request", function (url, i1, i2) {
@@ -383,7 +387,7 @@ cmds = {
             worker.port.emit("file-size-response", url, size, i1, i2);
           });
         });
-        worker.port.on("download", function (fIndex) {
+        worker.port.on("download", function (itag) {
           // Show instruction
           if (!prefs.showInstruction) {
             var tmp = prompts2(_("msg17"), _("msg18"), _("msg19"), _("msg20"), _("msg21"), true);
@@ -394,10 +398,15 @@ cmds = {
               }, 1000);
             }
           }
-          cmds.onCommand(null, null, true, fIndex);
+          cmds.onCommand(null, null, true, itag);
         });
         youtube.videoInfo(videoID).then(
           function (info) {
+            // Prevent cycling object
+            info.formats = info.formats.map(function (format) {
+              format.parent = null;
+              return format;
+            });
             worker.port.emit('info', info);
           },
           function (e) {
@@ -787,7 +796,7 @@ var batch = (function () {
 
 /** Call this with new **/
 var getVideo = (function () {
-  return function (videoID, listener, fIndex, noAudio, callback, pointer) {
+  return function (videoID, listener, itag, noAudio, callback, pointer) {
     var doExtract = noAudio ? false : prefs.doExtract;
     var batchID;  // For batch job
 
@@ -796,16 +805,17 @@ var getVideo = (function () {
         return ["flv", "3gp", "mp4", "webm"][value]
       }
 
-
       listener.onDetectStart();
       youtube.videoInfo(videoID).then(
         function (info) {
           var format, qualityValue = prefs.quality;
 
-          if (fIndex) {
-            format = info.formats[fIndex];
+          if (itag) {
+            format = info.formats.reduce(function (p, c) {
+              return p || (c.itag + "" == itag ? c : null);
+            }, null);
           }
-          if (!fIndex) {
+          if (!itag) {
             var tmp = info.formats.filter(function (a) {
               if (a.dash === "a") return false;
               if ((!prefs.ffmpegPath || !prefs.doBatchMode) && a.dash === "v") return false;
@@ -1091,7 +1101,7 @@ var getVideo = (function () {
       }
     }
     function onSubtitle (obj) {
-      if (false) return;
+      return;
 
       subtitle.get(videoID, prefs.subtitleLang, obj.sFile, function (e) {
         if (e) notify(_('name'), e);

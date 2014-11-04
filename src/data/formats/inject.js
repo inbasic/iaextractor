@@ -185,6 +185,8 @@ var Menu = function (doSize) {
   selected.style.transform = 'translate(0)';
 
   // Listeners
+  var itag;
+
   tabs.addEventListener('click', function (e) {
     var elem = e.originalTarget;
     var index = elem.getAttribute("index");
@@ -234,19 +236,21 @@ var Menu = function (doSize) {
         }
         target.setAttribute("selected", "true");
         downloader.style.bottom = 0;
-        currentIndex = parseInt(target.getAttribute("fIndex"));
+        itag = target.getAttribute("itag");
       }
       e.stopPropagation();
       e.preventDefault();
     }
     else if (target.localName == "a") {
-      self.port.emit("download", target.getAttribute("fIndex"));
+      self.port.emit("download", target.getAttribute("itag"));
       e.stopPropagation();
       e.preventDefault();
     }
   }, false);
   downloader.addEventListener('click', function (e) {
-    var format = vInfo.formats[currentIndex];
+    var format = vInfo.formats.reduce(function (p, c) {
+      return p || (c.itag + "" == itag ? c : null);
+    }, null);
     self.port.emit(
       e.originalTarget == downloader.children[0] ? "flashgot" : "downThemAll",
       format,
@@ -271,6 +275,14 @@ var Menu = function (doSize) {
           return (str || "").toLowerCase().replace(/./, function($1) {return $1.toUpperCase();});
         }
       }
+      // filter formats based on user settings
+      vInfo.formats = vInfo.formats.filter(function (elem) {
+        if (self.options.showFLV && elem.container === "flv") return true;
+        if (self.options.showWEBM && elem.container === "webm") return true;
+        if (self.options.showMP4 && elem.container === "mp4") return true;
+        if (self.options.show3GP && elem.container === "3gp") return true;
+        return false;
+      });
       //Remove loading icon
       remove("iaextractor-load");
       //Add new items
@@ -301,7 +313,7 @@ var Menu = function (doSize) {
         var a = html("a");
         a.setAttribute("class", "iaextractor-item");
         a.setAttribute("href", url);
-        a.setAttribute("fIndex", index);
+        a.setAttribute("itag", elem.itag);
         var text = html("span");
         var dropdown = html("span");
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
@@ -329,7 +341,7 @@ var Menu = function (doSize) {
           self.port.emit("file-size-request", url, i, items.children[i].children.length - 1);
         }
       });
-      select();
+    select();
     }
   }
 }
