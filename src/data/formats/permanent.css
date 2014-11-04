@@ -91,13 +91,16 @@
   width: 16px!important;
   height: 43px!important;
   transition: opacity 100ms, transform 200ms!important;
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 16, 16, 0) no-repeat !important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 16, 16, 0) no-repeat !important;
 }
 .iaextractor-dropdown[dash="a"] {
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 80, 16, 64) no-repeat !important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 80, 16, 64) no-repeat !important;
 }
 .iaextractor-dropdown[dash="v"] {
-  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 96, 16, 80) no-repeat !important;
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 96, 16, 80) no-repeat !important;
+}
+.iaextractor-dropdown[dash="v"][fps="60"] {
+  background: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 112, 16, 96) no-repeat !important;
 }
 .iaextractor-dropdown:hover:active {
   opacity: 0.5;
@@ -189,13 +192,13 @@
   background-color: #F79646!important;
 }
 #iaextractor-downloader li:nth-child(1) {
-  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 32, 16, 16)!important;
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 32, 16, 16)!important;
 }
 #iaextractor-downloader li:nth-child(2) {
-  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 48, 16, 32)!important;
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 48, 16, 32)!important;
 }
 #iaextractor-downloader li:nth-child(3) {
-  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 64, 16, 48)!important;
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm3.png), 0, 64, 16, 48)!important;
 }
 
 #iaextractor-downloader li span {

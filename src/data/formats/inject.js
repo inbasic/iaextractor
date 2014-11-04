@@ -307,7 +307,12 @@ var Menu = function (doSize) {
         dropdown.setAttribute("class", "iaextractor-button iaextractor-dropdown");
         if (elem.dash) {
           dropdown.setAttribute("dash", elem.dash);
-          dropdown.setAttribute("title", elem.dash === "v" ? "video-only (no sound)" : "audio-only (no video)");
+          if (elem.fps === "60") {
+            dropdown.setAttribute("fps", "60");
+          }
+          dropdown.setAttribute(
+            "title",
+            elem.dash === "v" ? "video-only (no sound)" + (elem.fps === "60" ? " (60fps)" : "") : "audio-only (no video)");
         }
         var i = html("i");
         dropdown.appendChild(i);
