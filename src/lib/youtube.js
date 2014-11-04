@@ -74,7 +74,7 @@ var tagInfo = (function () {
       high: [138, 266, 264, 299, 137, 298, 136]
     },
     webm: {
-      low: [243, 242],
+      low: [243, 242, 278],
       medium: [246, 245, 244],
       high: [272, 271, 303, 248, 302, 247]
     }
@@ -131,6 +131,7 @@ var formatDictionary = (function () {
     138: ["mp4",  "2160", null,  null, "v"], //Video-only
     266: ["mp4",  "2160", null,  null, "v"], //Video-only
     264: ["mp4",  "1440", null,  null, "v"], //Video-only
+    278: ["webm", "144",  null,  null, "v"], //Video-only
     242: ["webm", "240",  null,  null, "v"], //Video-only
     243: ["webm", "360",  null,  null, "v"], //Video-only
     244: ["webm", "480",  null,  null, "v"], //Video-only
