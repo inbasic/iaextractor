@@ -8,7 +8,7 @@
   background: #FF6C09!important;
   color: #FFF!important;
   -moz-user-select: none;
-  z-index: 2147483647;
+  z-index: 1999999998;
   overflow: hidden;
   word-spacing: 0!important;
   letter-spacing: 0!important;
@@ -46,10 +46,10 @@
   position: absolute!important;
   bottom: 30px!important;
   height: 2px!important;
-  background-color: white!important;
+  background-color: #FFF!important;
   transition: transform 300ms;
 }
-   
+
 /** Loading Video Info **/
 
 #iaextractor-load {
@@ -102,17 +102,17 @@
 .iaextractor-dropdown:hover:active {
   opacity: 0.5;
 }
-.iaextractor-dropdown i { 
+.iaextractor-dropdown i {
   position: absolute;
   display: block!important;
   width: 12px;
   height: 12px;
   border-radius: 200px;
   bottom: 0;
-  border: 2px solid white!important;
+  border: 2px solid #FFF!important;
   pointer-events: none;
 }
-.iaextractor-dropdown i:after { 
+.iaextractor-dropdown i:after {
   display: block;
   content: "";
   width: 8px;
@@ -120,7 +120,7 @@
   margin-top: 2px;
   margin-left: 2px;
   border-radius: 200px;
-  background-color: white;
+  background-color: #FFF;
 }
 
 /** Menu Items **/
@@ -192,7 +192,7 @@
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 32, 16, 16)!important;
 }
 #iaextractor-downloader li:nth-child(2) {
-  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 48, 16, 32)!important;  
+  background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 48, 16, 32)!important;
 }
 #iaextractor-downloader li:nth-child(3) {
   background-image: -moz-image-rect(url(resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/downloadm2.png), 0, 64, 16, 48)!important;
@@ -220,7 +220,15 @@
   margin-left: -6px!important;
 }
 #iaextractor-downloader li:nth-child(1):hover span,
-#iaextractor-downloader li:nth-child(2):hover span, 
+#iaextractor-downloader li:nth-child(2):hover span,
 #iaextractor-downloader li:nth-child(3):hover span {
+  opacity: 1;
+}
+
+#formats-button-small {
+  color: #F79646!important;
+  opacity: 0.8;
+}
+#formats-button-small:hover{
   opacity: 1;
 }
