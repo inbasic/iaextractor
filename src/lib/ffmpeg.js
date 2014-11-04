@@ -3,22 +3,22 @@ var {Cc, Ci, Cu}  = require('chrome'),
     sp            = require("sdk/simple-prefs"),
     data          = require("sdk/self").data,
     prefs         = sp.prefs,
-    notify        = require("./misc").notify;
+    notify        = require("./misc").notify,
+    child_process = require("sdk/system/child_process");
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
-Cu.import(data.url("subprocess/subprocess.jsm"));
 /*
  * inputs: array of input files, for video and audio combiner the second input is the video file
  * options: mode (combine, extract)
  * options: doRemux overwrite "- DASH" filename requirement
  * options: deleteInputs delete input files
  */
- 
+
 function isError(str) {
-  return str.indexOf("Error") !== -1 || 
+  return str.indexOf("Error") !== -1 ||
     str.indexOf("incorrect codec parameters") !== -1;
 }
- 
+
 exports.ffmpeg = function (inputs, options, callback, pointer) {
   var extensions = [], tmpFiles = [], outputLocation;
   // Is FFmpeg available?
@@ -72,7 +72,7 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     }
   }
   // has user determined the output extension?
-  var tmp = /\%output\.(\S+)/.exec(cmd); 
+  var tmp = /\%output\.(\S+)/.exec(cmd);
   if (tmp && tmp.length) {
     extensions[2] = tmp[1];
     cmd = cmd.replace(/\%output\.\S+/, "%output");
@@ -84,7 +84,7 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     var name = index + "." + extensions[index];
     input.copyTo(tmpDir, name);
     var tmp = new FileUtils.File(tmpDir.path);
-    tmp.append(name);    
+    tmp.append(name);
     tmpFiles[index] = tmp;
   });
   // Preparing FFmpeg command for execution
@@ -94,7 +94,7 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
       .replace("%audio", tmpFiles[0].path)
       .replace("%input", tmpFiles[0].path)
       .replace("%output", tmpFiles[0].path.replace("0." + extensions[0], "2." + extensions[2]));
-      
+
       if (options.mode == "combine") {
         args[index] = args[index].replace("%video", tmpFiles[1].path);
       }
@@ -105,11 +105,17 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     throw _("err13") + " " + ffmpeg.path;
     return;
   }
-  
-  subprocess.call({
-    command:     ffmpeg,
-    arguments:   args,
-    done: function(result) {
+
+  var ww = child_process.spawn(ffmpeg.path, args);
+  var stdout = "", stderr = "";
+  ww.stdout.on('data', function (data) {
+    strout += data;
+  });
+  ww.stderr.on('data', function (data) {
+    stderr += data;
+  });
+  ww.on('close', function (code) {
+    if (code === 0) {
       var tmp = new FileUtils.File(tmpDir.path);
       tmp.append("2." + extensions[2]);
       if (tmp.exists()) {
@@ -122,20 +128,23 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
           return a.leafName;
         })());
       }
-      if (options.deleteInputs && !isError(result.stderr)) {
+      if (options.deleteInputs && !isError(stderr)) {
         inputs.forEach(function (input) {
           input.remove(false);
         });
       }
-      if (isError(result.stderr)) {
-        notify(_("name"), _("err24") + "\n\n" + result.stderr.substr(result.stderr.length - 500));
+      if (isError(stderr)) {
+        notify(_("name"), _("err24") + "\n\n" + stderr.substr(stderr.length - 500));
       }
 
       tmpDir.remove(true);
-      
+
       if (callback) {
         callback.apply(pointer, []);
       }
+    }
+    else {
+      notify(_("name"), _("err25") + " " + code);
     }
   });
 }

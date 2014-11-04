@@ -403,9 +403,9 @@ cmds = {
         youtube.videoInfo(videoID).then(
           function (info) {
             // Prevent cycling object
-            info.formats = info.formats.map(function (format) {
-              format.parent = null;
-              return format;
+            info.formats = info.formats.map(function (f) {
+              f.parent = null;
+              return f;
             });
             worker.port.emit('info', info);
           },
@@ -487,7 +487,7 @@ function welcome () {
     if (prefs.welcome) {
       timer.setTimeout(function (p) {
         tabs.open({
-          url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + "?p=" + (p || "-1"),
+          url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + (p ? "&p=" + p : ""),
           inBackground : false
         });
         prefs.newVer = "";
@@ -808,10 +808,10 @@ var getVideo = (function () {
       listener.onDetectStart();
       youtube.videoInfo(videoID).then(
         function (info) {
-          var format, qualityValue = prefs.quality;
+          var fmt, qualityValue = prefs.quality;
 
           if (itag) {
-            format = info.formats.reduce(function (p, c) {
+            fmt = info.formats.reduce(function (p, c) {
               return p || (c.itag + "" == itag ? c : null);
             }, null);
           }
@@ -834,7 +834,7 @@ var getVideo = (function () {
                 tmp = tmp2;
               }
             }
-            while (tmp.length && !format && qualityValue > -1) {
+            while (tmp.length && !fmt && qualityValue > -1) {
               var b = tmp.filter(function (a) {
                 var resolution = parseInt(a.resolution);
                 //4 worst, 0 best
@@ -854,20 +854,20 @@ var getVideo = (function () {
                   return resolution < 240;
                 }
               });
-              if (b.length) format = b[0];
+              if (b.length) fmt = b[0];
               qualityValue -= 1;
             }
-            if (!format && tmp.length) format = tmp[0]
-            if (!format) format = info.formats[0]; //Get highest quality
+            if (!fmt && tmp.length) fmt = tmp[0]
+            if (!fmt) fmt = info.formats[0]; //Get highest quality
           }
-          format.parent = info;
+          fmt.parent = info;
           //
           listener.onDetectDone();
           //Remux audio-only streams even if doExtract is not active
-          if (!noAudio && format.dash == "a" && prefs.doRemux) {
+          if (!noAudio && fmt.dash == "a" && prefs.doRemux) {
             doExtract = true;
           }
-          onFile (format, info);
+          onFile (fmt, info);
         },
         function (e) {
           notify(_("name"), e);
@@ -937,7 +937,7 @@ var getVideo = (function () {
             batch.add(batchID);
             vInfo.parent.formats.forEach (function (a, index) {
               if (a.itag == afIndex) {
-                new getVideo(videoID, listener, index, true, function (f) {
+                new getVideo(videoID, listener, a.itag, true, function (f) {
                   batch.execute(batchID, f, "audio");
                 });
               }

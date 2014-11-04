@@ -7,6 +7,7 @@ var {Cc, Ci, Cu}  = require('chrome'),
     tools         = require("./misc"),
     tools         = require("./misc"),
     prefs         = require("sdk/simple-prefs").prefs,
+    child_process = require("sdk/system/child_process"),
     _prefs        = tools.prefs,
     notify        = tools.notify,
     prompts2      = tools.prompts2,
@@ -18,29 +19,32 @@ var {Cc, Ci, Cu}  = require('chrome'),
     };
 
 Cu.import("resource://gre/modules/Promise.jsm");
-Cu.import(data.url("subprocess/subprocess.jsm"));
 Cu.import("resource://gre/modules/FileUtils.jsm");
 
 function inWindows () {
   var d = new Promise.defer();
   try {
-    var file = FileUtils.getFile("WinD", ["System32", "where.exe"]);
-    subprocess.call({
-      command:     file,
-      arguments:   ['FFmpeg.exe'],
-      done: function(result) {
-        if (result.exitCode == 0) {
-          var path = /\w\:.*FFmpeg\.exe/i.exec(result.stdout);
-          if (path) {
-            d.resolve(path[0].replace(/\\/g, "\\"));
-          }
-          else {
-            d.reject(Error(_("err23") + " " + result.stdout));
-          }
+    var file = FileUtils.getFile("WinD", ["System32", "where.exe"]), stderr = "", stdout = "";
+
+    var win = child_process.spawn(file, ['FFmpeg.exe']);
+    win.stdout.on('data', function (data) {
+      stdout += data;
+    });
+    win.stderr.on('data', function (data) {
+      stderr += data;
+    });
+    win.on('close', function (code) {
+      if (code === 0) {
+        var path = /\w\:.*FFmpeg\.exe/i.exec(stdout);
+        if (path) {
+          d.resolve(path[0].replace(/\\/g, "\\"));
         }
         else {
-          d.reject(Error(_("err22") + " " + result.exitCode));
+          d.reject(Error(_("err23") + " " + stdout + " " + stderr));
         }
+      }
+      else {
+        d.reject(Error(_("err22") + " " + code));
       }
     });
   }
@@ -53,22 +57,25 @@ function inLinux () {
   var d = new Promise.defer();
   try {
     var file = FileUtils.File("/usr/bin/which");
-    subprocess.call({
-      command:     file,
-      arguments:   ['ffmpeg'],
-      done: function(result) {
-        if (result.exitCode == 0) {
-          var path = /\/.*ffmpeg/i.exec(result.stdout);
-          if (path) {
-            d.resolve(path[0]);
-          }
-          else {
-            d.reject(Error(_("err23") + " " + result.stdout));
-          }
+    var linux = child_process.spawn(file, ['ffmpeg']);
+    linux.stdout.on('data', function (data) {
+      stdout += data;
+    });
+    linux.stderr.on('data', function (data) {
+      stderr += data;
+    });
+    linux.on('close', function (code) {
+      if (code == 0) {
+        var path = /\/.*ffmpeg/i.exec(stdout);
+        if (path) {
+          d.resolve(path[0]);
         }
         else {
-          d.reject(Error(_("err22") + " " + result.exitCode));
+          d.reject(Error(_("err23") + " " + stdout + " " + stderr));
         }
+      }
+      else {
+        d.reject(Error(_("err22") + " " + code));
       }
     });
   }
@@ -108,7 +115,7 @@ function installFFmpeg () {
               prefs.extension = 2;
               //make sure file has executable permission
               timer.setTimeout(function () {
-                file.permissions = 0755;  
+                file.permissions = 0755;
               }, 500);
               notify(_('name'), _('msg26'));
             }
@@ -138,6 +145,7 @@ exports.checkFFmpeg = function () {
   timer.setTimeout(function () {
     where().then(
       function (path) {
+        console.error(path);
         try {
           var file = new FileUtils.File(path);
           _prefs.setComplexFile("ffmpegPath", file);

@@ -279,9 +279,9 @@ var Menu = function (doSize) {
       vInfo.formats = vInfo.formats.filter(function (elem) {
         if (self.options.showFLV && elem.container === "flv") return true;
         if (self.options.showWEBM && elem.container === "webm") return true;
-        if (self.options.showMP4 && elem.container === "mp4") return true;
+        if (self.options.showMP4 && (elem.container === "mp4" || elem.container === "m4a")) return true;
         if (self.options.show3GP && elem.container === "3gp") return true;
-        return false;
+        return !(self.options.showFLV || self.options.showWEBM || self.options.showMP4 || self.options.show3GP);
       });
       //Remove loading icon
       remove("iaextractor-load");
