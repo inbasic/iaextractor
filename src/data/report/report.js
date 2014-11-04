@@ -1,6 +1,6 @@
-var $ = function (id) { 
+var $ = function (id) {
   return document.getElementById(id);
-} 
+}
 
 var _ = function (id) {
   var items = $("locale").getElementsByTagName("span");
@@ -25,25 +25,28 @@ var downloadButton = $("download"),
     fbtoggle = $("folder-button"),
     tabs = $("tabs");
 
-folderp.style.transform = "translate(0, " + 230 + "px)";
-videop.style.transform = "translate(0, " + 230 + "px)";
-$("selected").style.transform = "translate(" + 100 + "px)";
-$("tabpanels").style.transform = "translate(-" + 300 + "px)";
+// e10s compatibility
+window.addEventListener("load", function () {
+  folderp.style.transform = "translate(0, 230px)";
+  videop.style.transform = "translate(0, 230px)";
+  $("selected").style.transform = "translate(100px)";
+  $("tabpanels").style.transform = "translate(-300px)";
+}, false);
 
 var cleanup = function() {
-  if (handler.style.display == "block") handler.style.display = "none";  
+  if (handler.style.display == "block") handler.style.display = "none";
   if (folderp.style.transform == "translate(0px, 129px)") folderp.style.transform = "translate(0, " + 230 + "px)";
   if (videop.style.transform == "translate(0px, 119px)") videop.style.transform = "translate(0, " + 230 + "px)";
 }
 
 var slidePanel = function(el, value1, value2) {
   if (el.style.transform == "translate(0px, " + value1 + "px)") {
-    handler.style.display = "block";  
+    handler.style.display = "block";
     el.style.transform = "translate(0, " + value2 + "px)";
   }
 
   else if (el.style.transform == "translate(0px, " + value2 + "px)") {
-    handler.style.display = "none";  
+    handler.style.display = "none";
     el.style.transform = "translate(0, " + value1 + "px)";
   }
 }
@@ -96,14 +99,14 @@ var mList = function (name, value, func) {
 }
 
 var download = new mList (
-  "dinput", 
+  "dinput",
   0,
   function (value) {
     self.port.emit("cmd", "destination", value);
   }
 );
 var quality = new mList (
-  "vinput", 
+  "vinput",
   0,
   function (value) {
     self.port.emit("cmd", "quality", value);
@@ -138,7 +141,7 @@ function tabSelector (e) {
   var tabs = $("tabs").getElementsByClassName("tab");
   var tabpanels = $("tabpanels").getElementsByClassName("tabpanel");
   for (var i = 0; i < tabs.length; i++) {
-    var tab = tabs[i], 
+    var tab = tabs[i],
         tabpanel = tabpanels[i];
     if (i == n) {
       tab.setAttribute("selected", true);
@@ -151,11 +154,11 @@ function tabSelector (e) {
     if ($("home").hasAttribute("selected")) {
       $("selected").style.transform = "translate(" + 100 + "px)";
       $("tabpanels").style.transform = "translate(-" + 300 + "px)";
-    } 
+    }
     if ($("downloads").hasAttribute("selected")) {
       $("selected").style.transform = "translate(" + 200 + "px)";
       $("tabpanels").style.transform = "translate(-" + 600 + "px)";
-    } 
+    }
     if ($("preferences").hasAttribute("selected")) {
       $("selected").style.transform = "translate(0)";
       $("tabpanels").style.transform = "translate(0)";
@@ -191,7 +194,7 @@ var dmUI = {
       var span = item.getElementsByTagName("span");
       var progress = item.getElementsByClassName("progress-inner");
       var image = item.getElementsByClassName("cancel");
-      
+
       var rtn = {
         set name(value) {span[0].textContent = value},
         set description(value) {span[1].textContent = value},
@@ -229,7 +232,7 @@ var dmUI = {
   remove: function (id) {
     $("download-manager").removeChild(dm[id]);
     delete dm[id];
-   
+
     if (dmUI.isEmpty()) {
       $("no-download-manager").style.display = "block";
       $("download-manager").style.display = "none";
