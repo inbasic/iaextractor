@@ -479,6 +479,7 @@ exports.main = function(options, callbacks) {
   if (options.loadReason == "install" && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
     external.checkFFmpeg();
   }
+  external.checkFFmpeg();
 }
 
 /** Welcome page **/

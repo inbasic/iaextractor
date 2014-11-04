@@ -106,7 +106,7 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     return;
   }
 
-  var ww = child_process.spawn(ffmpeg.path, args);
+  var ww = child_process.spawn(ffmpeg, args);
   var stdout = "", stderr = "";
   ww.stdout.on('data', function (data) {
     strout += data;

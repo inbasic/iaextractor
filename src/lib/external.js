@@ -54,35 +54,16 @@ function inWindows () {
   return d.promise;
 }
 function inLinux () {
-  var d = new Promise.defer();
-  try {
-    var file = FileUtils.File("/usr/bin/which");
-    var linux = child_process.spawn(file, ['ffmpeg']);
-    linux.stdout.on('data', function (data) {
-      stdout += data;
-    });
-    linux.stderr.on('data', function (data) {
-      stderr += data;
-    });
-    linux.on('close', function (code) {
-      if (code == 0) {
-        var path = /\/.*ffmpeg/i.exec(stdout);
-        if (path) {
-          d.resolve(path[0]);
-        }
-        else {
-          d.reject(Error(_("err23") + " " + stdout + " " + stderr));
-        }
-      }
-      else {
-        d.reject(Error(_("err22") + " " + code));
-      }
-    });
+  var { env } = require('sdk/system/environment');
+  var locs = env.PATH.split(":");
+  for (var i = 0; i < locs.length; i++) {
+    var file = FileUtils.File(locs[i]);
+    file.append("ffmpeg");
+    if (file.exists()) {
+      return Promise.resolve(file.path);
+    }
   }
-  catch (e) {
-    d.reject(Error(_("err21") + " " + e));
-  }
-  return d.promise;
+  return Promise.reject(Error(_("err21") + " Not Found"));
 }
 
 var where = (os == "WINNT") ? inWindows : inLinux;
@@ -145,7 +126,6 @@ exports.checkFFmpeg = function () {
   timer.setTimeout(function () {
     where().then(
       function (path) {
-        console.error(path);
         try {
           var file = new FileUtils.File(path);
           _prefs.setComplexFile("ffmpegPath", file);
