@@ -189,7 +189,11 @@ function signatureLocal(info) {
   scriptURL = "https:" + scriptURL.replace(/\\/g,'');
   curl(scriptURL).then (function (response) {
     try {
-      var sigFunName = doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
+      var sigFunName =
+        doMatch(response.text, /\.set\s*\("signature"\s*,\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
+        doMatch(response.text, /\.sig\s*\|\|\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
+        doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
+
       if (sigFunName == null) {
         return d.reject(Error("signatureLocal: Cannot resolve signature;2"));
       }

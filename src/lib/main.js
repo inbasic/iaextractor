@@ -461,9 +461,16 @@ exports.main = function(options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  //if (options.loadReason == "upgrade" || options.loadReason == "install") {
-  if (options.loadReason == "install") {
-    prefs.newVer = options.loadReason;
+  if (options.loadReason === "upgrade" || options.loadReason === "install") {
+    if (options.loadReason === "upgrade") {
+      if (Math.random() < 0.1) {
+        prefs.newVer = options.loadReason;
+        prefs.welcomeOnUpgrade = prefs.welcomeOnUpgrade ? prefs.welcomeOnUpgrade + 1 : 1;
+      }
+    }
+    else {
+      prefs.newVer = options.loadReason;
+    }
   }
   //Reload youtube pages & about:addons to set new observer.
   if (options.loadReason == "upgrade" || options.loadReason == "downgrade" || options.loadReason == "install") {
@@ -484,7 +491,7 @@ exports.main = function(options, callbacks) {
 /** Welcome page **/
 function welcome () {
   if (prefs.newVer) {
-    if (prefs.welcome) {
+    if (prefs.welcome && prefs.version != self.version) {
       timer.setTimeout(function (p) {
         tabs.open({
           url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + (p ? "&p=" + p : ""),
