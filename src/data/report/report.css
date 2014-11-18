@@ -2,7 +2,7 @@
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 400;
-  src: local('Open Sans'), local('OpenSans'), url(cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+  src: url(google-font.woff) format('woff');
 }
 /* General Code */
 
@@ -76,7 +76,7 @@ table {
 .tabpanel {
   display: inline-block;
   width: 300px;
-  height: 200px;  
+  height: 200px;
   background-color: #FF6C09;
   position: relative;
   margin: 0;  /* preventing extra margin between siblings*/
@@ -89,7 +89,7 @@ table {
   height: 200px;
   -moz-user-select: none;
 }
-#home-panel, 
+#home-panel,
 #downloads-panel,
 #preferences-panel {
   -moz-user-select: none;
@@ -123,7 +123,7 @@ input[type="radio"]:checked + div {
   background-color: transparent;
 }
 .checked {
-  width: 6px; 
+  width: 6px;
   height: 6px;
   margin-left: 2px;
   margin-top: 2px;
@@ -147,7 +147,7 @@ label {
 
 #buttons {
   position: absolute;
-  width: 272px; 
+  width: 272px;
   margin-left: 16px;
   margin-top: 16px;
 }
@@ -272,7 +272,7 @@ label {
   height: 16px;
   width: 16px;
   transition: opacity 180ms;
-} 
+}
 #qd-toggle:hover {
   opacity: 1;
   cursor: pointer;
@@ -315,8 +315,8 @@ label {
   margin-bottom: 0;
 }
 .download-item span {
-  display: block; 
-  width: 192px; 
+  display: block;
+  width: 192px;
   text-overflow: " .... ";
   overflow: hidden;
   white-space: nowrap;
@@ -334,7 +334,7 @@ label {
   margin-top: 4px;
 }
 .progress-outer {
-  display: inline-block; 
+  display: inline-block;
   height: 5px;
   width: 100%;
   margin: 10px 0 4px 0;
@@ -375,7 +375,7 @@ label {
   font-size: 13px;
   position: absolute;
   width: 300px;
-  height: 200px; 
+  height: 200px;
   padding-top: 14px;
   padding-left: 10px;
   -moz-box-sizing: border-box;
