@@ -222,6 +222,18 @@
     "value": true
   },
   {
+    "name": "protocol",
+    "title": "",
+    "description": "",
+    "type": "menulist",
+    "value": 0,
+    "options": [
+      {"value": "0", "label": "defalut"},
+      {"value": "1", "label": "http"},
+      {"value": "2", "label": "https"}
+    ]
+  },
+  {
     "name": "customUA",
     "title": "",
     "description": "",

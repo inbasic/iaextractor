@@ -555,7 +555,12 @@ function extractFormats (info) {
           itag = parseInt(pairs.itag);
       if (!url || !itag) return;
 
-      if (url.indexOf("ratebypass") == -1) url += "&ratebypass=yes";
+      if (url.indexOf("ratebypass") == -1) {
+        url += "&ratebypass=yes";
+      }
+      if (prefs.protocol !== 0) {
+        url = url.replace(/^https?\:\/\//, prefs.protocol === 1 ? "http://" : "https://");
+      }
       pairs.url = url;
       pairs.itag = itag;
       if (pairs.sig) {
