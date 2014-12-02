@@ -76,7 +76,7 @@ var tagInfo = (function () {
     webm: {
       low: [243, 242, 278],
       medium: [246, 245, 244],
-      high: [272, 271, 303, 248, 302, 247]
+      high: [272, 313, 271, 303, 248, 302, 247]
     }
   }
   return {
@@ -141,6 +141,7 @@ var formatDictionary = (function () {
     247: ["webm", "720",  null,  null, "v"], //Video-only
     303: ["webm", "1080", null,  null, "v"], //Video-only (60fps)
     248: ["webm", "1080", null,  null, "v"], //Video-only
+    313: ["webm", "2160", null,  null, "v"], //Video-only
     272: ["webm", "2160", null,  null, "v"], //Video-only
     271: ["webm", "1440", null,  null, "v"], //Video-only
   }
@@ -650,7 +651,11 @@ function sortFormats (info) {
       return b.audioBitrate - a.audioBitrate;
     }
     if (avIndex && bvIndex) {
-      return parseInt(b.resolution) - parseInt(a.resolution);
+      var tmp = parseInt(b.resolution) - parseInt(a.resolution);
+      if (tmp === 0) {
+        tmp = parseInt(a.bitrate) - parseInt(b.bitrate);
+      }
+      return tmp;
     }
     if (aaIndex && bvIndex) {
       return 1;
