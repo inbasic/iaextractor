@@ -228,7 +228,7 @@
     "type": "menulist",
     "value": 0,
     "options": [
-      {"value": "0", "label": "defalut"},
+      {"value": "0", "label": "default"},
       {"value": "1", "label": "http"},
       {"value": "2", "label": "https"}
     ]
