@@ -313,8 +313,8 @@ function getFormats (videoID) {
         if (response.status != 200) {
           return d.reject(Error("Cannot connect to the YouTube page server."));
         }
-        var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\ \"([^\"]*)/.exec(response.text);
-        var tmp2 = /adaptive\_fmts\"\:\ \"([^\"]*)/.exec(response.text);
+        var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\s*\"([^\"]*)/.exec(response.text);
+        var tmp2 = /adaptive\_fmts\"\:\s*\"([^\"]*)/.exec(response.text);
         var tmp3 = /\"dashmpd\":\s*\"([^\"]+)\"/.exec(response.text);
         var tmp4 = /html5player-([^\"]*).js/.exec(response.text);
         if (!tmp1 && !tmp2 && !anonymous) { // YouTube Feather
