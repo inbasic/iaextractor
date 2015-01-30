@@ -309,7 +309,7 @@ function getFormats (videoID) {
     return str.replace(/\\u0026/g, "&").replace(/\\\//g, '/')
   }
   function fetch (anonymous) {
-    curl("http://www.youtube.com/watch?v=" + videoID, anonymous).then(
+    curl((prefs.protocol === 1 ? "http://" : "https://") + "www.youtube.com/watch?v=" + videoID, anonymous).then(
       function (response) {
         if (response.status != 200) {
           return d.reject(Error("Cannot connect to the YouTube page server."));
@@ -361,7 +361,7 @@ function getExtra (videoID) {
     return temp;
   }
 
-  curl('http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=' + videoID, false).then(
+  curl((prefs.protocol === 1 ? "http://" : "https://") + 'www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=' + videoID, false).then(
     function (response) {
       if (response.status != 200) {
         return d.reject(Error("Cannot connect to the YouTube info server."));
