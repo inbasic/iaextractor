@@ -604,7 +604,7 @@ function findOtherItags (info) {
   var d = new Promise.defer(), dashmpd = info.dashmpd;
 
   if (dashmpd.indexOf(/signature/) === -1) {
-    var matchSig = (/\/s\/([a-zA-Z0-9\.]+)\//i.exec(dashmpd) || [null, null])[1];
+    var matchSig = (/\/s\/([a-zA-Z0-9\.]+)\/?/i.exec(dashmpd) || [null, null])[1];
     if (!matchSig) dashmpd = '';
     dashmpd = dashmpd.replace('/s/' + matchSig + '/','/signature/' + decipher(matchSig) + '/');
   }
