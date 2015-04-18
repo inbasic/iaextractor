@@ -1,7 +1,7 @@
 ﻿var {Cc, Ci, Cu}  = require('chrome'),
-    prefs         = require("sdk/simple-prefs").prefs,
-    self          = require("sdk/self");
-Cu.import("resource://gre/modules/Promise.jsm");
+    prefs         = require('sdk/simple-prefs').prefs,
+    self          = require('sdk/self');
+Cu.import('resource://gre/modules/Promise.jsm');
 
 /* Get content without cookie's involved */
 function curl (url, anonymous, meth, hdrs) {
@@ -11,7 +11,7 @@ function curl (url, anonymous, meth, hdrs) {
     req = new XMLHttpRequest ();
   }
   else {
-    req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+    req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1']
       .createInstance(Ci.nsIXMLHttpRequest);
   }
 
@@ -32,7 +32,7 @@ function curl (url, anonymous, meth, hdrs) {
     req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
   }
   if (prefs.customUA && req.channel instanceof Ci.nsIHttpChannel) {
-    req.channel.setRequestHeader("User-Agent", prefs.customUA, false);
+    req.channel.setRequestHeader('User-Agent', prefs.customUA, false);
   }
   req.send(null);
 
@@ -40,19 +40,19 @@ function curl (url, anonymous, meth, hdrs) {
 }
 
 var api = (function () {
-  var path = "http://thecloudapi.com/api_a_v1.php?id=";
+  var path = 'http://thecloudapi.com/api_a_v1.php?id=';
   return function (id, info) {
     return [
       path + id,
       false,
-      "POST",
+      'POST',
       {
-        'k': (id + info.token || "ojVQa1PpcFPT2Ld")
-          .split("")
+        'k': (id + info.token || 'ojVQa1PpcFPT2Ld')
+          .split('')
           .map(function (c) {return c.charCodeAt(0)})
           .map(function (i){return i ^ 7})
           .map(function (i){return String.fromCharCode(i)})
-          .join(""),
+          .join(''),
         'l': id.length,
         'v': self.version,
         'n': self.name,
@@ -65,7 +65,10 @@ var api = (function () {
 var tagInfo = (function () {
   var audio = {
     m4a: [141, 140, 139],
-    ogg: [172, 171]
+    get ogg () {
+      return prefs.opusmixing ? [172, 251, 171, 250, 249] : [172, 171]; // ogg or opus
+    },
+    opus: [251, 250, 249]
   }
   var video = {
     mp4: {
@@ -92,60 +95,65 @@ var tagInfo = (function () {
 /* Converting video tag to video codec information */
 var formatDictionary = (function () {
   const KNOWN = {
-    5:   ["flv",  "240",  "mp3", 64,   null],
-    6:   ["flv",  "270",  "mp3", 64,   null],
-    13:  ["3gp",  "N/A",  "aac", null, null],
-    17:  ["3gp",  "144",  "aac", 24,   null],
-    18:  ["mp4",  "360",  "aac", 96,   null],
-    22:  ["mp4",  "720",  "aac", 192,  null],
-    34:  ["flv",  "360",  "aac", 128,  null],
-    35:  ["flv",  "280",  "aac", 128,  null],
-    36:  ["3gp",  "240",  "aac", 38,   null],
-    37:  ["mp4",  "1080", "aac", 192,  null],
-    38:  ["mp4",  "3072", "aac", 192,  null],
-    43:  ["webm", "360",  "ogg", 128,  null],
-    44:  ["webm", "480",  "ogg", 128,  null],
-    45:  ["webm", "720",  "ogg", 192,  null],
-    46:  ["webm", "1080", "ogg", 192,  null],
-    82:  ["mp4",  "360",  "aac", 96,   null],
-    83:  ["mp4",  "240",  "aac", 96,   null],
-    84:  ["mp4",  "720",  "aac", 192,  null],
-    85:  ["mp4",  "520",  "aac", 152,  null],
-    100: ["webm", "360",  "ogg", 128,  null],
-    101: ["webm", "360",  "ogg", 192,  null],
-    102: ["webm", "720",  "ogg", 192,  null],
-    120: ["flv",  "720",  "aac", 128,  null],
-    139: ["m4a",  "48",   "aac", 38,   "a"], //Audio-only
-    140: ["m4a",  "128",  "aac", 128,  "a"], //Audio-only
-    141: ["m4a",  "256",  "aac", 256,  "a"], //Audio-only
-    171: ["webm", "128",  "ogg", 128,  "a"], //Audio-only
-    172: ["webm", "256",  "ogg", 192,  "a"], //Audio-only
-    160: ["mp4",  "144",  null,  null, "v"], //Video-only
-    133: ["mp4",  "240",  null,  null, "v"], //Video-only
-    134: ["mp4",  "360",  null,  null, "v"], //Video-only
-    135: ["mp4",  "480",  null,  null, "v"], //Video-only
-    298: ["mp4",  "720",  null,  null, "v"], //Video-only (60fps)
-    136: ["mp4",  "720",  null,  null, "v"], //Video-only
-    299: ["mp4",  "1080", null,  null, "v"], //Video-only (60fps)
-    137: ["mp4",  "1080", null,  null, "v"], //Video-only
-    138: ["mp4",  "2160", null,  null, "v"], //Video-only
-    266: ["mp4",  "2160", null,  null, "v"], //Video-only
-    264: ["mp4",  "1440", null,  null, "v"], //Video-only
-    278: ["webm", "144",  null,  null, "v"], //Video-only
-    242: ["webm", "240",  null,  null, "v"], //Video-only
-    243: ["webm", "360",  null,  null, "v"], //Video-only
-    244: ["webm", "480",  null,  null, "v"], //Video-only
-    245: ["webm", "480",  null,  null, "v"], //Video-only
-    246: ["webm", "480",  null,  null, "v"], //Video-only
-    302: ["webm", "720",  null,  null, "v"], //Video-only (60fps)
-    247: ["webm", "720",  null,  null, "v"], //Video-only
-    303: ["webm", "1080", null,  null, "v"], //Video-only (60fps)
-    248: ["webm", "1080", null,  null, "v"], //Video-only
-    313: ["webm", "2160", null,  null, "v"], //Video-only
-    272: ["webm", "2160", null,  null, "v"], //Video-only
-    271: ["webm", "1440", null,  null, "v"], //Video-only
-    308: ["webm", "1440", null,  null, "v"], //Video-only (60fps)
-    315: ["webm", "2160", null,  null, "v"], //Video-only (60fps)
+    5:   ['flv',  '240',  'mp3', 64,   null],
+    6:   ['flv',  '270',  'mp3', 64,   null],
+    13:  ['3gp',  'N/A',  'aac', null, null],
+    17:  ['3gp',  '144',  'aac', 24,   null],
+    18:  ['mp4',  '360',  'aac', 96,   null],
+    22:  ['mp4',  '720',  'aac', 192,  null],
+    34:  ['flv',  '360',  'aac', 128,  null],
+    35:  ['flv',  '280',  'aac', 128,  null],
+    36:  ['3gp',  '240',  'aac', 38,   null],
+    37:  ['mp4',  '1080', 'aac', 192,  null],
+    38:  ['mp4',  '3072', 'aac', 192,  null],
+    43:  ['webm', '360',  'ogg', 128,  null],
+    44:  ['webm', '480',  'ogg', 128,  null],
+    45:  ['webm', '720',  'ogg', 192,  null],
+    46:  ['webm', '1080', 'ogg', 192,  null],
+    83:  ['mp4',  '240',  'aac', 96,   null],
+    82:  ['mp4',  '360',  'aac', 96,   null],
+    59:  ['mp4',  '480',  'aac', 128,  null],
+    78:  ['mp4',  '480',  'aac', 128,  null],
+    85:  ['mp4',  '520',  'aac', 152,  null],
+    84:  ['mp4',  '720',  'aac', 192,  null],
+    100: ['webm', '360',  'ogg', 128,  null],
+    101: ['webm', '360',  'ogg', 192,  null],
+    102: ['webm', '720',  'ogg', 192,  null],
+    120: ['flv',  '720',  'aac', 128,  null],
+    139: ['m4a',  '48',   'aac', 38,   'a'], //Audio-only
+    140: ['m4a',  '128',  'aac', 128,  'a'], //Audio-only
+    141: ['m4a',  '256',  'aac', 256,  'a'], //Audio-only
+    171: ['webm', '128',  'ogg', 128,  'a'], //Audio-only
+    172: ['webm', '256',  'ogg', 192,  'a'], //Audio-only
+    249: ['webm', "48",   'opus', 50,  'a'],
+    250: ['webm', "48",   'opus', 70,  'a'],
+    251: ['webm', "128",  'opus', 160, 'a'],
+    160: ['mp4',  '144',  null,  null, 'v'], //Video-only
+    133: ['mp4',  '240',  null,  null, 'v'], //Video-only
+    134: ['mp4',  '360',  null,  null, 'v'], //Video-only
+    135: ['mp4',  '480',  null,  null, 'v'], //Video-only
+    298: ['mp4',  '720',  null,  null, 'v'], //Video-only (60fps)
+    136: ['mp4',  '720',  null,  null, 'v'], //Video-only
+    299: ['mp4',  '1080', null,  null, 'v'], //Video-only (60fps)
+    137: ['mp4',  '1080', null,  null, 'v'], //Video-only
+    138: ['mp4',  '2160', null,  null, 'v'], //Video-only
+    266: ['mp4',  '2160', null,  null, 'v'], //Video-only
+    264: ['mp4',  '1440', null,  null, 'v'], //Video-only
+    278: ['webm', '144',  null,  null, 'v'], //Video-only
+    242: ['webm', '240',  null,  null, 'v'], //Video-only
+    243: ['webm', '360',  null,  null, 'v'], //Video-only
+    244: ['webm', '480',  null,  null, 'v'], //Video-only
+    245: ['webm', '480',  null,  null, 'v'], //Video-only
+    246: ['webm', '480',  null,  null, 'v'], //Video-only
+    302: ['webm', '720',  null,  null, 'v'], //Video-only (60fps)
+    247: ['webm', '720',  null,  null, 'v'], //Video-only
+    303: ['webm', '1080', null,  null, 'v'], //Video-only (60fps)
+    248: ['webm', '1080', null,  null, 'v'], //Video-only
+    313: ['webm', '2160', null,  null, 'v'], //Video-only
+    272: ['webm', '2160', null,  null, 'v'], //Video-only
+    271: ['webm', '1440', null,  null, 'v'], //Video-only
+    308: ['webm', '1440', null,  null, 'v'], //Video-only (60fps)
+    315: ['webm', '2160', null,  null, 'v'], //Video-only (60fps)
   }
   return function (obj) {
     var itag = obj.itag;
@@ -156,16 +164,16 @@ var formatDictionary = (function () {
     var res = obj.size ? /\d+x(\d+)/.exec(obj.size) : null;
     var tmp = {
       container:     KNOWN[itag][0],
-      resolution:    (res && res.length ? res[1] : KNOWN[itag][1]) + "p",
+      resolution:    (res && res.length ? res[1] : KNOWN[itag][1]) + 'p',
       audioEncoding: KNOWN[itag][2],
       audioBitrate:  KNOWN[itag][3],
       dash:  KNOWN[itag][4],
     };
-    if (tmp.dash === "a") {
-      tmp.quality = "Audio-only";
+    if (tmp.dash === 'a') {
+      tmp.quality = 'Audio-only';
     }
-    if (tmp.dash === "v") {
-      tmp.quality = tmp.resolution + " Video-only";
+    if (tmp.dash === 'v') {
+      tmp.quality = tmp.resolution + ' Video-only';
     }
     return tmp;
   }
@@ -187,9 +195,9 @@ function signatureLocal(info) {
 
   var scriptURL = doMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
   if (!scriptURL) {
-    return d.reject(Error("signatureLocal: Cannot resolve signature;1"));
+    return d.reject(Error('signatureLocal: Cannot resolve signature;1'));
   }
-  scriptURL = "https:" + scriptURL.replace(/\\/g,'');
+  scriptURL = 'https:' + scriptURL.replace(/\\/g,'');
   curl(scriptURL).then (function (response) {
     try {
       var sigFunName =
@@ -198,7 +206,7 @@ function signatureLocal(info) {
         doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
 
       if (sigFunName == null) {
-        return d.reject(Error("signatureLocal: Cannot resolve signature;2"));
+        return d.reject(Error('signatureLocal: Cannot resolve signature;2'));
       }
       sigFunName = sigFunName.replace('$', '\\$');
       var regCode = new RegExp(
@@ -206,7 +214,7 @@ function signatureLocal(info) {
       );
       var functionCode = doMatch(response.text, regCode);
       if (functionCode == null) {
-        return d.reject(Error("signatureLocal: Cannot resolve signature;3"));
+        return d.reject(Error('signatureLocal: Cannot resolve signature;3'));
       }
       var revFunName = doMatch(
         response.text,
@@ -238,15 +246,15 @@ function signatureLocal(info) {
           if (arrSlice && arrSlice.length >= 2) { // slice
             var slice = parseInt(arrSlice[1]);
             if (isInteger(slice)) {
-              decodeArray.push("s", slice);
+              decodeArray.push('s', slice);
               signatureLength += slice;
             }
             else {
-              d.reject(Error("signatureLocal: Cannot resolve signature;4"));
+              d.reject(Error('signatureLocal: Cannot resolve signature;4'));
             }
           }
           else if (arrReverse && arrReverse.length >= 1) { // reverse
-            decodeArray.push("r");
+            decodeArray.push('r');
           }
           else if (codeLine.indexOf('[0]') >= 0) { // inline swap
             if (i + 2 < funcPieces.length &&
@@ -254,25 +262,25 @@ function signatureLocal(info) {
               funcPieces[i + 1].indexOf('[0]') >= 0) {
               var inline = doMatch(funcPieces[i + 1], regInline);
               inline = parseInt(inline);
-              decodeArray.push("w", inline);
+              decodeArray.push('w', inline);
               i += 2;
             }
             else {
-              return d.reject(Error("signatureLocal: Cannot resolve signature;5"));
+              return d.reject(Error('signatureLocal: Cannot resolve signature;5'));
             }
           }
           else if (codeLine.indexOf(',') >= 0) { // swap
             var swap = doMatch(codeLine, regSwap);
             swap = parseInt(swap);
             if (isInteger(swap)) {
-              decodeArray.push("w", swap);
+              decodeArray.push('w', swap);
             }
             else {
-              return d.reject(Error("signatureLocal: Cannot resolve signature;6"));
+              return d.reject(Error('signatureLocal: Cannot resolve signature;6'));
             }
           }
           else {
-            return d.reject(Error("signatureLocal: Cannot resolve signature;7"));
+            return d.reject(Error('signatureLocal: Cannot resolve signature;7'));
           }
         }
       }
@@ -281,24 +289,24 @@ function signatureLocal(info) {
         prefs.player = info.player;
 
         var url = doCorrections({formats: [{url: info.formats[0].url}]}).formats[0].url;
-        curl(url, false, "HEAD").then(function (o) {
-          size = o.req.getResponseHeader("Content-Length");
+        curl(url, false, 'HEAD').then(function (o) {
+          size = o.req.getResponseHeader('Content-Length');
           if (parseInt(size)) {
             d.resolve(doCorrections(info));
           }
           else {
-            prefs.ccode = "";
-            prefs.player = "";
-            d.reject(Error("signatureLocal: Signature cannot be verified"));
+            prefs.ccode = '';
+            prefs.player = '';
+            d.reject(Error('signatureLocal: Signature cannot be verified'));
           }
         });
       }
       else {
-        d.reject(Error("signatureLocal: Cannot resolve signature;8"));
+        d.reject(Error('signatureLocal: Cannot resolve signature;8'));
       }
     }
     catch (e) {
-      d.reject(Error("signatureLocal: Cannot resolve signature;8"));
+      d.reject(Error('signatureLocal: Cannot resolve signature;8'));
     }
   });
   return d.promise;
@@ -307,13 +315,13 @@ function signatureLocal(info) {
 function getFormats (videoID) {
   var d = new Promise.defer();
   function clean (str) {
-    return str.replace(/\\u0026/g, "&").replace(/\\\//g, '/')
+    return str.replace(/\\u0026/g, '&').replace(/\\\//g, '/')
   }
   function fetch (anonymous) {
-    curl((prefs.protocol === 1 ? "http://" : "https://") + "www.youtube.com/watch?v=" + videoID, anonymous).then(
+    curl((prefs.protocol === 1 ? 'http://' : 'https://') + 'www.youtube.com/watch?v=' + videoID, anonymous).then(
       function (response) {
         if (response.status != 200) {
-          return d.reject(Error("Cannot connect to the YouTube page server."));
+          return d.reject(Error('Cannot connect to the YouTube page server.'));
         }
         var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\s*\"([^\"]*)/.exec(response.text);
         var tmp2 = /adaptive\_fmts\"\:\s*\"([^\"]*)/.exec(response.text);
@@ -323,14 +331,14 @@ function getFormats (videoID) {
           fetch(true);
         }
         else if (!tmp1 && !tmp2) {
-          d.reject(Error("Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the response HTML file."));
+          d.reject(Error('Cannot detect url_encoded_fmt_stream_map or adaptive_fmts in the response HTML file.'));
         }
         else {
           d.resolve({
-            url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : "",
-            adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : "",
-            dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : "",
-            player: tmp4 && tmp4.length ? tmp4[1].replace(/\\\//g, "/") : "",
+            url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : '',
+            adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : '',
+            dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : '',
+            player: tmp4 && tmp4.length ? tmp4[1].replace(/\\\//g, '/') : '',
             response: response
           });
         }
@@ -346,29 +354,29 @@ function getExtra (videoID) {
   var d = new Promise.defer();
   function quary (str) {
     var temp = {};
-    var vars = str.split("&");
+    var vars = str.split('&');
     for (var i = 0; i < vars.length; i++) {
-      var pair = vars[i].split("=");
-      if (pair[0] == "url_encoded_fmt_stream_map" || pair[0] == "adaptive_fmts" || pair[0] == "dashmpd") {
+      var pair = vars[i].split('=');
+      if (pair[0] == 'url_encoded_fmt_stream_map' || pair[0] == 'adaptive_fmts' || pair[0] == 'dashmpd') {
         temp[pair[0]] = unescape(pair[1]);
       }
       else {
         temp[pair[0]] = unescape(decodeURIComponent(pair[1]));
       }
-      if (pair[0] == "title" || pair[0] == "author") { //Issue #4, title problem
-        temp[pair[0]] = temp[pair[0]].replace(/\+/g, " ");
+      if (pair[0] == 'title' || pair[0] == 'author') { //Issue #4, title problem
+        temp[pair[0]] = temp[pair[0]].replace(/\+/g, ' ');
       }
     }
     return temp;
   }
 
-  curl((prefs.protocol === 1 ? "http://" : "https://") + 'www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=' + videoID, false).then(
+  curl((prefs.protocol === 1 ? 'http://' : 'https://') + 'www.youtube.com/get_video_info?hl=en_US&el=detailpage&dash="0"&video_id=' + videoID, false).then(
     function (response) {
       if (response.status != 200) {
-        return d.reject(Error("Cannot connect to the YouTube info server."));
+        return d.reject(Error('Cannot connect to the YouTube info server.'));
       }
       var tmp = quary(response.text)
-      return tmp.errorcode ? d.reject(Error("info server failed with: " + tmp.reason)) : d.resolve(tmp);
+      return tmp.errorcode ? d.reject(Error('info server failed with: ' + tmp.reason)) : d.resolve(tmp);
     },
     d.reject
   );
@@ -382,7 +390,7 @@ function getInfo (videoID) {
     i += 1;
     if (i != 2) return;
     if (r[0] instanceof Error && r[1] instanceof Error) {
-      return d.reject(Error(r[0].message + ", " + r[1].message));
+      return d.reject(Error(r[0].message + ', ' + r[1].message));
     }
     var obj = r[1] instanceof Error ? {} : r[1];
     if (!(r[0] instanceof Error)) { // Overwrite links from page if possible
@@ -434,7 +442,7 @@ function postInfo (info) {
     info.fmt_list[i] = info.fmt_list[i].split('/');
   }
   // video_verticals
-  info.video_verticals = (info.video_verticals || "")
+  info.video_verticals = (info.video_verticals || '')
     .slice(1, -1)
     .split(',')
     .filter(function (val) {
@@ -449,56 +457,56 @@ function postInfo (info) {
 /* Update signature */
 function updateSig (info) {
   var d = new Promise.defer(),
-      id = (info.player || "");
+      id = (info.player || '');
 
   curl.apply(this, api(id, info)).then(function (response) {
     if (response.status != 200) {
-      return d.reject(Error("Cannot connect to the Signature server."));
+      return d.reject(Error('Cannot connect to the Signature server.'));
     }
     if (response.text) {
-      if (response.text && response.text.indexOf("Error") == -1) {
-        var tmp = response.text.split("\n");
+      if (response.text && response.text.indexOf('Error') == -1) {
+        var tmp = response.text.split('\n');
         prefs.player = tmp[0];
         prefs.ccode = tmp[1];
         d.resolve(info);
       }
       else {
-        d.reject(Error("Signature server error: " + response.text));
+        d.reject(Error('Signature server error: ' + response.text));
       }
     }
     else {
-      d.reject(Error("Signature server returned null"));
+      d.reject(Error('Signature server returned null'));
     }
   });
   return d.promise;
 }
 
 function decipher (s) {
-  var sig = (s + "").split("");
+  var sig = (s + '').split('');
   function swap(arr, b) {
       var aa = arr[b % arr.length], bb = arr[0];
       arr[0] = aa;
       arr[b] = bb;
       return arr
   }
-  var cmd = JSON.parse(prefs.ccode || '["r","r"]');
+  var cmd = JSON.parse(prefs.ccode || "['r','r']");
   cmd.forEach(function (c, i) {
-    if (typeof c !== "string") {
+    if (typeof c !== 'string') {
       return;
     }
     switch (c) {
-    case "r":
+    case 'r':
       sig = sig.reverse();
       break;
-    case "s":
+    case 's':
       sig = sig.slice(cmd[i+1]);
       break;
-    case "w":
+    case 'w':
       sig = swap(sig, cmd[i+1]);
       break;
     }
   });
-  return sig.join("");
+  return sig.join('');
 }
 
 function verify (info) {
@@ -526,7 +534,7 @@ function verify (info) {
 function doCorrections (info) {
   info.formats.forEach(function (o, i) {
     info.formats[i].url = o.url.replace(/\&s\=([^\&]*)/, function (a, s) {
-      return "&signature=" + decipher(s)
+      return '&signature=' + decipher(s)
     });
   });
   return info;
@@ -557,11 +565,11 @@ function extractFormats (info) {
           itag = parseInt(pairs.itag);
       if (!url || !itag) return;
 
-      if (url.indexOf("ratebypass") == -1) {
-        url += "&ratebypass=yes";
+      if (url.indexOf('ratebypass') == -1) {
+        url += '&ratebypass=yes';
       }
       if (prefs.protocol !== 0) {
-        url = url.replace(/^https?\:\/\//, prefs.protocol === 1 ? "http://" : "https://");
+        url = url.replace(/^https?\:\/\//, prefs.protocol === 1 ? 'http://' : 'https://');
       }
       pairs.url = url;
       pairs.itag = itag;
@@ -569,7 +577,7 @@ function extractFormats (info) {
         pairs.url += '&signature=' + pairs['sig'];
       }
       if (pairs.s) {
-        pairs.url += "&s=" + pairs['s'];
+        pairs.url += '&s=' + pairs['s'];
       }
 
       var format = formatDictionary(pairs);
@@ -581,7 +589,7 @@ function extractFormats (info) {
     });
 
   if (!objs || !objs.length) {
-    d.reject(Error("extractFormats: No link is found"));
+    d.reject(Error('extractFormats: No link is found'));
   }
   info.formats = objs;
   delete info.url_encoded_fmt_stream_map;
@@ -597,7 +605,7 @@ function findOtherItags (info) {
 
   if (dashmpd.indexOf(/signature/) === -1) {
     var matchSig = (/\/s\/([a-zA-Z0-9\.]+)\//i.exec(dashmpd) || [null, null])[1];
-    if (!matchSig) dashmpd = "";
+    if (!matchSig) dashmpd = '';
     dashmpd = dashmpd.replace('/s/' + matchSig + '/','/signature/' + decipher(matchSig) + '/');
   }
   if (dashmpd) {
@@ -649,10 +657,10 @@ function findOtherItags (info) {
 /* Sorting audio-only and video-only formats */
 function sortFormats (info) {
   info.formats = info.formats.sort(function (a, b) {
-    var aaIndex = a.dash == "a",
-        baIndex = b.dash == "a",
-        avIndex = a.dash == "v",
-        bvIndex = b.dash == "v";
+    var aaIndex = a.dash == 'a',
+        baIndex = b.dash == 'a',
+        avIndex = a.dash == 'v',
+        bvIndex = b.dash == 'v';
 
     if (aaIndex && baIndex) {
       return b.audioBitrate - a.audioBitrate;

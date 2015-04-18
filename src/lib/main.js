@@ -1094,7 +1094,10 @@ var getVideo = (function () {
         });
       }
       else {
-        ffmpeg.ffmpeg([obj.vFile], {deleteInputs: vInfo.dash && prefs.deleteInputs}, function () {
+        ffmpeg.ffmpeg([obj.vFile], {
+          deleteInputs: vInfo.dash && prefs.deleteInputs,
+          extension: youtube.tagInfo.audio.opus.indexOf(vInfo.itag) !== -1 ? 'opus' : null
+        }, function () {
           listener.onExtractDone(id);
           afterExtract();
         });

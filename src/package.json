@@ -166,6 +166,13 @@
     "value": true
   },
   {
+    "name": "opusmixing",
+    "title": "",
+    "description": "",
+    "type": "bool",
+    "value": false
+  },
+  {
     "name": "ffmpegInputs3",
     "title": "",
     "description": "",
