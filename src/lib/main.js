@@ -1,21 +1,21 @@
 ﻿/** Require **/
 var {Cc, Ci, Cu}  = require('chrome'),
-    {Hotkey}      = require("sdk/hotkeys"),
-    tabs          = require("sdk/tabs"),
-    self          = require("sdk/self"),
-    timer         = require("sdk/timers"),
-    sp            = require("sdk/simple-prefs"),
-    panel         = require("sdk/panel"),
-    _             = require("sdk/l10n").get,
-    pageMod       = require("sdk/page-mod"),
-    userstyles    = require("./userstyles"),
-    youtube       = require("./youtube"),
-    subtitle      = require("./subtitle"),
-    download      = require("./download"),
-    extract       = require("./extract"),
-    ffmpeg        = require("./ffmpeg"),
-    tools         = require("./misc"),
-    external      = require("./external"),
+    {Hotkey}      = require('sdk/hotkeys'),
+    tabs          = require('sdk/tabs'),
+    self          = require('sdk/self'),
+    timer         = require('sdk/timers'),
+    sp            = require('sdk/simple-prefs'),
+    panel         = require('sdk/panel'),
+    _             = require('sdk/l10n').get,
+    pageMod       = require('sdk/page-mod'),
+    userstyles    = require('./userstyles'),
+    youtube       = require('./youtube'),
+    subtitle      = require('./subtitle'),
+    download      = require('./download'),
+    extract       = require('./extract'),
+    ffmpeg        = require('./ffmpeg'),
+    tools         = require('./misc'),
+    external      = require('./external'),
     data          = self.data,
     prefs         = sp.prefs,
     format        = tools.format,
@@ -29,37 +29,37 @@ var {Cc, Ci, Cu}  = require('chrome'),
         return require('sdk/window/utils').getMostRecentBrowserWindow()
       }
     },
-    isAustralis   = "gCustomizeMode" in windows.active,
-    toolbarbutton = isAustralis ? require("toolbarbutton/new") : require("toolbarbutton/old");
+    isAustralis   = 'gCustomizeMode' in windows.active,
+    toolbarbutton = isAustralis ? require('toolbarbutton/new') : require('toolbarbutton/old');
 
-Cu.import("resource://gre/modules/FileUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+Cu.import('resource://gre/modules/FileUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
 var connect = {};
-Cu.import(data.url("shared/connect.jsm"), connect);
+Cu.import(data.url('shared/connect.jsm'), connect);
 connect.glow.require = require;
 
 /** Load style **/
-userstyles.load(data.url("overlay.css"));
+userstyles.load(data.url('overlay.css'));
 
 /** Internal configurations **/
 var config = {
   //URLs
   urls: {
-    youtube: "https://www.youtube.com/",
-    tools: "chrome://iaextractor/content/tools.xul",
-    homepage: "http://add0n.com/extractor.html",
-    update: "http://add0n.com/extractor-updated.html",
-    flashgot: "https://addons.mozilla.org/firefox/addon/flashgot/",
-    downthemall: "https://addons.mozilla.org/firefox/addon/downthemall/",
-    instruction: "http://add0n.com/extractor.html#instruction"
+    youtube: 'https://www.youtube.com/',
+    tools: 'chrome://iaextractor/content/tools.xul',
+    homepage: 'http://firefox.add0n.com/extractor.html',
+    update: 'http://firefox.add0n.com/extractor-updated.html',
+    flashgot: 'https://addons.mozilla.org/firefox/addon/flashgot/',
+    downthemall: 'https://addons.mozilla.org/firefox/addon/downthemall/',
+    instruction: 'http://firefox.add0n.com/extractor.html#instruction'
   },
   //toolbar
   toolbar: {
-    id: "youtube-audio-converter",
+    id: 'youtube-audio-converter',
     move: {
-      toolbarID: "nav-bar",
-      insertbefore: "home-button",
+      toolbarID: 'nav-bar',
+      insertbefore: 'home-button',
       forceMove: false
     }
   },
@@ -67,7 +67,7 @@ var config = {
   desktopNotification: 3, //seconds
   noAudioExtraction: 4,
   //Tooltip
-  tooltip: _("name") + "\n\n" + _("tooltip1") + "\n" + _("tooltip2"),
+  tooltip: _('name') + '\n\n' + _('tooltip1') + '\n' + _('tooltip2'),
   //Panels
   panels: {
     rPanel: {
@@ -85,15 +85,16 @@ var iPanel, rPanel, cmds, yButton, IDExtractor;
 
 /** Inject menu and button into YouTube pages **/
 pageMod.PageMod({
-  include: ["*.youtube.com"],
-  contentScriptFile: prefs.inject ? data.url("formats/permanent.js") : [],
-  contentScriptWhen: "start",
-  contentStyleFile: data.url("formats/permanent.css"),
+  include: ['*.youtube.com'],
+  contentScriptFile: prefs.inject ? data.url('formats/permanent.js') : [],
+  contentScriptWhen: 'start',
+  attachTo: ['existing', 'top'],
+  contentStyleFile: data.url('formats/permanent.css'),
   onAttach: function(worker) {
-    worker.port.on("formats", function() {
+    worker.port.on('formats', function() {
       cmds.onShiftClick();
     });
-    worker.port.on("page-update", function() {
+    worker.port.on('page-update', function() {
       monitor();
     });
   }
@@ -105,71 +106,71 @@ rPanel = panel.Panel({
   height: config.panels.rPanel.height,
   contentURL: data.url('report.html'),
   contentScriptFile: data.url('report/report.js'),
-  contentScriptWhen: "ready"
+  contentScriptWhen: 'ready'
 });
-rPanel.port.on("cmd", function (cmd) {
+rPanel.port.on('cmd', function (cmd) {
   switch (cmd) {
-  case "download":
+  case 'download':
     cmds.onCommand(null, null, true, null);
     break;
-  case "show-download-manager":
+  case 'show-download-manager':
     download.show();
     break;
-  case "formats":
+  case 'formats':
     rPanel.hide();
     cmds.onShiftClick();
     break;
-  case "embed":
+  case 'embed':
     cmds.onCtrlClick();
     break;
-  case "destination":
+  case 'destination':
     prefs.dFolder = parseInt(arguments[1]);
     break;
-  case "quality":
+  case 'quality':
     prefs.quality = parseInt(arguments[1]);
     break;
-  case "format":
+  case 'format':
     prefs.extension = parseInt(arguments[1]);
     break;
-  case "do-extract":
+  case 'do-extract':
     prefs.doExtract = arguments[1];
     break;
-  case "do-subtitle":
+  case 'do-subtitle':
     prefs.doSubtitle = arguments[1];
     break;
-  case "do-size":
+  case 'do-size':
     prefs.getFileSize = arguments[1];
     break;
-  case "tools":
+  case 'tools':
     rPanel.hide();
-    var isXUL = require("sdk/preferences/service").get("extensions.jid1-kps5PrGBNtzSLQ@jetpack.version");
+    var isXUL = require('sdk/preferences/service').get('extensions.jid1-kps5PrGBNtzSLQ@jetpack.version');
     if (isXUL) {
       windows.active.open(
-        "chrome://imconverter/content/ui.xul",
+        'chrome://imconverter/content/ui.xul',
         'iaextractor',
         'chrome,minimizable=yes,all,resizable=yes'
       ).focus();
     }
     else {
-      notify(_("name"), _("msg30"));
+      notify(_('name'), _('msg30'));
       timer.setTimeout(function () {
-        tabs.open("https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/");
+        tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
       }, 1000);
     }
     break;
-  case "cancel":
+  case 'cancel':
     listener.cancel(parseInt(arguments[1]));
     break;
-  case "settings":
+  case 'settings':
     windows.active.BrowserOpenAddonsMgr(
-      "addons://detail/" + encodeURIComponent("feca4b87-3be4-43da-a1b1-137c24220968@jetpack"))
+      'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack'))
     rPanel.hide();
     break;
   }
 });
-rPanel.on("show", function() {
+rPanel.on('show', function() {
   rPanel.port.emit(
-    "update",
+    'update',
     prefs.doExtract,
     prefs.doSubtitle,
     prefs.getFileSize,
@@ -190,7 +191,7 @@ IDExtractor = (function () {
 
   return function (url, callback, pointer) {
     //Cache XMLHttpRequest of non YouTube pages
-    if (typeof(url) == "object" && url.origin) {
+    if (typeof(url) == 'object' && url.origin) {
       var obj = url;
       var index = urls.indexOf(obj.origin);
       if (index == -1) {
@@ -221,7 +222,7 @@ IDExtractor = (function () {
       var worker = tabs.activeTab.attach({
         contentScript: "self.port.emit('response', (%s)())".replace("%s", script)
       });
-      worker.port.on("response", function (id) {
+      worker.port.on('response', function (id) {
         if (callback) {
           cache(url, id);
           worker.destroy();
@@ -240,34 +241,34 @@ IDExtractor = (function () {
           return null
         }
       }
-      fetchId(tmp + "");
+      fetchId(tmp + '');
     }
     //Other YouTube pages
     else if (/http.*:.*youtube.com/.test(url)) {
       var tmp = function () {
-        var embeds = (document.querySelector("body") || document).getElementsByTagName("embed");
-        var html5s = (document.querySelector("body") || document).getElementsByTagName("video");
+        var embeds = (document.querySelector('body') || document).getElementsByTagName('embed');
+        var html5s = (document.querySelector('body') || document).getElementsByTagName('video');
 
         var players = [].concat.apply([].concat.apply([], embeds), html5s)
         .sort(function (a, b) {
           return b.getBoundingClientRect().width - a.getBoundingClientRect().width;
         });
         if (players.length) {
-          if (players[0].localName === "embed") {
+          if (players[0].localName === 'embed') {
             try {
-              var str = decodeURIComponent(players[0].getAttribute("flashvars"));
+              var str = decodeURIComponent(players[0].getAttribute('flashvars'));
               var id = /video\_id\=([^\&]*)/.exec(str);
               return id[1];
             }
             catch (e) {}
           }
           else {
-            return players[0].getAttribute("data-youtube-id");
+            return players[0].getAttribute('data-youtube-id');
           }
         }
         return null;
       }
-      fetchId(tmp + "");
+      fetchId(tmp + '');
     }
     else {
       return callback.apply(pointer, [null]);
@@ -320,7 +321,7 @@ cmds = {
           data.url('info/jsoneditor/jsoneditor.js'),
           data.url('info/info.js')
         ],
-        contentScriptWhen: "ready"
+        contentScriptWhen: 'ready'
       });
     }
     IDExtractor(tabs.activeTab.url, function (videoID) {
@@ -331,7 +332,7 @@ cmds = {
           iPanel.port.emit('info', info);
         },
         function (e) {
-          notify(_("name"), e);
+          notify(_('name'), e);
         }
       );
     });
@@ -349,21 +350,21 @@ cmds = {
       return arr
     }
     let worker = tabs.activeTab.attach({
-      contentScript: "self.port.emit('response', (%s)())".replace("%s", script + "")
+      contentScript: "self.port.emit('response', (%s)())".replace('%s', script + '')
     });
-    worker.port.on("response", function (arr) {
+    worker.port.on('response', function (arr) {
       if (arr) {
         if (arr && arr.length) {
           arr = arr.filter(function(elem, pos) {
               return arr.indexOf(elem) == pos;
           });
-          var obj = prompts(_("prompt1"), _("prompt2"), arr);
+          var obj = prompts(_('prompt1'), _('prompt2'), arr);
           if (obj[0] && obj[1] != -1) {
-            tabs.open(config.urls.youtube + "watch?v=" + arr[obj[1]]);
+            tabs.open(config.urls.youtube + 'watch?v=' + arr[obj[1]]);
           }
         }
         else {
-          notify(_("name"), _("msg4"));
+          notify(_('name'), _('msg4'));
         }
       }
     });
@@ -373,7 +374,7 @@ cmds = {
     IDExtractor(url, function (videoID) {
       if (videoID) {
         let worker = tabs.activeTab.attach({
-          contentScriptFile: data.url("formats/inject.js"),
+          contentScriptFile: data.url('formats/inject.js'),
           contentScriptOptions: {
             doSize: prefs.getFileSize,
             showFLV: prefs.showFLV,
@@ -382,19 +383,19 @@ cmds = {
             show3GP: prefs.show3GP
           }
         });
-        worker.port.on("file-size-request", function (url, i1, i2) {
+        worker.port.on('file-size-request', function (url, i1, i2) {
           fileSize(url, function (url, size) {
-            worker.port.emit("file-size-response", url, size, i1, i2);
+            worker.port.emit('file-size-response', url, size, i1, i2);
           });
         });
-        worker.port.on("download", function (itag) {
+        worker.port.on('download', function (itag) {
           // Show instruction
           if (!prefs.showInstruction) {
-            var tmp = prompts2(_("msg17"), _("msg18"), _("msg19"), _("msg20"), _("msg21"), true);
+            var tmp = prompts2(_('msg17'), _('msg18'), _('msg19'), _('msg20'), _('msg21'), true);
             prefs.showInstruction = tmp.check.value;
             if (tmp.button == 1) {
               timer.setTimeout(function () {
-                tabs.open("http://add0n.com/extractor.html#instruction");
+                tabs.open('http://firefox.add0n.com/extractor.html#instruction');
               }, 1000);
             }
           }
@@ -410,13 +411,13 @@ cmds = {
             worker.port.emit('info', info);
           },
           function (e) {
-            notify(_("name"), e);
+            notify(_('name'), e);
           }
         );
-        worker.port.on("flashgot", flashgot);
-        worker.port.on("downThemAll", downThemAll);
-        worker.port.on("error", function(code) {
-          notify(_("name"), _(code));
+        worker.port.on('flashgot', flashgot);
+        worker.port.on('downThemAll', downThemAll);
+        worker.port.on('error', function(code) {
+          notify(_('name'), _(code));
         });
       }
       else {
@@ -428,7 +429,7 @@ cmds = {
 
 yButton = toolbarbutton.ToolbarButton({
   id: config.toolbar.id,
-  label: _("toolbar"),
+  label: _('toolbar'),
   tooltiptext: config.tooltip,
   panel: rPanel,
   onCommand: cmds.onCommand,
@@ -451,7 +452,7 @@ yButton = toolbarbutton.ToolbarButton({
 
 exports.main = function(options, callbacks) {
   //Install
-  if (options.loadReason == "install" || prefs.forceVisible) {
+  if (options.loadReason == 'install' || prefs.forceVisible) {
     //If adjacent button is restartless wait for its creation
     timer.setTimeout(function (){
       yButton.moveTo(config.toolbar.move);
@@ -461,21 +462,21 @@ exports.main = function(options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason === "install") {
+  if (options.loadReason === 'install') {
     prefs.newVer = options.loadReason;
   }
-  //Reload youtube pages & about:addons to set new observer.
-  if (options.loadReason == "upgrade" || options.loadReason == "downgrade" || options.loadReason == "install") {
+  //Reload about:addons to set new observer.
+  if (options.loadReason == 'upgrade' || options.loadReason == 'downgrade' || options.loadReason == 'install') {
     for each (var tab in tabs) {
-      if (tab.url == "about:addons" || tab.url.indexOf("youtube.com/watch") !== -1) {
+      if (tab.url == 'about:addons') {
         tab.reload();
       }
     }
   }
-  if (options.loadReason == "startup" || options.loadReason == "install") {
+  if (options.loadReason == 'startup' || options.loadReason == 'install') {
     welcome();
   }
-  if (options.loadReason == "install" && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
+  if (options.loadReason == 'install' && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
     external.checkFFmpeg();
   }
 }
@@ -486,14 +487,14 @@ function welcome () {
     if (prefs.welcome && prefs.version != self.version) {
       timer.setTimeout(function (p) {
         tabs.open({
-          url: (prefs.newVer == "install" ? config.urls.homepage : config.urls.update) + "?v=" + self.version + (p ? "&p=" + p : ""),
+          url: (prefs.newVer == 'install' ? config.urls.homepage : config.urls.update) + '?v=' + self.version + (p ? '&p=' + p : ''),
           inBackground : false
         });
-        prefs.newVer = "";
+        prefs.newVer = '';
       }, 3000, prefs.version);
     }
     else {
-      prefs.newVer = "";
+      prefs.newVer = '';
     }
   }
   prefs.version = self.version;
@@ -519,9 +520,9 @@ tabs.on('activate', monitor);
 
 exports.onUnload = function (reason) {
   //Close tools window
-  let wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+  let wm = Cc['@mozilla.org/appshell/window-mediator;1']
     .getService(Ci.nsIWindowMediator);
-  let enumerator = wm.getEnumerator("iaextractor:tools");
+  let enumerator = wm.getEnumerator('iaextractor:tools');
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext();
     win.close();
@@ -535,9 +536,9 @@ exports.onUnload = function (reason) {
 var hotkey = {
   _key: null,
   initialization: function () {
-    Services.obs.addObserver(hotkey.observer, "addon-options-displayed", false);
+    Services.obs.addObserver(hotkey.observer, 'addon-options-displayed', false);
     //
-    sp.on("downloadHKey", function () {
+    sp.on('downloadHKey', function () {
       if (hotkey._key) {
         hotkey._key.destroy();
       }
@@ -546,13 +547,13 @@ var hotkey = {
     return this;
   },
   register: function () {
-    if (prefs.downloadHKey.split("+").length == 1 || !prefs.downloadHKey) {
+    if (prefs.downloadHKey.split('+').length == 1 || !prefs.downloadHKey) {
       return;
     }
-    var key = prefs.downloadHKey.replace(/\ \+\ /g, "-").toLowerCase();
-    key = key.split("-");
+    var key = prefs.downloadHKey.replace(/\ \+\ /g, '-').toLowerCase();
+    key = key.split('-');
     key[key.length - 1] = key[key.length - 1][0];
-    key = key.join("-");
+    key = key.join('-');
     this._key = Hotkey({
       combo: key,
       onPress: function() {
@@ -562,15 +563,15 @@ var hotkey = {
   },
   observer: {
     observe: function(doc, aTopic, aData) {
-      if (aTopic == "addon-options-displayed" && aData == self.id) {
-        var list = doc.getElementsByTagName("setting");
+      if (aTopic == 'addon-options-displayed' && aData == self.id) {
+        var list = doc.getElementsByTagName('setting');
         list = Array.prototype.slice.call(list);
         list = list.filter(function (elem) {
-          return elem.getAttribute("pref-name") == "downloadHKey"
+          return elem.getAttribute('pref-name') == 'downloadHKey'
         });
         var textbox = list[0];
-        textbox.setAttribute("readonly", true);
-        textbox.addEventListener("keydown", hotkey.listen);
+        textbox.setAttribute('readonly', true);
+        textbox.addEventListener('keydown', hotkey.listen);
         hotkey.textbox = textbox;
       }
     }
@@ -582,16 +583,16 @@ var hotkey = {
     e.stopPropagation();
     e.preventDefault();
     var comb = [];
-    prefs.downloadHKey = "";  //Fire listener
+    prefs.downloadHKey = '';  //Fire listener
     if ((e.ctrlKey || (e.shiftKey && e.altKey) || (e.shiftKey && e.ctrlKey) || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
-      if (e.ctrlKey) comb.push("Accel");
-      if (e.shiftKey) comb.push("Shift");
-      if (e.altKey) comb.push("Alt");
+      if (e.ctrlKey) comb.push('Accel');
+      if (e.shiftKey) comb.push('Shift');
+      if (e.altKey) comb.push('Alt');
       comb.push(String.fromCharCode(e.keyCode));
-      prefs.downloadHKey = comb.join(" + ");
+      prefs.downloadHKey = comb.join(' + ');
     }
     else {
-      hotkey.textbox.value = _("err8");
+      hotkey.textbox.value = _('err8');
       if (hotkey._key) {
         hotkey._key.destroy();
       }
@@ -599,10 +600,10 @@ var hotkey = {
   },
   destroy: function () {
     if (hotkey.textbox) {
-      hotkey.textbox.removeEventListener("keydown", hotkey.listen);
+      hotkey.textbox.removeEventListener('keydown', hotkey.listen);
     }
     try {
-      Services.obs.removeObserver(hotkey.observer, "addon-options-displayed");
+      Services.obs.removeObserver(hotkey.observer, 'addon-options-displayed');
     }
     catch (e) {}
   }
@@ -613,34 +614,34 @@ var http = (function () {
   var cache = [];
   return {
     initialize: function () {
-      Services.obs.addObserver(http.observer, "http-on-examine-response", false);
-      Services.obs.addObserver(http.observer, "http-on-examine-cached-response", false);
+      Services.obs.addObserver(http.observer, 'http-on-examine-response', false);
+      Services.obs.addObserver(http.observer, 'http-on-examine-cached-response', false);
     },
     destroy: function () {
       try {
-        Services.obs.removeObserver(http.observer, "http-on-examine-response");
+        Services.obs.removeObserver(http.observer, 'http-on-examine-response');
       }
       catch (e) {}
       try {
-        Services.obs.removeObserver(http.observer, "http-on-examine-cached-response");
+        Services.obs.removeObserver(http.observer, 'http-on-examine-cached-response');
       }
       catch (e) {}
     },
     observer: {
       observe: function(doc, aTopic, aData) {
         var channel = doc.QueryInterface(Ci.nsIHttpChannel);
-        if(channel.requestMethod != "GET") {
+        if(channel.requestMethod != 'GET') {
           return;
         }
         channel.visitResponseHeaders({
           visitHeader: function ( aHeader, aValue ) {
-            if ( aHeader.indexOf( "Content-Type" ) != -1 ) {
-              if ( aValue.indexOf("audio") != -1 || aValue.indexOf("video") != -1 ) {
+            if ( aHeader.indexOf( 'Content-Type' ) != -1 ) {
+              if ( aValue.indexOf('audio') != -1 || aValue.indexOf('video') != -1 ) {
                 var request = doc.QueryInterface(Ci.nsIRequest);
                 var url = request.name
-                  .replace(/signature\=[^\&]*\&/, "")
-                  .replace(/range\=[^\&]*\&/, "")
-                  .replace(/expire\=[^\&]*\&/, "");
+                  .replace(/signature\=[^\&]*\&/, '')
+                  .replace(/range\=[^\&]*\&/, '')
+                  .replace(/expire\=[^\&]*\&/, '');
                 if (cache.indexOf(url) == -1) {
                   cache.push(url);
                   var notificationCallbacks =
@@ -651,14 +652,14 @@ var http = (function () {
                     var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
                     IDExtractor({
                       origin: domWin.top.document.URL,
-                      title: aValue.split("/")[0] + "_" + domWin.top.document.title,
+                      title: aValue.split('/')[0] + '_' + domWin.top.document.title,
                       vInfo: {
                         url: request.name,
-                        container: aValue.split("/")[1],
-                        audioBitrate: "",
-                        audioEncoding: "",
-                        resolution: "",
-                        quality: ""
+                        container: aValue.split('/')[1],
+                        audioBitrate: '',
+                        audioEncoding: '',
+                        resolution: '',
+                        quality: ''
                       }
                     });
                     monitor(tabs.activeTab);
@@ -675,15 +676,15 @@ var http = (function () {
 //http.initialize ();
 
 /** Pref listener **/
-sp.on("dFolder", function () {
-  if (prefs.dFolder == "5" && !prefs.userFolder) {
+sp.on('dFolder', function () {
+  if (prefs.dFolder == '5' && !prefs.userFolder) {
     rPanel.hide();
     var nsIFilePicker = Ci.nsIFilePicker;
-    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(windows.active, _("msg13"), nsIFilePicker.modeGetFolder);
+    var fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+    fp.init(windows.active, _('msg13'), nsIFilePicker.modeGetFolder);
     var res = fp.show();
     if (res != nsIFilePicker.returnCancel) {
-      _prefs.setComplexValue("userFolder", fp.file.path);
+      _prefs.setComplexValue('userFolder', fp.file.path);
     }
     else {
       prefs.dFolder = 2;
@@ -710,7 +711,7 @@ var listener = (function () {
 
   return {
     onDetectStart: function () {
-      rPanel.port.emit('detect', _("msg7"));
+      rPanel.port.emit('detect', _('msg7'));
     },
     onDetectDone: function () {},
     onDownloadStart: function (dl) {
@@ -718,27 +719,27 @@ var listener = (function () {
         'download-start',
         dl.id,
         dl.displayName ? dl.displayName : (new FileUtils.File(dl.target.path)).leafName,
-        _("msg6")
+        _('msg6')
       );
     },
     onDownloadPaused: function (dl) {
-      rPanel.port.emit('download-paused', dl.id, _("msg12"));
+      rPanel.port.emit('download-paused', dl.id, _('msg12'));
     },
     onDownloadDone: function (dl, error) {
-      rPanel.port.emit('download-done', dl.id, _("msg8"), !prefs.doExtract || error);
+      rPanel.port.emit('download-done', dl.id, _('msg8'), !prefs.doExtract || error);
       remove(dl);
     },
     onExtractStart: function (id) {
-      rPanel.port.emit('extract', id, _("msg9"));
+      rPanel.port.emit('extract', id, _('msg9'));
     },
     onExtractDone: function (id) {
-      rPanel.port.emit('extract', id, _("msg10"), true);
+      rPanel.port.emit('extract', id, _('msg10'), true);
     },
     onProgress: function (dl) {
       rPanel.port.emit('download-update',
         dl.id,
         dl.amountTransferred / dl.size * 100,
-        _("msg11"),
+        _('msg11'),
         format(dl.amountTransferred),
         format(dl.size),
         format(dl.speed)
@@ -755,9 +756,9 @@ var listener = (function () {
       });
       yButton.progress = ttSize / tSize;
       yButton.tooltiptext =
-        _("tooltip4").replace("%1", (tSize/1024/1024).toFixed(1)) +
-        "\n" +
-        _("tooltip5").replace("%1", (ttSize/tSize*100).toFixed(1));
+        _('tooltip4').replace('%1', (tSize/1024/1024).toFixed(1)) +
+        '\n' +
+        _('tooltip5').replace('%1', (ttSize/tSize*100).toFixed(1));
     },
     onError: remove,
     cancel: function (id) {
@@ -781,7 +782,7 @@ var batch = (function () {
       }
       else {
         var f1 = files[id], f2 = file;
-        if (type == "audio") {
+        if (type == 'audio') {
           [f1, f2] = [f2, f1];
         }
         ffmpeg.ffmpeg([f1, f2], {deleteInputs: prefs.deleteInputs}, function () {
@@ -801,7 +802,7 @@ var getVideo = (function () {
 
     function onDetect () {
       function indexToContainer (value) {
-        return ["flv", "3gp", "mp4", "webm"][value]
+        return ['flv', '3gp', 'mp4', 'webm'][value]
       }
 
       listener.onDetectStart();
@@ -811,13 +812,13 @@ var getVideo = (function () {
 
           if (itag) {
             fmt = info.formats.reduce(function (p, c) {
-              return p || (c.itag + "" == itag ? c : null);
+              return p || (c.itag + '' == itag ? c : null);
             }, null);
           }
           if (!itag) {
             var tmp = info.formats.filter(function (a) {
-              if (a.dash === "a") return false;
-              if ((!prefs.ffmpegPath || !prefs.doBatchMode) && a.dash === "v") return false;
+              if (a.dash === 'a') return false;
+              if ((!prefs.ffmpegPath || !prefs.doBatchMode) && a.dash === 'v') return false;
               return a.container == indexToContainer(prefs.extension);
             });
             //Sorting base on quality (the current sort is based on video type)
@@ -825,9 +826,9 @@ var getVideo = (function () {
               var m = qualityValue === 3 || qualityValue === 4 ? -1 : 1;
               return (parseInt(b.resolution) - parseInt(a.resolution)) * m;
             });
-            if (prefs.doExtract && indexToContainer(prefs.extension) == "flv") {
+            if (prefs.doExtract && indexToContainer(prefs.extension) == 'flv') {
               var tmp2 = tmp.filter(function (a) {
-                return a.audioEncoding == "aac"
+                return a.audioEncoding == 'aac'
               });
               if (tmp2.length) {
                 tmp = tmp2;
@@ -863,23 +864,23 @@ var getVideo = (function () {
           //
           listener.onDetectDone();
           //Remux audio-only streams even if doExtract is not active
-          if (!noAudio && fmt.dash == "a" && prefs.doRemux) {
+          if (!noAudio && fmt.dash == 'a' && prefs.doRemux) {
             doExtract = true;
           }
           onFile (fmt, info);
         },
         function (e) {
-          notify(_("name"), e);
+          notify(_('name'), e);
         }
       );
     }
     function onFile (vInfo, gInfo) {
       // Do not generate audio file if video has no sound track
-      if (vInfo.dash == "v") {
+      if (vInfo.dash == 'v') {
         doExtract = false;
       }
       // Do not generate audio file if video format is not FLV
-      else if (doExtract && !(vInfo.container == "flv" || prefs.ffmpegPath)) {
+      else if (doExtract && !(vInfo.container == 'flv' || prefs.ffmpegPath)) {
         //Prevent conflict with video info notification
         timer.setTimeout(function () {
           notify(_('name'), _('msg5'))
@@ -887,16 +888,16 @@ var getVideo = (function () {
         doExtract = false;
       }
       // Download proper audio file if video-only format is selected
-      if (vInfo.dash == "v") {
+      if (vInfo.dash == 'v') {
         if (!prefs.showAudioDownloadInstruction) {
-          var tmp = prompts2(_("msg22"), _("msg23"), "", "", _("msg21"), true);
+          var tmp = prompts2(_('msg22'), _('msg23'), '', '', _('msg21'), true);
           prefs.showAudioDownloadInstruction = tmp.check.value;
           prefs.doBatchMode = tmp.button == 0;
         }
         if (prefs.doBatchMode) {
           // Selecting the audio file
           var tmp = vInfo.parent.formats.filter(function (a) {
-            return a.dash === "a";
+            return a.dash === 'a';
           });
           if (tmp && tmp.length) {
             var afIndex;
@@ -937,7 +938,7 @@ var getVideo = (function () {
             vInfo.parent.formats.forEach (function (a, index) {
               if (a.itag == afIndex) {
                 new getVideo(videoID, listener, a.itag, true, function (f) {
-                  batch.execute(batchID, f, "audio");
+                  batch.execute(batchID, f, 'audio');
                 });
               }
             });
@@ -948,9 +949,9 @@ var getVideo = (function () {
       //Select folder by nsIFilePicker
       if (prefs.dFolder == 4) {
         let nsIFilePicker = Ci.nsIFilePicker;
-        let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-        fp.init(windows.active, _("prompt3"), nsIFilePicker.modeSave);
-        fp.appendFilter(_("msg14"), "*." + vInfo.container);
+        let fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+        fp.init(windows.active, _('prompt3'), nsIFilePicker.modeSave);
+        fp.appendFilter(_('msg14'), '*.' + vInfo.container);
         fp.defaultString = fileName(videoID, vInfo, gInfo);
         let res = fp.show();
         if (res == nsIFilePicker.returnCancel) {
@@ -958,7 +959,7 @@ var getVideo = (function () {
           var id = Math.floor(Math.random()*101) + 10000;
           listener.onDownloadStart({
             id: id,
-            displayName: "-"
+            displayName: '-'
           });
           listener.onDownloadDone({id: id}, true);
           return;
@@ -969,11 +970,11 @@ var getVideo = (function () {
       else if (prefs.dFolder == 5) {
         try {
           //Simple-prefs doesn't support complex type
-          vFile = _prefs.getComplexValue("userFolder", Ci.nsIFile);
+          vFile = _prefs.getComplexValue('userFolder', Ci.nsIFile);
           vFile.append(fileName(videoID, vInfo, gInfo));
         }
         catch (e) {
-          notify(_("name"), _("err7") + "\n\n" + _("err") + ": " + e.message);
+          notify(_('name'), _('err7') + '\n\n' + _('err') + ': ' + e.message);
           return;
         }
       }
@@ -981,19 +982,19 @@ var getVideo = (function () {
         var videoPath = [];
         switch(prefs.dFolder) {
           case 2:
-            root = "TmpD";
+            root = 'TmpD';
             let folder = Math.random().toString(36).substr(2,16);
-            videoPath.push("iaextractor");
+            videoPath.push('iaextractor');
             videoPath.push(folder);
             break;
           case 0:
-            root = "DfltDwnld"
+            root = 'DfltDwnld'
             break;
           case 1:
-            root = "Home";
+            root = 'Home';
             break;
           case 3:
-            root = "Desk";
+            root = 'Desk';
             break;
         }
         videoPath.push(fileName(videoID, vInfo, gInfo));
@@ -1012,20 +1013,20 @@ var getVideo = (function () {
         get aFile () {
           if (aFile_first) {
             //To match audio name with video name in case of duplication
-            let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
-            aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+            let name = vFile.leafName.replace(/\.+[^\.]*$/, '');
+            aFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
             aFile.initWithPath(vFile.parent.path);
-            aFile.append(name + ".aac");
+            aFile.append(name + '.aac');
             aFile_first = false;
           }
           return aFile;
         },
         get sFile () {
           if (aFile_first) {
-            let name = vFile.leafName.replace(/\.+[^\.]*$/, "");
-            sFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+            let name = vFile.leafName.replace(/\.+[^\.]*$/, '');
+            sFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
             sFile.initWithPath(vFile.parent.path);
-            sFile.append(name + ".srt");
+            sFile.append(name + '.srt');
             sFile_first = false;
           }
           return sFile;
@@ -1050,11 +1051,11 @@ var getVideo = (function () {
       });
       notify(
         _('name'),
-        _('msg3').replace("%1", vInfo.quality)
-          .replace("%2", vInfo.container)
-          .replace("%3", vInfo.resolution)
-          .replace("%6", vInfo.audioEncoding || "")
-          .replace("%7", vInfo.audioBitrate || "")
+        _('msg3').replace('%1', vInfo.quality)
+          .replace('%2', vInfo.container)
+          .replace('%3', vInfo.resolution)
+          .replace('%6', vInfo.audioEncoding || '')
+          .replace('%7', vInfo.audioBitrate || '')
       );
       onSubtitle(obj);
     }
@@ -1072,13 +1073,13 @@ var getVideo = (function () {
           }
         }
         if (callback) callback.apply(pointer, [obj.vFile]);
-        if (batchID) batch.execute(batchID, obj.vFile, "video");
+        if (batchID) batch.execute(batchID, obj.vFile, 'video');
       }
       if (!doExtract) {
         return afterExtract();
       }
       listener.onExtractStart(id);
-      if ((vInfo.container == "flv" && vInfo.audioEncoding == "aac") || !prefs.ffmpegPath) {
+      if ((vInfo.container == 'flv' && vInfo.audioEncoding == 'aac') || !prefs.ffmpegPath) {
         extract.perform(id, obj.vFile, obj.aFile, function (id, e) {
           if (e && prefs.ffmpegPath) {
             ffmpeg.ffmpeg([obj.vFile], {}, function () {
@@ -1088,7 +1089,7 @@ var getVideo = (function () {
           }
           else {
             listener.onExtractDone(id);
-            afterExtract(prefs.extension == "0" ? e : null);
+            afterExtract(prefs.extension == '0' ? e : null);
           }
         });
       }
@@ -1107,7 +1108,7 @@ var getVideo = (function () {
       });
     }
     //
-    if (typeof(videoID) == "object") {
+    if (typeof(videoID) == 'object') {
       var obj = videoID[0];
       onFile (obj.vInfo, obj);
     }
@@ -1120,34 +1121,34 @@ var getVideo = (function () {
 /** File naming **/
 var fileName = function (videoID, vInfo, gInfo) {
   // Add " - DASH" to DASH only files
-  var pdate = "";
+  var pdate = '';
   if (gInfo.response && gInfo.response.text) {
     pdate = /Published on (\w{3} \d{1,2}\, \d{1,4})/.exec(gInfo.response.text);
   }
   return pattern = prefs.namePattern
-    .replace ("[file_name]", gInfo.title + (vInfo.dash ? " - DASH" : ""))
-    .replace ("[extension]", vInfo.container)
-    .replace ("[author]", gInfo.author)
-    .replace ("[video_id]", videoID)
-    .replace ("[video_resolution]", vInfo.resolution || "")
-    .replace ("[audio_bitrate]", vInfo.audioBitrate ? (vInfo.audioBitrate + "K") : "")
-    .replace ("[published_date]", pdate && pdate.length ? pdate[1] : "")
+    .replace ('[file_name]', gInfo.title + (vInfo.dash ? ' - DASH' : ''))
+    .replace ('[extension]', vInfo.container)
+    .replace ('[author]', gInfo.author)
+    .replace ('[video_id]', videoID)
+    .replace ('[video_resolution]', vInfo.resolution || '')
+    .replace ('[audio_bitrate]', vInfo.audioBitrate ? (vInfo.audioBitrate + 'K') : '')
+    .replace ('[published_date]', pdate && pdate.length ? pdate[1] : '')
     //
-    .replace(/\+/g, " ")
-    .replace(/[:\?\¿]/g, "")
-    .replace(/[\\\/]/g, "-")
-    .replace(/[\*]/g, "^")
+    .replace(/\+/g, ' ')
+    .replace(/[:\?\¿]/g, '')
+    .replace(/[\\\/]/g, '-')
+    .replace(/[\*]/g, '^')
     .replace(/[\"]/g, "'")
-    .replace(/[\<]/g, "[")
-    .replace(/[\>]/g, "]")
-    .replace(/[|]/g, "-");
+    .replace(/[\<]/g, '[')
+    .replace(/[\>]/g, ']')
+    .replace(/[|]/g, '-');
 }
 
 /** Flashgot **/
 var flashgot = (function () {
   var flashgot;
   try {
-    flashgot = Cc["@maone.net/flashgot-service;1"]
+    flashgot = Cc['@maone.net/flashgot-service;1']
       .getService(Ci.nsISupports).wrappedJSObject;
   }
   catch (e) {}
@@ -1156,13 +1157,13 @@ var flashgot = (function () {
       var links = [{
         href: vInfo.url,
         fname : fileName(gInfo.video_id, vInfo, gInfo),
-        description: _("msg15")
+        description: _('msg15')
       }];
       links.document = windows.active.document;
       flashgot.download(links, flashgot.OP_ALL, flashgot.defaultDM);
     }
     else {
-      notify(_("name"), _("err14"));
+      notify(_('name'), _('err14'));
       timer.setTimeout(function (){
         tabs.open(config.urls.flashgot);
       }, 2000);
@@ -1174,30 +1175,30 @@ var flashgot = (function () {
 var downThemAll = (function () {
   var DTA = {};
   try {
-    Cu.import("resource://dta/api.jsm", DTA);
+    Cu.import('resource://dta/api.jsm', DTA);
   }
   catch (e) {
     try {
       var glue = {}
-      Cu.import("chrome://dta-modules/content/glue.jsm", glue);
-      DTA = glue["require"]("api");
+      Cu.import('chrome://dta-modules/content/glue.jsm', glue);
+      DTA = glue['require']('api');
     }
     catch (e) {}
   }
   return function (vInfo, gInfo, turbo) {
     var fname = fileName(gInfo.video_id, vInfo, gInfo);
     if (DTA.saveSingleItem) {
-      var iOService = Cc["@mozilla.org/network/io-service;1"]
+      var iOService = Cc['@mozilla.org/network/io-service;1']
         .getService(Ci.nsIIOService)
       try {
         DTA.saveSingleItem(windows.active, turbo, {
-          url: new DTA.URL(iOService.newURI(vInfo.url, "UTF-8", null)),
-          referrer: "",
-          description: _("msg15"),
+          url: new DTA.URL(iOService.newURI(vInfo.url, 'UTF-8', null)),
+          referrer: '',
+          description: _('msg15'),
           fileName: fname,
           destinationName: fname,
           isPrivate: false,
-          ultDescription: ""
+          ultDescription: ''
         });
       }
       catch (e) {
@@ -1207,7 +1208,7 @@ var downThemAll = (function () {
       }
     }
     else {
-      notify(_("name"), _("err15"));
+      notify(_('name'), _('err15'));
       timer.setTimeout(function (){
         tabs.open(config.urls.downthemall);
       }, 2000);
@@ -1216,28 +1217,28 @@ var downThemAll = (function () {
 })();
 
 /** Install FFmpeg from addon's Settings **/
-sp.on("installFFmpeg", function() {
+sp.on('installFFmpeg', function() {
   external.installFFmpeg();
 });
 /** Reset all settings **/
-sp.on("reset", function() {
-  if (!windows.active.confirm(_("msg25"))) return
+sp.on('reset', function() {
+  if (!windows.active.confirm(_('msg25'))) return
 
   prefs.extension = 0;
   prefs.quality = 2
   prefs.doExtract = true;
   prefs.doSubtitle = false;
   prefs.subtitleLang = 0;
-  prefs.namePattern = "[file_name].[extension]";
+  prefs.namePattern = '[file_name].[extension]';
   prefs.dFolder = 3;
   prefs.getFileSize = true;
   prefs.open = false;
-  prefs.downloadHKey = "Accel + Shift + Q";
+  prefs.downloadHKey = 'Accel + Shift + Q';
   prefs.oneClickDownload = false;
   prefs.silentOneClickDownload = true;
-  prefs.ffmpegInputs = "-i %input -q:a 0 %output.mp3";
-  prefs.ffmpegInputs4 = "-i %audio -i %video -acodec copy -vcodec copy %output";
-  prefs.ffmpegInputs3 = "-i %input -acodec copy -vn %output";
+  prefs.ffmpegInputs = '-i %input -q:a 0 %output.mp3';
+  prefs.ffmpegInputs4 = '-i %audio -i %video -acodec copy -vcodec copy %output';
+  prefs.ffmpegInputs3 = '-i %input -acodec copy -vn %output';
   prefs.doBatchMode = true;
   prefs.doRemux = true;
   prefs.deleteInputs = true;

@@ -141,6 +141,7 @@ var formatDictionary = (function () {
     247: ["webm", "720",  null,  null, "v"], //Video-only
     303: ["webm", "1080", null,  null, "v"], //Video-only (60fps)
     248: ["webm", "1080", null,  null, "v"], //Video-only
+    313: ["webm", "2160", null,  null, "v"], //Video-only
     272: ["webm", "2160", null,  null, "v"], //Video-only
     271: ["webm", "1440", null,  null, "v"], //Video-only
     308: ["webm", "1440", null,  null, "v"], //Video-only (60fps)
