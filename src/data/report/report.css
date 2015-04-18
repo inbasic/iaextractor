@@ -4,6 +4,16 @@
   font-weight: 400;
   src: url(google-font.woff) format('woff');
 }
+@font-face {
+  font-family: 'Segoe UI';
+  src: local("Segoe UI"),
+       local("Segoe"),
+       local("Segoe WP"),
+       url('segoeui.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* General Code */
 
 body {
