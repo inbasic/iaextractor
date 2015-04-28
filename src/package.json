@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.4.4b2",
+  "version": "0.4.4.1",
   "lib": "lib",
   "main": "main",
 
@@ -18,6 +18,12 @@
   "permissions": {"private-browsing": true},
 
   "preferences": [{
+    "name": "getConverter",
+    "type": "control",
+    "label": "",
+    "title": ""
+  },
+  {
     "name": "extension",
     "title": "",
     "description": "",

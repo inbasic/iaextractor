@@ -489,7 +489,7 @@ function decipher (s) {
       arr[b] = bb;
       return arr
   }
-  var cmd = JSON.parse(prefs.ccode || "['r','r']");
+  var cmd = JSON.parse(prefs.ccode || '["r","r"]');
   cmd.forEach(function (c, i) {
     if (typeof c !== 'string') {
       return;

@@ -1223,6 +1223,10 @@ var downThemAll = (function () {
 sp.on('installFFmpeg', function() {
   external.installFFmpeg();
 });
+/* Get Converter */
+sp.on('getConverter', function() {
+  tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
+});
 /** Reset all settings **/
 sp.on('reset', function() {
   if (!windows.active.confirm(_('msg25'))) return
