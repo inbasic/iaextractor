@@ -35,7 +35,6 @@ function remove () {
 function init () {
   var parent = $('watch8-secondary-actions') || $('vo'),
       isFeather = $('vo') != null;
-
   if (!parent) {
     return;
   }
@@ -87,7 +86,7 @@ function loader () {
         mutations.forEach(function (mutation) {
           if (mutation.addedNodes !== null) {
             for (var i = 0; i < mutation.addedNodes.length; i++) {
-              if (mutation.addedNodes[i].id == 'watch7-container') {
+              if (mutation.addedNodes[i].id == 'watch7-main-container') {
                 init();
                 break;
               }

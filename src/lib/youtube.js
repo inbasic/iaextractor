@@ -212,14 +212,22 @@ function signatureLocal(info) {
       var regCode = new RegExp(
         'function \\s*' + sigFunName + '\\s*\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
       );
+      var regCode2 = new RegExp(
+        'var\\s+' + sigFunName +'\\s*\=\\s*function\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
+      );
       var functionCode = doMatch(response.text, regCode);
+
       if (functionCode == null) {
-        return d.reject(Error('signatureLocal: Cannot resolve signature;3'));
+        functionCode = doMatch(response.text, regCode2);
+        if (functionCode == null) {
+          return d.reject(Error('signatureLocal: Cannot resolve signature;3'));
+        }
       }
       var revFunName = doMatch(
         response.text,
         /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.reverse\s*\(\s*\)\s*}/
       );
+
       if (revFunName) revFunName = revFunName.replace('$', '\\$');
       var slcFuncName = doMatch(
         response.text,
@@ -614,9 +622,9 @@ function findOtherItags (info) {
         return d.resolve(info);
       }
       function doTag (itag) {
-        var regexp = new RegExp('<BaseURL.+>(http[^<]+itag=' + itag + '[^<]+)<\\/BaseURL>','i');
+        var regexp = new RegExp('\<baseurl[^\>]*\>(http[^<]+itag[\=\/]' + itag + '[^\<]+)\<\/baseurl\>', 'i');
         var res = regexp.exec(response.text);
-        if (res && res.length) {
+        if (res && res.length && res[1].indexOf('yt_otf') === -1) {
           var url = res[1].replace(/&amp\;/g,'&');
           var obj = {};
           obj.itag = itag;
@@ -633,8 +641,7 @@ function findOtherItags (info) {
       var availableItags = info.formats.map(function (o) {
         return o.itag;
       });
-      var itags = response.text
-        .match(/itag=\d+/g)
+      var itags = (response.text.match(/itag[\=\/]\d+/g))
         .map(function (s) {
           return s.substr(5);
         })

@@ -126,6 +126,7 @@ var Menu = function (doSize) {
     ' <span id="iaextractor-selected"></span> ' +
     ' <ul id="iaextractor-downloader">' + //dropdown
     ' <li><span>FlashGot</span></li>' +
+    ' <li><span>Turbo Download Manager</span></li>' +
     ' <li><span>DownThemAll!</span></li>' +
     ' <li><span>dTa! OneClick</span></li>' +
     ' </ul>' +
@@ -171,7 +172,7 @@ var Menu = function (doSize) {
 
   // Adding styles
   for (var i = 0; i < downloader.children.length; i++) {
-    downloader.children[i].setAttribute('style', 'width: ' + width / 3 + 'px;');
+    downloader.children[i].setAttribute('style', 'width: ' + width / 4 + 'px;');
   }
   menu.setAttribute('style',
     'top: ' + (rect.top - menu.getBoundingClientRect().top) + 'px;' +
@@ -268,10 +269,10 @@ var Menu = function (doSize) {
       return p || (c.itag + '' == itag ? c : null);
     }, null);
     self.port.emit(
-      e.originalTarget == downloader.children[0] ? 'flashgot' : 'downThemAll',
+      ['flashget', 'tdmanager', 'downThemAll', 'downThemAll'][[downloader.children[0], downloader.children[1], downloader.children[2], downloader.children[3]].indexOf(e.originalTarget)],
       format,
       vInfo,
-      e.originalTarget == downloader.children[2] ? true : false
+      e.originalTarget == downloader.children[3] ? true : false
     );
   }, false);
   $('iaextractor-close').addEventListener('click', function (e) {

@@ -52,6 +52,7 @@ var config = {
     update: 'http://firefox.add0n.com/extractor-updated.html',
     flashgot: 'https://addons.mozilla.org/firefox/addon/flashgot/',
     downthemall: 'https://addons.mozilla.org/firefox/addon/downthemall/',
+    tdmanager: 'https://addons.mozilla.org/en-US/firefox/addon/turbo-download-manager/',
     instruction: 'http://firefox.add0n.com/extractor.html#instruction'
   },
   //toolbar
@@ -415,6 +416,7 @@ cmds = {
           }
         );
         worker.port.on('flashgot', flashgot);
+        worker.port.on('tdmanager', tdmanager);
         worker.port.on('downThemAll', downThemAll);
         worker.port.on('error', function(code) {
           notify(_('name'), _(code));
@@ -1214,6 +1216,35 @@ var downThemAll = (function () {
       notify(_('name'), _('err15'));
       timer.setTimeout(function (){
         tabs.open(config.urls.downthemall);
+      }, 2000);
+    }
+  }
+})();
+
+var tdmanager = (function () {
+  var connect = {};
+  function check () {
+    try {
+      Cu.import('resource://jid0-dsq67mf5kjjhiiju2dfb6kk8dfw-at-jetpack/data/firefox/shared/connect.jsm', connect);
+    }
+    catch (e) {
+      console.error(e);
+    }
+  }
+  return function (vInfo, gInfo) {
+    if (!connect.remote) {
+      check();
+    }
+    if (connect.remote) {
+      connect.remote.download({
+        url: vInfo.url,
+        name : fileName(gInfo.video_id, vInfo, gInfo)
+      });
+    }
+    else {
+      notify(_('name'), _('err26'));
+      timer.setTimeout(function () {
+        tabs.open(config.urls.tdmanager);
       }, 2000);
     }
   }
