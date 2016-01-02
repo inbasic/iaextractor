@@ -4,6 +4,8 @@ var {Cc, Ci, Cu}  = require('chrome'),
     data          = require('sdk/self').data,
     prefs         = sp.prefs,
     notify        = require('./misc').notify,
+    tools         = require('./misc'),
+    _prefs        = tools.prefs,
     child_process = require('sdk/system/child_process');
 
 Cu.import('resource://gre/modules/FileUtils.jsm');
@@ -82,6 +84,11 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
 
   // Creating a temporary folder and copying input files
   var tmpDir = FileUtils.getDir('TmpD', [Math.random().toString(36).substring(7)]);
+  if (prefs['tmp-dir']) {
+    tmpDir = _prefs.getComplexValue('tmp-dir', Ci.nsIFile);
+    tmpDir.append(Math.random().toString(36).substring(7));
+    tmpDir.create(Ci.nsIFile.DIRECTORY_TYPE, FileUtils.PERMS_DIRECTORY);
+  }
   inputs.forEach (function (input, index) {
     var name = index + '.' + extensions[index];
     input.copyTo(tmpDir, name);

@@ -223,7 +223,6 @@ function signatureLocal(info) {
         if (functionCode == null) {
           return d.reject(Error('signatureLocal: Cannot resolve signature;3'));
         }
-        console.error(functionCode, 4444);
       }
       var revFunName = doMatch(
         response.text,
