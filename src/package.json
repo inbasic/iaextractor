@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.4.6",
+  "version": "0.4.8",
   "lib": "lib",
   "main": "main",
 
@@ -140,6 +140,12 @@
   {
     "name": "ffmpegPath",
     "type": "file",
+    "title": "",
+    "description": ""
+  },
+  {
+    "name": "ffmpegPath-manual",
+    "type": "string",
     "title": "",
     "description": ""
   },

@@ -56,6 +56,8 @@ function inWindows () {
 function inLinux () {
   var { env } = require('sdk/system/environment');
   var locs = env.PATH.split(":");
+  locs.push('/usr/local/bin');
+  locs = locs.filter((o, i, l) => l.indexOf(o) === i);
   for (var i = 0; i < locs.length; i++) {
     var file = FileUtils.File(locs[i]);
     file.append("ffmpeg");

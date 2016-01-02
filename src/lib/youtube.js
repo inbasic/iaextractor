@@ -200,6 +200,7 @@ function signatureLocal(info) {
   scriptURL = 'https:' + scriptURL.replace(/\\/g,'');
   curl(scriptURL).then (function (response) {
     try {
+      response.text = response.text.replace(/\r?\n|\r/g, '');
       var sigFunName =
         doMatch(response.text, /\.set\s*\("signature"\s*,\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
         doMatch(response.text, /\.sig\s*\|\|\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
@@ -213,7 +214,7 @@ function signatureLocal(info) {
         'function \\s*' + sigFunName + '\\s*\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
       );
       var regCode2 = new RegExp(
-        'var\\s+' + sigFunName +'\\s*\=\\s*function\\([\\w$]*\\)\\s*{[\\w$]*=[\\w$]*\\.split\\(""\\);(.+);return [\\w$]*\\.join'
+        sigFunName + '\\s*\\=\\s*function\\([\\w\\$]*\\)\\s*\\{\\s*[\\w\\$]\\=[\\w\\$]*\\.split\\([^\\)]*\\)\\;(.+?)(?=return)'
       );
       var functionCode = doMatch(response.text, regCode);
 
@@ -222,6 +223,7 @@ function signatureLocal(info) {
         if (functionCode == null) {
           return d.reject(Error('signatureLocal: Cannot resolve signature;3'));
         }
+        console.error(functionCode, 4444);
       }
       var revFunName = doMatch(
         response.text,
@@ -244,13 +246,14 @@ function signatureLocal(info) {
       var regInline = new RegExp(
         '[\\w$]+\\[0\\]\\s*=\\s*[\\w$]+\\[([0-9]+)\\s*%\\s*[\\w$]+\\.length\\]'
       );
-      var funcPieces = functionCode.split(';'), decodeArray = [], signatureLength = 81;
+      var funcPieces = functionCode.split(/\s*\;\s*/), decodeArray = [], signatureLength = 81;
       for (var i = 0; i < funcPieces.length; i++) {
         funcPieces[i] = funcPieces[i].trim();
         var codeLine = funcPieces[i];
         if (codeLine.length > 0) {
           var arrSlice = codeLine.match(regSlice);
           var arrReverse = codeLine.match(regReverse);
+
           if (arrSlice && arrSlice.length >= 2) { // slice
             var slice = parseInt(arrSlice[1]);
             if (isInteger(slice)) {
@@ -334,7 +337,9 @@ function getFormats (videoID) {
         var tmp1 = /url\_encoded\_fmt\_stream\_map\"\:\s*\"([^\"]*)/.exec(response.text);
         var tmp2 = /adaptive\_fmts\"\:\s*\"([^\"]*)/.exec(response.text);
         var tmp3 = /\"dashmpd\":\s*\"([^\"]+)\"/.exec(response.text);
-        var tmp4 = /html5player-([^\"]*).js/.exec(response.text);
+        //var tmp4 = /html5player-([^\"]*).js/.exec(response.text);
+        var tmp4 = /player\-[^\"]*\/base\.js/.exec(response.text);
+
         if (!tmp1 && !tmp2 && !anonymous) { // YouTube Feather
           fetch(true);
         }
@@ -346,7 +351,7 @@ function getFormats (videoID) {
             url_encoded_fmt_stream_map: tmp1 && tmp1.length ? clean(tmp1[1]) : '',
             adaptive_fmts: tmp2 && tmp2.length ? clean(tmp2[1]) : '',
             dashmpd: tmp3 && tmp3.length ? clean(tmp3[1]) : '',
-            player: tmp4 && tmp4.length ? tmp4[1].replace(/\\\//g, '/') : '',
+            player: tmp4 && tmp4.length ? tmp4[0].replace(/\\\//g, '/') : '',
             response: response
           });
         }

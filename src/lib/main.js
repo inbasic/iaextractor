@@ -48,12 +48,12 @@ var config = {
   urls: {
     youtube: 'https://www.youtube.com/',
     tools: 'chrome://iaextractor/content/tools.xul',
-    homepage: 'http://firefox.add0n.com/extractor.html',
-    update: 'http://firefox.add0n.com/extractor-updated.html',
+    homepage: 'http://technologyto.com/extractor.html',
+    update: 'http://technologyto.com/extractor.html',
     flashgot: 'https://addons.mozilla.org/firefox/addon/flashgot/',
     downthemall: 'https://addons.mozilla.org/firefox/addon/downthemall/',
     tdmanager: 'https://addons.mozilla.org/en-US/firefox/addon/turbo-download-manager/',
-    instruction: 'http://firefox.add0n.com/extractor.html#instruction'
+    instruction: 'http://technologyto.com/extractor.html#instruction'
   },
   //toolbar
   toolbar: {
@@ -396,7 +396,7 @@ cmds = {
             prefs.showInstruction = tmp.check.value;
             if (tmp.button == 1) {
               timer.setTimeout(function () {
-                tabs.open('http://firefox.add0n.com/extractor.html#instruction');
+                tabs.open('http://technologyto.com/extractor.html#instruction');
               }, 1000);
             }
           }
@@ -692,6 +692,10 @@ sp.on('dFolder', function () {
       prefs.dFolder = 2;
     }
   }
+});
+
+sp.on('ffmpegPath-manual', function () {
+  _prefs.setComplexValue('ffmpegPath', sp.prefs['ffmpegPath-manual']);
 });
 
 /** Detect a YouTube download link, download it and extract the audio**/
