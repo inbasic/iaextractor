@@ -69,7 +69,7 @@ var tagInfo = (function () {
       return prefs.opusmixing ? [172, 251, 171, 250, 249] : [172, 171]; // ogg or opus
     },
     opus: [251, 250, 249]
-  }
+  };
   var video = {
     mp4: {
       low: [134, 133, 160],
@@ -79,7 +79,7 @@ var tagInfo = (function () {
     webm: {
       low: [243, 242, 278],
       medium: [246, 245, 244],
-      high: [272, 313, 271, 303, 248, 302, 247]
+      high: [315, 272, 313, 308, 271, 303, 248, 302, 247]
     }
   }
   return {
