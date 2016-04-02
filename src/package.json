@@ -57,21 +57,6 @@
     "value": true
   },
   {
-    "name": "subtitleLang",
-    "title": ".",
-    "type": "menulist",
-    "value": 0,
-    "options": [
-      {"value": "0", "label": "en"},
-      {"value": "1", "label": "fr"},
-      {"value": "2", "label": "de"},
-      {"value": "3", "label": "it"},
-      {"value": "4", "label": "ja"},
-      {"value": "5", "label": "es"},
-      {"value": "6", "label": "ru"}
-    ]
-  },
-  {
     "name": "namePattern",
     "title": ".",
     "description": "",
