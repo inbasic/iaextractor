@@ -71,7 +71,7 @@ var mList = function (name, value, func) {
   var radios = document.getElementsByName(name);
 
   function set (soft) {
-    radios[parseInt(value)].checked = true;
+    radios[parseInt(value || '0')].checked = true;
     if (!soft) func(value);
   }
   set(true);

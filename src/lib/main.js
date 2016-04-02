@@ -1,5 +1,4 @@
-﻿/** Require **/
-var {Cc, Ci, Cu}  = require('chrome'),
+﻿var {Cc, Ci, Cu}  = require('chrome'),
     {Hotkey}      = require('sdk/hotkeys'),
     tabs          = require('sdk/tabs'),
     self          = require('sdk/self'),
@@ -26,11 +25,11 @@ var {Cc, Ci, Cu}  = require('chrome'),
     notify        = tools.notify,
     windows          = {
       get active () { // Chrome window
-        return require('sdk/window/utils').getMostRecentBrowserWindow()
+        return require('sdk/window/utils').getMostRecentBrowserWindow();
       }
     },
     isAustralis   = 'gCustomizeMode' in windows.active,
-    toolbarbutton = isAustralis ? require('toolbarbutton/new') : require('toolbarbutton/old');
+    toolbarbutton = isAustralis ? require('./toolbarbutton/new') : require('./toolbarbutton/old');
 
 Cu.import('resource://gre/modules/FileUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
@@ -80,11 +79,12 @@ var config = {
       height: 520
     }
   }
-}
+};
 
 var iPanel, rPanel, cmds, yButton, IDExtractor;
 
 /** Inject menu and button into YouTube pages **/
+console.error(prefs.inject)
 pageMod.PageMod({
   include: ['*.youtube.com'],
   contentScriptFile: prefs.inject ? data.url('formats/permanent.js') : [],
@@ -164,7 +164,8 @@ rPanel.port.on('cmd', function (cmd) {
     break;
   case 'settings':
     windows.active.BrowserOpenAddonsMgr(
-      'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack'))
+      'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack')
+    );
     rPanel.hide();
     break;
   }
@@ -192,10 +193,10 @@ IDExtractor = (function () {
 
   return function (url, callback, pointer) {
     //Cache XMLHttpRequest of non YouTube pages
-    if (typeof(url) == 'object' && url.origin) {
+    if (typeof(url) === 'object' && url.origin) {
       var obj = url;
       var index = urls.indexOf(obj.origin);
-      if (index == -1) {
+      if (index === -1) {
         index = urls.push(obj.origin) - 1;
       }
       if (!IDs[index]) {
@@ -549,7 +550,7 @@ var hotkey = {
     return this;
   },
   register: function () {
-    if (prefs.downloadHKey.split('+').length == 1 || !prefs.downloadHKey) {
+    if (!prefs.downloadHKey || prefs.downloadHKey.split('+').length == 1) {
       return;
     }
     var key = prefs.downloadHKey.replace(/\ \+\ /g, '-').toLowerCase();
@@ -572,6 +573,9 @@ var hotkey = {
           return elem.getAttribute('pref-name') == 'downloadHKey'
         });
         var textbox = list[0];
+        if (!textbox) {
+          return;
+        }
         textbox.setAttribute('readonly', true);
         textbox.addEventListener('keydown', hotkey.listen);
         hotkey.textbox = textbox;

@@ -2,13 +2,12 @@
 
 exports.ToolbarButton = function (options) {
   var {Cu}   = require('chrome'),
-      utils = require('sdk/window/utils'),
-      self = require('sdk/self');
+      utils = require('sdk/window/utils');
   var {CustomizableUI} = Cu.import('resource:///modules/CustomizableUI.jsm');
 
   var listen = {
     onWidgetBeforeDOMChange: function (tbb) {
-      if (tbb.id.indexOf(self.name) === -1) {
+      if (tbb.id.indexOf('youtube-audio-converter') === -1) {
         return;
       }
       if (tbb.isInstalled) {

@@ -1,5 +1,5 @@
 {
-  "fullName": "YouTube Video and Audio Downloader",
+  "title": "YouTube Video and Audio Downloader",
   "name": "iaextractor",
   "description": "",
 
@@ -9,23 +9,24 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.4.8",
-  "lib": "lib",
-  "main": "main",
+  "version": "0.5.0",
+  "main": "./lib/main.js",
 
-  "id": "feca4b87-3be4-43da-a1b1-137c24220968",
+  "id": "feca4b87-3be4-43da-a1b1-137c24220968@jetpack",
 
-  "permissions": {"private-browsing": true},
+  "permissions": {
+    "private-browsing": true
+  },
 
   "preferences": [{
     "name": "getConverter",
     "type": "control",
-    "label": "",
-    "title": ""
+    "label": ".",
+    "title": "."
   },
   {
     "name": "extension",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "menulist",
     "value": 0,
@@ -38,7 +39,7 @@
   },
   {
     "name": "quality",
-    "title": "",
+    "title": ".",
     "type": "menulist",
     "value": 2,
     "options": [
@@ -51,13 +52,13 @@
   },
   {
     "name": "doExtract",
-    "title": "",
+    "title": ".",
     "type": "bool",
     "value": true
   },
   {
     "name": "subtitleLang",
-    "title": "",
+    "title": ".",
     "type": "menulist",
     "value": 0,
     "options": [
@@ -72,14 +73,14 @@
   },
   {
     "name": "namePattern",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "string",
     "value": "[file_name].[extension]"
   },
   {
     "name": "dFolder",
-    "title": "",
+    "title": ".",
     "type": "menulist",
     "value": 3,
     "options": [
@@ -94,45 +95,45 @@
   {
     "name": "userFolder",
     "type": "directory",
-    "title": "",
+    "title": ".",
     "description": ""
   },
   {
     "name": "getFileSize",
-    "title": "",
+    "title": ".",
     "type": "bool",
     "value": true
   },
   {
     "name": "open",
-    "title": "",
+    "title": ".",
     "type": "bool",
     "value": false
   },
   {
     "type": "string",
     "name": "downloadHKey",
-    "title": "",
+    "title": ".",
     "description": "",
     "value": "Accel + Shift + Q"
   },
   {
     "name": "inject",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "oneClickDownload",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": false
   },
   {
     "name": "silentOneClickDownload",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
@@ -140,109 +141,109 @@
   {
     "name": "ffmpegPath",
     "type": "file",
-    "title": "",
+    "title": ".",
     "description": ""
   },
   {
     "name": "ffmpegPath-manual",
     "type": "string",
-    "title": "",
+    "title": ".",
     "description": ""
   },
   {
     "name": "ffmpegInputs",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "string",
     "value": "-loglevel error -i %input -q:a 0 %output.mp3"
   },
   {
     "name": "ffmpegInputs4",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "string",
     "value": "-loglevel error -i %audio -i %video -acodec copy -vcodec copy %output"
   },
   {
     "name": "doBatchMode",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "pretendHD",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "opusmixing",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": false
   },
   {
     "name": "ffmpegInputs3",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "string",
     "value": "-loglevel error -i %input -acodec copy -vn %output"
   },
   {
     "name": "doRemux",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "deleteInputs",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "showNotifications",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "showWEBM",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "showMP4",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "showFLV",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "show3GP",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
   },
   {
     "name": "protocol",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "menulist",
     "value": 0,
@@ -254,20 +255,20 @@
   },
   {
     "name": "customUA",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "string",
     "value": ""
   },
   {
     "name": "welcome",
-    "title": "",
+    "title": ".",
     "type": "bool",
     "value": true
   },
   {
     "name": "forceVisible",
-    "title": "",
+    "title": ".",
     "description": "",
     "type": "bool",
     "value": true
@@ -275,13 +276,13 @@
   {
     "name": "installFFmpeg",
     "type": "control",
-    "label": "",
-    "title": ""
+    "label": ".",
+    "title": "."
   },
   {
     "name": "reset",
     "type": "control",
-    "label": "",
-    "title": ""
+    "label": ".",
+    "title": "."
   }]
 }

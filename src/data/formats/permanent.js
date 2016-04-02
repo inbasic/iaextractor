@@ -60,7 +60,7 @@ function init () {
   });
   var img = html('img', {
     'class': 'yt-uix-button-icon yt-sprite',
-    'src': 'resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/iaextractor/data/formats/injected-button.png'
+    'src': 'resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/data/formats/injected-button.png'
   }, imgContainer);
   button.appendChild(imgContainer);
   button.appendChild(title);
