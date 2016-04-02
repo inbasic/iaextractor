@@ -349,9 +349,20 @@ var Menu = function (doSize) {
           if (elem.fps === '60') {
             dropdown.setAttribute('fps', '60');
           }
-          dropdown.setAttribute(
-            'title',
-            elem.dash === 'v' ? 'video-only (no sound)' + (elem.fps === '60' ? ' (60fps)' : '') : 'audio-only (no video)');
+          if (elem.fps === '50') {
+            dropdown.setAttribute('fps', '50');
+          }
+          var title = 'audio-only (no video)';
+          if (elem.dash === 'v') {
+            title = 'video-only (no sound)';
+            if (elem.fps === '60') {
+              title += ' (60fps)';
+            }
+            if (elem.fps === '50') {
+              title += ' (50fps)';
+            }
+          }
+          dropdown.setAttribute('title', title);
         }
         var i = html('i');
         dropdown.appendChild(i);
