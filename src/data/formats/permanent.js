@@ -108,6 +108,14 @@ if (document.readyState !== 'loading') {
 }
 
 // Clean up
+function resize () {
+  var menu = $('iaextractor-menu');
+  if (menu && menu.parentNode) {
+    menu.parentNode.removeChild(menu);
+  }
+}
+window.addEventListener('resize', resize, false);
 self.port.on('detach', function () {
   remove();
+  window.removeEventListener('resize', resize);
 });
