@@ -9,7 +9,7 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.5.0",
+  "version": "0.5.0b1",
   "main": "./lib/main.js",
 
   "id": "feca4b87-3be4-43da-a1b1-137c24220968@jetpack",

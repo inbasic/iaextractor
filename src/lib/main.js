@@ -697,9 +697,19 @@ sp.on('dFolder', function () {
     }
   }
 });
-
 sp.on('ffmpegPath-manual', function () {
-  _prefs.setComplexValue('ffmpegPath', sp.prefs['ffmpegPath-manual']);
+  try {
+    var file = tools.prefs.getComplexValue('ffmpegPath-manual', Ci.nsILocalFile);
+    if (file.exists()) {
+      tools.prefs.setComplexFile('ffmpegPath', file);
+    }
+    else {
+      console.error('cannot find FFMpeg at specified path; setting FFMpeg failed.');
+    }
+  }
+  catch (e) {
+    console.error(e.message);
+  }
 });
 
 /** Detect a YouTube download link, download it and extract the audio**/
