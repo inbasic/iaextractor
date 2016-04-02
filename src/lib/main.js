@@ -84,7 +84,6 @@ var config = {
 var iPanel, rPanel, cmds, yButton, IDExtractor;
 
 /** Inject menu and button into YouTube pages **/
-console.error(prefs.inject)
 pageMod.PageMod({
   include: ['*.youtube.com'],
   contentScriptFile: prefs.inject ? data.url('formats/permanent.js') : [],
