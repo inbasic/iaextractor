@@ -14,13 +14,13 @@ function curl (url, anonymous, meth, hdrs) {
     req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1']
       .createInstance(Ci.nsIXMLHttpRequest);
   }
-
+  req.mozBackgroundRequest = true;  //No authentication
   req.open(meth || 'GET', url, true);
   for (var h in hdrs) {
     req.setRequestHeader(h, hdrs[h]);
   }
   req.onreadystatechange = function () {
-    if (req.readyState == 4) {
+    if (req.readyState === 4) {
       d.resolve({
         text: req.responseText,
         status: req.status,
@@ -28,6 +28,9 @@ function curl (url, anonymous, meth, hdrs) {
       });
     }
   };
+  req.channel
+    .QueryInterface(Ci.nsIHttpChannelInternal)
+    .forceAllowThirdPartyCookie = true;
   if (anonymous && req.channel) {
     req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
   }
