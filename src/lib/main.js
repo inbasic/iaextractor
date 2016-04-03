@@ -6,6 +6,7 @@
     sp            = require('sdk/simple-prefs'),
     panel         = require('sdk/panel'),
     _             = require('sdk/l10n').get,
+    unload        = require('sdk/system/unload'),
     pageMod       = require('sdk/page-mod'),
     userstyles    = require('./userstyles'),
     youtube       = require('./youtube'),
@@ -452,7 +453,7 @@ yButton = toolbarbutton.ToolbarButton({
   }
 });
 
-exports.main = function(options, callbacks) {
+exports.main = function (options, callbacks) {
   //Install
   if (options.loadReason == 'install' || prefs.forceVisible) {
     //If adjacent button is restartless wait for its creation
@@ -460,20 +461,11 @@ exports.main = function(options, callbacks) {
       yButton.moveTo(config.toolbar.move);
     }, 800);
   }
-  hotkey.initialization().register();
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
   if (options.loadReason === 'install') {
     prefs.newVer = options.loadReason;
-  }
-  //Reload about:addons to set new observer.
-  if (options.loadReason == 'upgrade' || options.loadReason == 'downgrade' || options.loadReason == 'install') {
-    for each (var tab in tabs) {
-      if (tab.url == 'about:addons') {
-        tab.reload();
-      }
-    }
   }
   if (options.loadReason == 'startup' || options.loadReason == 'install') {
     welcome();
@@ -530,88 +522,7 @@ exports.onUnload = function (reason) {
     win.close();
   }
   //Remove observer
-  hotkey.destroy();
   //http.destroy();
-}
-
-/** Hotkeys **/
-var hotkey = {
-  _key: null,
-  initialization: function () {
-    Services.obs.addObserver(hotkey.observer, 'addon-options-displayed', false);
-    //
-    sp.on('downloadHKey', function () {
-      if (hotkey._key) {
-        hotkey._key.destroy();
-      }
-      hotkey.register();
-    });
-    return this;
-  },
-  register: function () {
-    if (!prefs.downloadHKey || prefs.downloadHKey.split('+').length == 1) {
-      return;
-    }
-    var key = prefs.downloadHKey.replace(/\ \+\ /g, '-').toLowerCase();
-    key = key.split('-');
-    key[key.length - 1] = key[key.length - 1][0];
-    key = key.join('-');
-    this._key = Hotkey({
-      combo: key,
-      onPress: function() {
-        cmds.onCommand(null, null, true, null);
-      }
-    });
-  },
-  observer: {
-    observe: function(doc, aTopic, aData) {
-      if (aTopic == 'addon-options-displayed' && aData == self.id) {
-        var list = doc.getElementsByTagName('setting');
-        list = Array.prototype.slice.call(list);
-        list = list.filter(function (elem) {
-          return elem.getAttribute('pref-name') == 'downloadHKey'
-        });
-        var textbox = list[0];
-        if (!textbox) {
-          return;
-        }
-        textbox.setAttribute('readonly', true);
-        textbox.addEventListener('keydown', hotkey.listen);
-        hotkey.textbox = textbox;
-      }
-    }
-  },
-  listen: function (e) {
-    if (e.keyCode == 9 || (e.ctrlKey && e.keyCode == 87) || (e.altKey && e.keyCode == 115)) {
-      return;
-    }
-    e.stopPropagation();
-    e.preventDefault();
-    var comb = [];
-    prefs.downloadHKey = '';  //Fire listener
-    if ((e.ctrlKey || (e.shiftKey && e.altKey) || (e.shiftKey && e.ctrlKey) || e.altKey) && (e.keyCode >= 65 && e.keyCode <=90)) {
-      if (e.ctrlKey) comb.push('Accel');
-      if (e.shiftKey) comb.push('Shift');
-      if (e.altKey) comb.push('Alt');
-      comb.push(String.fromCharCode(e.keyCode));
-      prefs.downloadHKey = comb.join(' + ');
-    }
-    else {
-      hotkey.textbox.value = _('err8');
-      if (hotkey._key) {
-        hotkey._key.destroy();
-      }
-    }
-  },
-  destroy: function () {
-    if (hotkey.textbox) {
-      hotkey.textbox.removeEventListener('keydown', hotkey.listen);
-    }
-    try {
-      Services.obs.removeObserver(hotkey.observer, 'addon-options-displayed');
-    }
-    catch (e) {}
-  }
 }
 
 /** HTTP Observer **/
@@ -681,21 +592,6 @@ var http = (function () {
 //http.initialize ();
 
 /** Pref listener **/
-sp.on('dFolder', function () {
-  if (prefs.dFolder == '5' && !prefs.userFolder) {
-    rPanel.hide();
-    var nsIFilePicker = Ci.nsIFilePicker;
-    var fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
-    fp.init(windows.active, _('msg13'), nsIFilePicker.modeGetFolder);
-    var res = fp.show();
-    if (res != nsIFilePicker.returnCancel) {
-      _prefs.setComplexValue('userFolder', fp.file.path);
-    }
-    else {
-      prefs.dFolder = 2;
-    }
-  }
-});
 sp.on('ffmpegPath-manual', function () {
   try {
     var file = tools.prefs.getComplexValue('ffmpegPath-manual', Ci.nsILocalFile);
@@ -710,6 +606,34 @@ sp.on('ffmpegPath-manual', function () {
     console.error(e.message);
   }
 });
+(function () {
+  let hotkey;
+  function setup () {
+    if (!prefs.downloadHKey || prefs.downloadHKey.split('+').length === 1) {
+      if (hotkey) {
+        console.error('removing key')
+        hotkey.destroy();
+        hotkey = null;
+      }
+      return;
+    }
+    let key = prefs.downloadHKey.replace(/\ \+\ /g, '-').toLowerCase();
+    key = key.split('-');
+    key[key.length - 1] = key[key.length - 1][0];
+    key = key.join('-');
+    if (hotkey) {
+      hotkey.destroy();
+    }
+    hotkey = Hotkey({
+      combo: key,
+      onPress: function () {
+        cmds.onCommand(null, null, true, null);
+      }
+    });
+  }
+  setup();
+  sp.on('downloadHKey', setup);
+})();
 
 /** Detect a YouTube download link, download it and extract the audio**/
 var listener = (function () {
@@ -1267,38 +1191,78 @@ var tdmanager = (function () {
   }
 })();
 
-/** Install FFmpeg from addon's Settings **/
-sp.on('installFFmpeg', function() {
-  external.installFFmpeg();
-});
-/* Get Converter */
-sp.on('getConverter', function() {
-  tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
-});
-/** Reset all settings **/
-sp.on('reset', function() {
-  if (!windows.active.confirm(_('msg25'))) return
+function dFolder (forced) {
+  if ((prefs.dFolder === 5 && !prefs.userFolder) || forced === true) {
+    rPanel.hide();
+    var nsIFilePicker = Ci.nsIFilePicker;
+    var fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+    fp.init(windows.active, _('msg13'), nsIFilePicker.modeGetFolder);
+    var res = fp.show();
+    if (res != nsIFilePicker.returnCancel) {
+      _prefs.setComplexFile('userFolder', fp.file);
+      prefs.dFolder = 5;
+    }
+    else {
+      console.error(prefs.dFolder, prefs.userFolder)
+      if (!prefs.userFolder && prefs.dFolder === 5) {
+        prefs.dFolder = 3;
+      }
+    }
+  }
+}
+sp.on('dFolder', dFolder);
 
-  prefs.extension = 0;
-  prefs.quality = 2
-  prefs.doExtract = true;
-  prefs.doSubtitle = false;
-  prefs.subtitleLang = 0;
-  prefs.namePattern = '[file_name].[extension]';
-  prefs.dFolder = 3;
-  prefs.getFileSize = true;
-  prefs.open = false;
-  prefs.downloadHKey = 'Accel + Shift + Q';
-  prefs.oneClickDownload = false;
-  prefs.silentOneClickDownload = true;
-  prefs.ffmpegInputs = '-i %input -q:a 0 %output.mp3';
-  prefs.ffmpegInputs4 = '-i %audio -i %video -acodec copy -vcodec copy %output';
-  prefs.ffmpegInputs3 = '-i %input -acodec copy -vn %output';
-  prefs.doBatchMode = true;
-  prefs.doRemux = true;
-  prefs.deleteInputs = true;
-  prefs.welcome = true;
-  prefs.forceVisible = true;
-  prefs.inject = true;
-  prefs.pretendHD = true;
+(function (observer) {
+  Services.obs.addObserver(observer, 'iaextractor', false);
+  unload.when(function () {
+    Services.obs.removeObserver(observer, 'iaextractor', false);
+  });
+})({
+  observe: function (aSubject, aTopic, aData) {
+    if (aTopic === 'iaextractor' && aData === 'userFolder-browse') {
+      dFolder(true);
+    }
+    if (aTopic === 'iaextractor' && aData === 'ffmpegPath-browse') {
+      var nsIFilePicker = Ci.nsIFilePicker;
+      var fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+      fp.init(windows.active, _('msg31'), nsIFilePicker.modeOpen);
+      var res = fp.show();
+      if (res != nsIFilePicker.returnCancel) {
+        _prefs.setComplexFile('userFolder', fp.file);
+      }
+    }
+    if (aTopic === 'iaextractor' && aData === 'proceed') {
+      external.installFFmpeg();
+    }
+    if (aTopic === 'iaextractor' && aData === 'reset') {
+      if (!windows.active.confirm(_('msg25'))) {
+        return;
+      }
+      prefs.extension = 0;
+      prefs.quality = 2
+      prefs.doExtract = true;
+      prefs.doSubtitle = false;
+      prefs.subtitleLang = 0;
+      prefs.namePattern = '[file_name].[extension]';
+      prefs.dFolder = 3;
+      prefs.getFileSize = true;
+      prefs.open = false;
+      prefs.downloadHKey = 'Accel + Shift + Q';
+      prefs.oneClickDownload = false;
+      prefs.silentOneClickDownload = true;
+      prefs.ffmpegInputs = '-i %input -q:a 0 %output.mp3';
+      prefs.ffmpegInputs4 = '-i %audio -i %video -acodec copy -vcodec copy %output';
+      prefs.ffmpegInputs3 = '-i %input -acodec copy -vn %output';
+      prefs.doBatchMode = true;
+      prefs.doRemux = true;
+      prefs.deleteInputs = true;
+      prefs.welcome = true;
+      prefs.forceVisible = true;
+      prefs.inject = true;
+      prefs.pretendHD = true;
+    }
+    if (aTopic === 'iaextractor' && aData === 'get-converter') {
+      tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
+    }
+  }
 });

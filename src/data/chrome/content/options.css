@@ -1,0 +1,19 @@
+description {
+  font-size: 90.9%;
+  color: graytext;
+  margin-top: -2px;
+  -moz-margin-start: 2em;
+  white-space: pre-wrap;
+}
+label {
+  margin: 0;
+  padding: 0;
+}
+.abbr {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  margin: 0 4px;
+}
+.text-link {
+  padding: 0 4px;
+}

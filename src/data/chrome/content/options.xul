@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="options.css" type="text/css"?>
+
+<prefwindow id="iaextractor-prefs"
+  persist="selected"
+  title="Options :: YouTube Video and Audio Downloader"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml">
+
+<prefpane id="general" label="General Settings">
+  <tooltip id="video-only" orient="vertical">
+    <label value="A media file without any audio stream attached to (it is a complete media file where audio section is stripped out)."/>
+  </tooltip>
+  <tooltip id="audio-only" orient="vertical">
+    <label value="A media file without any video stream attached to (it is a complete media file where video section is stripped out)."/>
+  </tooltip>
+  <preferences>
+    <preference id="doBatchMode" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.doBatchMode" type="bool"/>
+    <preference id="pretendHD" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.pretendHD" type="bool"/>
+    <preference id="doExtract" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.doExtract" type="bool"/>
+    <preference id="userFolder" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.userFolder" type="string"/>
+    <preference id="dFolder" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.dFolder" type="int"/>
+  </preferences>
+  <vbox>
+    <checkbox label="Extract audio file after a media file is downloaded" preference="doExtract"/>
+    <description>This is useful if you want to play audio tracks later on an MP3 player</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <checkbox preference="doBatchMode" label="Download a proper audio track when a"/>
+      <label class="abbr" tooltip="video-only">video-only</label><label>item is selected (aka download in batch-mode)</label>
+    </hbox>
+    <description>If FFmpeg is installed, audio and video files will be automatically combined together</description>
+  </vbox>
+  <vbox>
+    <checkbox label="Always download the highest audio quality available in the batch-mode" preference="pretendHD"/>
+    <description>If unchecked, audio quality is selected based on the video quality.</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Select download folder: " control="dFolder"/>
+      <menulist id="dFolder" preference="dFolder">
+        <menupopup>
+          <menuitem label="Downloads" value="0"/>
+          <menuitem label="Home" value="1"/>
+          <menuitem label="Temp" value="2"/>
+          <menuitem label="Desktop" value="3"/>
+          <menuitem label="Always ask" value="4"/>
+          <menuitem label="Custom" value="5"/>
+        </menupopup>
+      </menulist>
+      <textbox preference="userFolder" flex="1" emptytext="User defined folder"/>
+      <button label="Browse..." oncommand="emit('userFolder-browse');"></button>
+    </hbox>
+    <description>"Downloads" is equal to "%UserProfile%\Downloads" in Windows</description>
+    <description>"Downloads" is equal to "/Users/&lt;user-name&gt;/Downloads" in Darwin and Linux</description>
+  </vbox>
+  <spacer flex="1"/>
+  <hbox>
+    <label value="How to use this tool:"/><label class="text-link">http://technologyto.com/extractor.html</label>
+  </hbox>
+</prefpane>
+<prefpane id="quick" label="Quick Download">
+  <preferences>
+    <preference id="oneClickDownload" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.oneClickDownload" type="bool"/>
+    <preference id="silentOneClickDownload" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.silentOneClickDownload" type="bool"/>
+    <preference id="extension" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.extension" type="int"/>
+  </preferences>
+  <vbox>
+    <checkbox label="One click mode" preference="oneClickDownload"/>
+    <description>In "One click mode", the toolbar panel is not shown. Following actions take place instead:</description>
+    <description>(Gray icon) Open YouTube homepage.</description>
+    <description>(Red icon) Detect and start downloading video</description>
+  </vbox>
+  <vbox>
+    <checkbox label="Silent download" preference="silentOneClickDownload"/>
+    <description>Do not open download panel when "One click mode" is activated.</description>
+  </vbox>
+
+  <vbox>
+    <hbox align="center">
+      <label value="Preferred file format: " control="extension"/>
+      <menulist id="extension" preference="extension">
+        <menupopup>
+          <menuitem label="FLV" value="0"/>
+          <menuitem label="3GP" value="1"/>
+          <menuitem label="MP4" value="2"/>
+          <menuitem label="WebM" value="3"/>
+        </menupopup>
+      </menulist>
+    </hbox>
+    <description>If FFmpeg is not installed, audio extraction is only supported for "FLV" video format</description>
+    <description>You can extend audio extraction capability by installing FFmpeg (go to FFmpeg Integration tab)</description>
+    <description>In case FFmpeg is installed, the preferred format is "MP4"</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Preferred video quality: " control="quality"/>
+      <menulist id="quality" preference="quality">
+        <menupopup>
+          <menuitem label="HD1080p" value="0"/>
+          <menuitem label="HD720p" value="1"/>
+          <menuitem label="High" value="2"/>
+          <menuitem label="Medium" value="3"/>
+          <menuitem label="Small" value="4"/>
+        </menupopup>
+      </menulist>
+    </hbox>
+    <description>Default video quality for quick download mode</description>
+  </vbox>
+</prefpane>
+<prefpane id="ffmpeg" label="FFmpeg Integration">
+  <preferences>
+    <preference id="ffmpegPath" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegPath" type="string"/>
+    <preference id="ffmpegInputs" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs" type="string"/>
+    <preference id="ffmpegInputs4" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs4" type="string"/>
+    <preference id="ffmpegInputs1" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs1" type="string"/>
+    <preference id="ffmpegInputs2" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs2" type="string"/>
+    <preference id="ffmpegInputs3" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs3" type="string"/>
+  </preferences>
+  <vbox>
+    <hbox align="center">
+      <label value="Download and configure FFmpeg(.exe) media converter:" control="proceed"/>
+      <button id="proceed" label="Proceed" oncommand="emit('proceed');"></button>
+    </hbox>
+    <hbox align="center">
+      <description>Make sure you can visit<label class="text-link">https://sourceforge.net/projects/iaextractor/</label>website before pressing the "Proceed" button</description>
+    </hbox>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="FFmpeg(.exe) location:" control="dFolder"/>
+      <textbox preference="ffmpegPath" flex="1" emptytext="FFmpeg location"/>
+      <button label="Browse..." oncommand="emit('ffmpegPath-browse');"></button>
+    </hbox>
+    <hbox align="center">
+      <description>You can download FFmpeg(.exe) from<label class="text-link">http://ffmpeg.org/download.html</label>or click on the "Proceed" button.</description>
+    </hbox>
+    <description>If FFmpeg(.exe) location contains non-English characters in the path, paste the path manually</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="MP3 conversion command:"/>
+      <textbox preference="ffmpegInputs" flex="1"/>
+    </hbox>
+    <description>Optional argument: -output-location "path"; To place the converted file in another directory.</description>
+    <description>"path" is the path of a directory enclosed with double quotation marks (e.g. -output-location "d:\\new folder")</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Audio and video combining command:"/>
+      <textbox preference="ffmpegInputs4" flex="1"/>
+    </hbox>
+    <description>Optional argument: -output-location "path"</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Audio extraction command:"/>
+      <textbox preference="ffmpegInputs3" flex="1"/>
+    </hbox>
+    <description>This option is only available for audio-only streams.</description>
+    <description>Optional argument: -output-location "path"</description>
+  </vbox>
+  <hbox>
+    <label value="Learn more about FFmpeg command-line tool:"/><label class="text-link">http://blog.add0n.com/2015/05/11/a-guide-to-video-and-audio-conversion-using-ffmpeg.html</label>
+  </hbox>
+</prefpane>
+<prefpane id="injected" label="Injected Panel">
+  <preferences>
+    <preference id="getFileSize" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.getFileSize" type="bool"/>
+    <preference id="inject" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.inject" type="bool"/>
+    <preference id="showWEBM" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.showWEBM" type="bool"/>
+    <preference id="showFLV" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.showFLV" type="bool"/>
+    <preference id="show3GP" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.show3GP" type="bool"/>
+    <preference id="showMP4" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.showMP4" type="bool"/>
+  </preferences>
+  <checkbox label="Calculate file-size of download links in the injected menu" preference="getFileSize"/>
+  <checkbox label="Place download button beneath YouTube players" preference="inject"/>
+  <groupbox>
+    <caption label="Items in the injected panel:"/>
+    <checkbox label="Display WebM format" preference="showWEBM"/>
+    <checkbox label="Display FLV format" preference="showFLV"/>
+    <checkbox label="Display 3GP format" preference="show3GP"/>
+    <checkbox label="Display MP4 format" preference="showMP4"/>
+  </groupbox>
+</prefpane>
+<prefpane id="advanced" label="Advanced Settings">
+  <preferences>
+    <preference id="deleteInputs" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.deleteInputs" type="bool"/>
+    <preference id="namePattern" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.namePattern" type="string"/>
+    <preference id="open" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.open" type="bool"/>
+    <preference id="opusmixing" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.opusmixing" type="bool"/>
+    <preference id="downloadHKey" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.downloadHKey" type="string"/>
+  </preferences>
+  <vbox>
+    <hbox align="center">
+      <checkbox preference="deleteInputs" label="Delete the original DASH ("/>
+      <label class="abbr" tooltip="video-only">video-only</label><label>and</label><label class="abbr" tooltip="audio-only">audio-only</label><label>) files after a successful conversion</label>
+    </hbox>
+    <description>If FFmpeg is installed and batch mode is checked, after a video-only item is selected, a proper audio is chosen</description>
+    <description>When both files are downloaded, they will be combined together.</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="File-naming pattern:"/>
+      <textbox preference="namePattern" flex="1"/>
+      <toolbarbutton id="namePattern-placeholders" style="border: none; background: transparent;" label="PlaceHolders" type="menu">
+        <menupopup>
+          <menuitem label="[file_name]"/>
+          <menuitem label="[extension]"/>
+          <menuitem label="[author]"/>
+          <menuitem label="[video_id]"/>
+          <menuitem label="[video_resolution]"/>
+          <menuitem label="[audio_bitrate]"/>
+          <menuitem label="[published_date]"/>
+        </menupopup>
+      </toolbarbutton>
+    </hbox>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Download video files using keyboard shortcut:"/>
+      <textbox preference="downloadHKey" flex="1" emptytext="Not a valid combination. Keyboard shortcut is disabled!"/>
+    </hbox>
+    <description>Click in the box and then enter a combination of A-Z keys with one or more modifiers.</description>
+    <description>Acceptable modifiers: Shift + Alt, Shift + Ctrl, Ctrl, and Alt</description>
+    <description>The Alt key. On the Macintosh, this is the Option key</description>
+    <description>The Accel key. On the Macintosh, this is the Command key. On Windows, this is Control key</description>
+    <description>To disable keyboard shortcut, click in the box and press Space key</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <checkbox label="Consider OPUS format as the audio track of video and audio combiner when a" preference="opusmixing"/>
+      <label class="abbr" tooltip="video-only">video-only</label>
+      <label>item with WebM format is selected</label>
+    </hbox>
+    <description>If a WebM "video-only" item is selected for download, by default only an OGG format "audio-only" item is used as the input of the combiner.</description>
+    <description>By checking this option, either OPUS format "audio-only" or OGG format "audio-only" will be used (based on their bitrates).</description>
+    <description>Before checking this option, make sure your player can play OPUS audio formats</description>
+  </vbox>
+  <checkbox label="Open download folder on completion" preference="open"/>
+</prefpane>
+<prefpane id="conversion" label="Conversion Tool">
+    <hbox align="center">
+      <label value="Convert to MP3, adjust volume, or Scale video: "/>
+      <button label="Download" oncommand="emit('get-converter');"></button>
+    </hbox>
+    <description>Media converter allows you to perform conversion operations on media files</description>
+    <description>It is integrated with YouTube Video and Audio downloader and can accessed from the toolbar button</description>
+    <description>You can manually get it from: <label class="text-link">https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/</label></description>
+</prefpane>
+<prefpane id="misc" label="Misc.">
+  <preferences>
+    <preference id="customUA" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.customUA" type="string"/>
+    <preference id="welcome" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.welcome" type="bool"/>
+  </preferences>
+  <vbox>
+    <hbox align="center">
+      <label value="Set a custom user-agent for the downloader:"/>
+      <textbox preference="customUA" flex="1" emptytext=""/>
+    </hbox>
+    <description>You can use a custom user-agent to change your browser's identification to force getting a certain server-side content.</description>
+    <description>To reset, clear the textbox</description>
+  </vbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Download protocol is: " control="protocol"/>
+      <menulist id="protocol" preference="protocol">
+        <menupopup>
+          <menuitem label="default" value="0"/>
+          <menuitem label="http" value="1"/>
+          <menuitem label="https" value="2"/>
+        </menupopup>
+      </menulist>
+    </hbox>
+    <description>It is highly recommended to select "default" value to let the extension decide the best protocol.</description>
+  </vbox>
+  <checkbox label="Open FAQs page on upgrade" preference="welcome"/>
+  <spacer flex="1"/>
+  <hbox align="center">
+    <label value="Reset all settings: " control="reset"/>
+    <button id="reset" label="Reset" oncommand="emit('reset');"></button>
+  </hbox>
+</prefpane>
+<script src="options.js"/>
+</prefwindow>
+

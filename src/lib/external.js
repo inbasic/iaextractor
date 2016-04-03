@@ -132,6 +132,7 @@ exports.checkFFmpeg = function () {
           var file = new FileUtils.File(path);
           _prefs.setComplexFile("ffmpegPath", file);
           prefs.extension = 2;
+          console.error(path, prefs.extension)
         }
         catch (e) {
           runFFmpegInstaller();
