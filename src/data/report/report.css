@@ -451,6 +451,13 @@ label {
 #settings-button {
   background-image: -moz-image-rect(url("preferences.png"), 0, 48, 16, 32);
 }
+#faqs-button {
+  background-image: -moz-image-rect(url("preferences.png"), 0, 80, 16, 64);
+}
+#bug-button {
+  background-image: -moz-image-rect(url("preferences.png"), 0, 64, 16, 48);
+}
+
 #folder-preferences {
   z-index: 1;
   width: 300px;

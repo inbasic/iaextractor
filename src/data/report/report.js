@@ -308,6 +308,12 @@ $("embed").addEventListener("click", function () {
 $("settings-button").addEventListener("click", function () {
   self.port.emit("cmd", "settings");
 }, true);
+$("bug-button").addEventListener("click", function () {
+  self.port.emit("cmd", "bug");
+}, true);
+$("faqs-button").addEventListener("click", function () {
+  self.port.emit("cmd", "faqs");
+}, true);
 aCheckbox.addEventListener("change", function () {
   self.port.emit("cmd", "do-extract", aCheckbox.checked);
 });

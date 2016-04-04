@@ -48,6 +48,7 @@ userstyles.load(data.url('overlay.css'));
 var config = {
   //URLs
   urls: {
+    bug: 'https://github.com/inbasic/iaextractor/issues',
     youtube: 'https://www.youtube.com/',
     tools: 'chrome://iaextractor/content/tools.xul',
     homepage: 'http://technologyto.com/extractor.html',
@@ -180,12 +181,20 @@ rPanel.port.on('cmd', function (cmd) {
     windowUtils.openDialog({
       url: 'chrome://iaextractor/content/options.xul',
       name: 'iaextractor-options',
-      features: 'chrome,titlebar,toolbar,centerscree'
+      features: 'chrome,titlebar,toolbar,centerscreen'
     }).focus();
 /*    windows.active.BrowserOpenAddonsMgr(
       'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack')
     );*/
     rPanel.hide();
+    break;
+  case 'bug':
+    rPanel.hide();
+    tabs.open(config.urls.bug);
+    break;
+  case 'faqs':
+    rPanel.hide();
+    tabs.open(config.urls.homepage);
     break;
   }
 });
