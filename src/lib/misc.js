@@ -29,6 +29,7 @@ var _prefs = (function () {
     getBoolPref: pservice.getBoolPref,
     setBoolPref: pservice.setBoolPref,
     getComplexValue: pservice.getComplexValue,
+    clearUserPref: pservice.clearUserPref,
     setComplexValue: function (id, val) {
       var str = Cc["@mozilla.org/supports-string;1"]
         .createInstance(Ci.nsISupportsString);
@@ -37,6 +38,11 @@ var _prefs = (function () {
     },
     setComplexFile: function (id, file) {
       pservice.setComplexValue(id, Ci.nsIFile, file);
+    },
+    reset: function () {
+      pservice.getChildList('',{})
+        .filter(n => n !== 'version' && n.indexOf('sdk') === -1 && n !== 'ffmpegPath')
+        .forEach(n => pservice.clearUserPref(n));
     }
   }
 })();

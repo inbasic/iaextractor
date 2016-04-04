@@ -16,7 +16,7 @@ document.addEventListener('click', function (e) {
       checkbox.click();
     }
   }
-  if (target.classList.contains('text-link')) {
+  if (target.classList && target.classList.contains('text-link')) {
     require('sdk/tabs').open(target.textContent);
   }
 }, false);
@@ -84,4 +84,3 @@ document.getElementById('namePattern-placeholders').addEventListener('command', 
     }
   }, true);
 })(document.querySelector('[preference="downloadHKey"]'));
-

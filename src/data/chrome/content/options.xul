@@ -115,8 +115,6 @@
     <preference id="ffmpegPath" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegPath" type="string"/>
     <preference id="ffmpegInputs" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs" type="string"/>
     <preference id="ffmpegInputs4" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs4" type="string"/>
-    <preference id="ffmpegInputs1" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs1" type="string"/>
-    <preference id="ffmpegInputs2" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs2" type="string"/>
     <preference id="ffmpegInputs3" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.ffmpegInputs3" type="string"/>
   </preferences>
   <vbox>
@@ -127,6 +125,7 @@
     <hbox align="center">
       <description>Make sure you can visit<label class="text-link">https://sourceforge.net/projects/iaextractor/</label>website before pressing the "Proceed" button</description>
     </hbox>
+    <description>The "Proceed" button can only install FFmpeg on Windows, Mac and Linux operation systems.</description>
   </vbox>
   <vbox>
     <hbox align="center">
@@ -139,29 +138,35 @@
     </hbox>
     <description>If FFmpeg(.exe) location contains non-English characters in the path, paste the path manually</description>
   </vbox>
-  <vbox>
-    <hbox align="center">
-      <label value="MP3 conversion command:"/>
-      <textbox preference="ffmpegInputs" flex="1"/>
-    </hbox>
-    <description>Optional argument: -output-location "path"; To place the converted file in another directory.</description>
-    <description>"path" is the path of a directory enclosed with double quotation marks (e.g. -output-location "d:\\new folder")</description>
-  </vbox>
-  <vbox>
-    <hbox align="center">
-      <label value="Audio and video combining command:"/>
-      <textbox preference="ffmpegInputs4" flex="1"/>
-    </hbox>
-    <description>Optional argument: -output-location "path"</description>
-  </vbox>
-  <vbox>
-    <hbox align="center">
-      <label value="Audio extraction command:"/>
-      <textbox preference="ffmpegInputs3" flex="1"/>
-    </hbox>
-    <description>This option is only available for audio-only streams.</description>
-    <description>Optional argument: -output-location "path"</description>
-  </vbox>
+  <groupbox>
+    <caption label="Conversion commands:"/>
+    <vbox>
+      <hbox align="center">
+        <label value="MP3 conversion:"/>
+        <textbox preference="ffmpegInputs" flex="1"/>
+        <button label="Reset" oncommand="emit('reset-ffmpegInputs');"></button>
+      </hbox>
+      <description>Optional argument: -output-location "path"; To place the converted file in another directory.</description>
+      <description>"path" is the path of a directory enclosed with double quotation marks (e.g. -output-location "d:\\new folder")</description>
+    </vbox>
+    <vbox>
+      <hbox align="center">
+        <label value="Audio and video combining:"/>
+        <textbox preference="ffmpegInputs4" flex="1"/>
+        <button label="Reset" oncommand="emit('reset-ffmpegInputs4');"></button>
+      </hbox>
+      <description>Optional argument: -output-location "path"</description>
+    </vbox>
+    <vbox>
+      <hbox align="center">
+        <label value="Audio extraction:"/>
+        <textbox preference="ffmpegInputs3" flex="1"/>
+        <button label="Reset" oncommand="emit('reset-ffmpegInputs3');"></button>
+      </hbox>
+      <description>This option is only available for audio-only streams.</description>
+      <description>Optional argument: -output-location "path"</description>
+    </vbox>
+  </groupbox>
   <hbox>
     <label value="Learn more about FFmpeg command-line tool:"/><label class="text-link">http://blog.add0n.com/2015/05/11/a-guide-to-video-and-audio-conversion-using-ffmpeg.html</label>
   </hbox>
@@ -198,8 +203,8 @@
       <checkbox preference="deleteInputs" label="Delete the original DASH ("/>
       <label class="abbr" tooltip="video-only">video-only</label><label>and</label><label class="abbr" tooltip="audio-only">audio-only</label><label>) files after a successful conversion</label>
     </hbox>
-    <description>If FFmpeg is installed and batch mode is checked, after a video-only item is selected, a proper audio is chosen</description>
-    <description>When both files are downloaded, they will be combined together.</description>
+    <description>If FFmpeg is installed and batch-mode is checked, after a video-only item is selected, a proper audio is chosen</description>
+    <description>When both files are downloaded, they will be combined together and the original files will be deleted.</description>
   </vbox>
   <vbox>
     <hbox align="center">
@@ -224,9 +229,9 @@
       <textbox preference="downloadHKey" flex="1" emptytext="Not a valid combination. Keyboard shortcut is disabled!"/>
     </hbox>
     <description>Click in the box and then enter a combination of A-Z keys with one or more modifiers.</description>
-    <description>Acceptable modifiers: Shift + Alt, Shift + Ctrl, Ctrl, and Alt</description>
-    <description>The Alt key. On the Macintosh, this is the Option key</description>
-    <description>The Accel key. On the Macintosh, this is the Command key. On Windows, this is Control key</description>
+    <description>Acceptable modifiers: Shift + Alt, Shift + Accel, Accel, and Alt</description>
+    <description>The Alt key: On the Macintosh, this is the Option key</description>
+    <description>The Accel key: On the Macintosh, this is the Command key. On Windows, this is Control key</description>
     <description>To disable keyboard shortcut, click in the box and press Space key</description>
   </vbox>
   <vbox>
@@ -244,16 +249,17 @@
 <prefpane id="conversion" label="Conversion Tool">
     <hbox align="center">
       <label value="Convert to MP3, adjust volume, or Scale video: "/>
-      <button label="Download" oncommand="emit('get-converter');"></button>
+      <button label="Download &amp; Install" oncommand="emit('install-converter');"></button>
     </hbox>
-    <description>Media converter allows you to perform conversion operations on media files</description>
-    <description>It is integrated with YouTube Video and Audio downloader and can accessed from the toolbar button</description>
+    <description>Media Converter and Muxer allows you to perform conversion operations (like MP3 conversion) on media files</description>
+    <description>It is integrated with YouTube Video and Audio downloader and can be accessed from the toolbar button</description>
     <description>You can manually get it from: <label class="text-link">https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/</label></description>
 </prefpane>
 <prefpane id="misc" label="Misc.">
   <preferences>
     <preference id="customUA" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.customUA" type="string"/>
     <preference id="welcome" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.welcome" type="bool"/>
+    <preference id="protocol" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.protocol" type="int"/>
   </preferences>
   <vbox>
     <hbox align="center">
@@ -274,14 +280,20 @@
         </menupopup>
       </menulist>
     </hbox>
-    <description>It is highly recommended to select "default" value to let the extension decide the best protocol.</description>
+    <description>It is highly recommended to select "default" value to let the extension decide the best protocol</description>
   </vbox>
-  <checkbox label="Open FAQs page on upgrade" preference="welcome"/>
+  <vbox>
+    <checkbox label="Open FAQs page on upgrade" preference="welcome"/>
+    <description>To be notified about the most recent changes, it is recommended to allow the extension to open FAQs page on upgrade</description>
+  </vbox>
   <spacer flex="1"/>
-  <hbox align="center">
-    <label value="Reset all settings: " control="reset"/>
-    <button id="reset" label="Reset" oncommand="emit('reset');"></button>
-  </hbox>
+  <vbox>
+    <hbox align="center">
+      <label value="Reset all settings: " control="reset"/>
+      <button id="reset" label="Reset" oncommand="emit('reset');"></button>
+    </hbox>
+    <description>This option resets all the stored preferences back to the factory values (except FFmpeg location).</description>
+  </vbox>
 </prefpane>
 <script src="options.js"/>
 </prefwindow>

@@ -32,8 +32,9 @@
     isAustralis   = 'gCustomizeMode' in windows.active,
     toolbarbutton = isAustralis ? require('./toolbarbutton/new') : require('./toolbarbutton/old');
 
-Cu.import('resource://gre/modules/FileUtils.jsm');
-Cu.import('resource://gre/modules/Services.jsm');
+var {FileUtils} = Cu.import('resource://gre/modules/FileUtils.jsm');
+var {Services} = Cu.import('resource://gre/modules/Services.jsm');
+var {AddonManager} = Cu.import('resource://gre/modules/AddonManager.jsm');
 
 var connect = {};
 Cu.import(data.url('shared/connect.jsm'), connect);
@@ -53,7 +54,8 @@ var config = {
     flashgot: 'https://addons.mozilla.org/firefox/addon/flashgot/',
     downthemall: 'https://addons.mozilla.org/firefox/addon/downthemall/',
     tdmanager: 'https://addons.mozilla.org/en-US/firefox/addon/turbo-download-manager/',
-    instruction: 'http://technologyto.com/extractor.html#instruction'
+    instruction: 'http://technologyto.com/extractor.html#instruction',
+    converterXPI: 'https://addons.mozilla.org/firefox/downloads/latest/540376/addon-540376-latest.xpi'
   },
   //toolbar
   toolbar: {
@@ -109,6 +111,31 @@ rPanel = panel.Panel({
   contentScriptFile: data.url('report/report.js'),
   contentScriptWhen: 'ready'
 });
+rPanel.cmds = {
+  tools: function () {
+    rPanel.hide();
+    AddonManager.getAddonByID('jid1-kps5PrGBNtzSLQ@jetpack', function (addon) {
+      if (addon) {
+        if (addon.isActive) {
+          windows.active.open(
+            'chrome://imconverter/content/ui.xul',
+            'iaextractor',
+            'chrome,minimizable=yes,all,resizable=yes'
+          ).focus();
+        }
+        else {
+          notify(_('name'), _('msg36'));
+        }
+      }
+      else {
+        notify(_('name'), _('msg30'));
+        timer.setTimeout(function () {
+          tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
+        }, 1000);
+      }
+    });
+  }
+}
 rPanel.port.on('cmd', function (cmd) {
   switch (cmd) {
   case 'download':
@@ -143,21 +170,7 @@ rPanel.port.on('cmd', function (cmd) {
     prefs.getFileSize = arguments[1];
     break;
   case 'tools':
-    rPanel.hide();
-    var isXUL = require('sdk/preferences/service').get('extensions.jid1-kps5PrGBNtzSLQ@jetpack.version');
-    if (isXUL) {
-      windows.active.open(
-        'chrome://imconverter/content/ui.xul',
-        'iaextractor',
-        'chrome,minimizable=yes,all,resizable=yes'
-      ).focus();
-    }
-    else {
-      notify(_('name'), _('msg30'));
-      timer.setTimeout(function () {
-        tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
-      }, 1000);
-    }
+    rPanel.cmds.tools();
     break;
   case 'cancel':
     listener.cancel(parseInt(arguments[1]));
@@ -170,7 +183,7 @@ rPanel.port.on('cmd', function (cmd) {
     break;
   }
 });
-rPanel.on('show', function() {
+rPanel.on('show', function () {
   rPanel.port.emit(
     'update',
     prefs.doExtract,
@@ -457,14 +470,14 @@ exports.main = function (options, callbacks) {
   //Install
   if (options.loadReason == 'install' || prefs.forceVisible) {
     //If adjacent button is restartless wait for its creation
-    timer.setTimeout(function (){
+    timer.setTimeout(function () {
       yButton.moveTo(config.toolbar.move);
     }, 800);
   }
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason === 'install') {
+  if (options.loadReason === 'install' || options.loadReason === 'upgrade') {
     prefs.newVer = options.loadReason;
   }
   if (options.loadReason == 'startup' || options.loadReason == 'install') {
@@ -1238,31 +1251,33 @@ sp.on('dFolder', dFolder);
       if (!windows.active.confirm(_('msg25'))) {
         return;
       }
-      prefs.extension = 0;
-      prefs.quality = 2
-      prefs.doExtract = true;
-      prefs.doSubtitle = false;
-      prefs.subtitleLang = 0;
-      prefs.namePattern = '[file_name].[extension]';
-      prefs.dFolder = 3;
-      prefs.getFileSize = true;
-      prefs.open = false;
-      prefs.downloadHKey = 'Accel + Shift + Q';
-      prefs.oneClickDownload = false;
-      prefs.silentOneClickDownload = true;
-      prefs.ffmpegInputs = '-i %input -q:a 0 %output.mp3';
-      prefs.ffmpegInputs4 = '-i %audio -i %video -acodec copy -vcodec copy %output';
-      prefs.ffmpegInputs3 = '-i %input -acodec copy -vn %output';
-      prefs.doBatchMode = true;
-      prefs.doRemux = true;
-      prefs.deleteInputs = true;
-      prefs.welcome = true;
-      prefs.forceVisible = true;
-      prefs.inject = true;
-      prefs.pretendHD = true;
+      tools.prefs.reset();
+      if (prefs.ffmpegPath) {
+        prefs.extension = 2;
+      }
     }
-    if (aTopic === 'iaextractor' && aData === 'get-converter') {
-      tabs.open('https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/');
+    if (aTopic === 'iaextractor' && aData === 'install-converter') {
+      rPanel.cmds.tools();
+    }
+    if (aTopic === 'iaextractor' && aData === 'reset-ffmpegInputs') {
+      tools.prefs.clearUserPref('ffmpegInputs');
+    }
+    if (aTopic === 'iaextractor' && aData === 'reset-ffmpegInputs3') {
+      tools.prefs.clearUserPref('ffmpegInputs3');
+    }
+    if (aTopic === 'iaextractor' && aData === 'reset-ffmpegInputs4') {
+      tools.prefs.clearUserPref('ffmpegInputs4');
     }
   }
 });
+// closing the options window on unload
+unload.when(function () {
+  let wm = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
+  let enumerator = wm.getEnumerator(null);
+  while(enumerator.hasMoreElements()) {
+    let win = enumerator.getNext();
+    if (win.location.href.indexOf(self.name) !== -1) {
+      win.close();
+    }
+  };
+})
