@@ -119,7 +119,7 @@
   </preferences>
   <vbox>
     <hbox align="center">
-      <label value="Download and configure FFmpeg(.exe) media converter:" control="proceed"/>
+      <label value="Download and configure FFmpeg(binary) media converter:" control="proceed"/>
       <button id="proceed" label="Proceed" oncommand="emit('proceed');"></button>
     </hbox>
     <hbox align="center">
@@ -129,14 +129,14 @@
   </vbox>
   <vbox>
     <hbox align="center">
-      <label value="FFmpeg(.exe) location:" control="dFolder"/>
+      <label value="FFmpeg(binary) location:" control="dFolder"/>
       <textbox preference="ffmpegPath" flex="1" emptytext="FFmpeg location"/>
       <button label="Browse..." oncommand="emit('ffmpegPath-browse');"></button>
     </hbox>
     <hbox align="center">
-      <description>You can download FFmpeg(.exe) from<label class="text-link">http://ffmpeg.org/download.html</label>or click on the "Proceed" button.</description>
+      <description>You can download FFmpeg(binary) from<label class="text-link">https://ffmpeg.org/download.html</label>or click on the "Proceed" button.</description>
     </hbox>
-    <description>If FFmpeg(.exe) location contains non-English characters in the path, paste the path manually</description>
+    <description>If FFmpeg(binary) location contains non-English characters in the path, paste the path manually</description>
   </vbox>
   <groupbox>
     <caption label="Conversion commands:"/>
