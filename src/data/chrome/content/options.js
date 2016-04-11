@@ -16,9 +16,6 @@ document.addEventListener('click', function (e) {
       checkbox.click();
     }
   }
-  if (target.classList && target.classList.contains('text-link')) {
-    require('sdk/tabs').open(target.textContent);
-  }
 }, false);
 
 var myPrefObserver = {

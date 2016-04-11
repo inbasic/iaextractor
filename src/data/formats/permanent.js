@@ -67,6 +67,7 @@ function init () {
 }
 
 // init
+var url;
 function loader () {
   var pagecontainer = document.getElementById('page-container');
   if (!pagecontainer) {
@@ -83,6 +84,11 @@ function loader () {
     var mo = window.MutationObserver;
     if (typeof mo !== 'undefined') {
       var observer = new mo(function (mutations) {
+        if (window.location.href !== url) {
+          console.error('now');
+          self.port.emit('page-update');
+          url = window.location.href;
+        }
         mutations.forEach(function (mutation) {
           if (mutation.addedNodes !== null) {
             for (var i = 0; i < mutation.addedNodes.length; i++) {
@@ -97,6 +103,9 @@ function loader () {
       observer.observe(content, {
         childList: true,
         subtree: true
+      });
+      self.port.on('detach', function () {
+        observer.disconnect();
       });
     }
   }

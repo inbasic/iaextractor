@@ -58,7 +58,7 @@
   </vbox>
   <spacer flex="1"/>
   <hbox>
-    <label value="How to use this tool:"/><label class="text-link">http://technologyto.com/extractor.html</label>
+    <label value="How to use this tool:"/><label class="text-link" href="http://technologyto.com/extractor.html">http://technologyto.com/extractor.html</label>
   </hbox>
 </prefpane>
 <prefpane id="quick" label="Quick Download">
@@ -123,7 +123,7 @@
       <button id="proceed" label="Proceed" oncommand="emit('proceed');"></button>
     </hbox>
     <hbox align="center">
-      <description>Make sure you can visit<label class="text-link">https://sourceforge.net/projects/iaextractor/</label>website before pressing the "Proceed" button</description>
+      <description>Make sure you can visit<label class="text-link" href="https://sourceforge.net/projects/iaextractor/">https://sourceforge.net/projects/iaextractor/</label>website before pressing the "Proceed" button</description>
     </hbox>
     <description>The "Proceed" button can only install FFmpeg on Windows, Mac and Linux operation systems.</description>
   </vbox>
@@ -134,7 +134,7 @@
       <button label="Browse..." oncommand="emit('ffmpegPath-browse');"></button>
     </hbox>
     <hbox align="center">
-      <description>You can download FFmpeg(binary) from<label class="text-link">https://ffmpeg.org/download.html</label>or click on the "Proceed" button.</description>
+      <description>You can download FFmpeg(binary) from<label class="text-link" href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</label>or click on the "Proceed" button.</description>
     </hbox>
     <description>If FFmpeg(binary) location contains non-English characters in the path, paste the path manually</description>
   </vbox>
@@ -168,7 +168,7 @@
     </vbox>
   </groupbox>
   <hbox>
-    <label value="Learn more about FFmpeg command-line tool:"/><label class="text-link">http://blog.add0n.com/2015/05/11/a-guide-to-video-and-audio-conversion-using-ffmpeg.html</label>
+    <label value="Learn more about FFmpeg command-line tool:"/><label class="text-link" href="http://blog.add0n.com/2015/05/11/a-guide-to-video-and-audio-conversion-using-ffmpeg.html">http://blog.add0n.com/2015/05/11/a-guide-to-video-and-audio-conversion-using-ffmpeg.html</label>
   </hbox>
 </prefpane>
 <prefpane id="injected" label="Injected Panel">
@@ -253,7 +253,7 @@
     </hbox>
     <description>Media Converter and Muxer allows you to perform conversion operations (like MP3 conversion) on media files</description>
     <description>It is integrated with YouTube Video and Audio downloader and can be accessed from the toolbar button</description>
-    <description>You can manually get it from: <label class="text-link">https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/</label></description>
+    <description>You can manually get it from: <label class="text-link" href="https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/">https://addons.mozilla.org/en-US/firefox/addon/media-converter-and-muxer/</label></description>
 </prefpane>
 <prefpane id="misc" label="Misc.">
   <preferences>
