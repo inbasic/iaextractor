@@ -85,7 +85,6 @@ function loader () {
     if (typeof mo !== 'undefined') {
       var observer = new mo(function (mutations) {
         if (window.location.href !== url) {
-          console.error('now');
           self.port.emit('page-update');
           url = window.location.href;
         }

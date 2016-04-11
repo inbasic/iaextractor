@@ -181,7 +181,7 @@ rPanel.port.on('cmd', function (cmd) {
     windowUtils.openDialog({
       url: 'chrome://iaextractor/content/options.xul',
       name: 'iaextractor-options',
-      features: 'chrome,titlebar,toolbar,centerscreen'
+      features: 'chrome,titlebar,toolbar,centerscreen,dialog=no'
     }).focus();
 /*    windows.active.BrowserOpenAddonsMgr(
       'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack')
