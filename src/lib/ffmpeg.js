@@ -146,8 +146,6 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
         notify(_('name'), _('err24') + '\n\n' + stderr.substr(stderr.length - 500));
       }
 
-      tmpDir.remove(true);
-
       if (callback) {
         callback.apply(pointer, []);
       }
@@ -155,5 +153,10 @@ exports.ffmpeg = function (inputs, options, callback, pointer) {
     else {
       notify(_('name'), _('err25') + ' ' + code);
     }
+    try {
+      tmpDir.remove(true);
+    }
+    catch (e) {}
+    console.error(tmpDir.path);
   });
 }
