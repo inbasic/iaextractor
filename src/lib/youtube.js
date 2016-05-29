@@ -631,17 +631,24 @@ function findOtherItags (info) {
       function doTag (itag) {
         var regexp = new RegExp('\<baseurl[^\>]*\>(http[^<]+itag[\=\/]' + itag + '[^\<]+)\<\/baseurl\>', 'i');
         var res = regexp.exec(response.text);
-        if (res && res.length && res[1].indexOf('yt_otf') === -1) {
-          var url = res[1].replace(/&amp\;/g,'&');
-          var obj = {};
-          obj.itag = itag;
-          var format = formatDictionary(obj);
-          if (!format) return;
-          for (var j in format) {
-            obj[j] = format[j];
+        if (res && res.length) {
+          if (res[1].indexOf('yt_otf') === -1) {
+            var url = res[1].replace(/&amp\;/g,'&');
+            var obj = {};
+            obj.itag = itag;
+            var format = formatDictionary(obj);
+            if (!format) {
+              return;
+            }
+            for (var j in format) {
+              obj[j] = format[j];
+            }
+            obj.url = url;
+            info.formats.push(obj);
           }
-          obj.url = url;
-          info.formats.push(obj);
+          else {
+            console.error(`itag=${itag} is skipped; we are not supporting segmentation`);
+          }
         }
       }
 
