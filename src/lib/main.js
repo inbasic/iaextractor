@@ -639,7 +639,6 @@ sp.on('ffmpegPath-manual', function () {
   function setup () {
     if (!prefs.downloadHKey || prefs.downloadHKey.split('+').length === 1) {
       if (hotkey) {
-        console.error('removing key')
         hotkey.destroy();
         hotkey = null;
       }
@@ -767,7 +766,7 @@ var batch = (function () {
 
 /** Call this with new **/
 var getVideo = (function () {
-  return function (videoID, listener, itag, noAudio, callback, pointer) {
+  return function (videoID, listener, itag, noAudio, callback, pointer, destination) {
     var doExtract = noAudio ? false : prefs.doExtract;
     var batchID;  // For batch job
 
@@ -858,6 +857,66 @@ var getVideo = (function () {
         }, config.noAudioExtraction * 1000);
         doExtract = false;
       }
+      var vFile;
+      //Select folder by nsIFilePicker
+      if (prefs.dFolder == 4 && !destination) {
+        let nsIFilePicker = Ci.nsIFilePicker;
+        let fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+        fp.init(windows.active, _('prompt3'), nsIFilePicker.modeSave);
+        fp.appendFilter(_('msg14'), '*.' + vInfo.container);
+        fp.defaultString = fileName(videoID, vInfo, gInfo);
+        let res = fp.show();
+        if (res == nsIFilePicker.returnCancel) {
+          // Still no id. Generating a random one
+          var id = Math.floor(Math.random() * 101) + 10000;
+          listener.onDownloadStart({
+            id: id,
+            displayName: '-'
+          });
+          listener.onDownloadDone({id: id}, true);
+          return;
+        }
+        vFile = fp.file;
+      }
+      else if (prefs.dFolder && destination) {
+        vFile = destination.clone();
+        vFile.append(fileName(videoID, vInfo, gInfo));
+      }
+      //Select folder by userFolder
+      else if (prefs.dFolder == 5) {
+        try {
+          //Simple-prefs doesn't support complex type
+          vFile = _prefs.getComplexValue('userFolder', Ci.nsIFile);
+          vFile.append(fileName(videoID, vInfo, gInfo));
+        }
+        catch (e) {
+          notify(_('name'), _('err7') + '\n\n' + _('err') + ': ' + e.message);
+          return;
+        }
+      }
+      else {
+        var videoPath = [];
+        switch(prefs.dFolder) {
+          case 2:
+            root = 'TmpD';
+            let folder = Math.random().toString(36).substr(2,16);
+            videoPath.push('iaextractor');
+            videoPath.push(folder);
+            break;
+          case 0:
+            root = 'DfltDwnld'
+            break;
+          case 1:
+            root = 'Home';
+            break;
+          case 3:
+            root = 'Desk';
+            break;
+        }
+        videoPath.push(fileName(videoID, vInfo, gInfo));
+        vFile = FileUtils.getFile(root, videoPath);
+      }
+
       // Download proper audio file if video-only format is selected
       if (vInfo.dash == 'v') {
         if (!prefs.showAudioDownloadInstruction) {
@@ -910,67 +969,13 @@ var getVideo = (function () {
               if (a.itag == afIndex) {
                 new getVideo(videoID, listener, a.itag, true, function (f) {
                   batch.execute(batchID, f, 'audio');
-                });
+                }, null, vFile.parent);
               }
             });
           }
         }
       }
-      var vFile;
-      //Select folder by nsIFilePicker
-      if (prefs.dFolder == 4) {
-        let nsIFilePicker = Ci.nsIFilePicker;
-        let fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
-        fp.init(windows.active, _('prompt3'), nsIFilePicker.modeSave);
-        fp.appendFilter(_('msg14'), '*.' + vInfo.container);
-        fp.defaultString = fileName(videoID, vInfo, gInfo);
-        let res = fp.show();
-        if (res == nsIFilePicker.returnCancel) {
-          // Still no id. Generating a random one
-          var id = Math.floor(Math.random()*101) + 10000;
-          listener.onDownloadStart({
-            id: id,
-            displayName: '-'
-          });
-          listener.onDownloadDone({id: id}, true);
-          return;
-        }
-        vFile = fp.file;
-      }
-      //Select folder by userFolder
-      else if (prefs.dFolder == 5) {
-        try {
-          //Simple-prefs doesn't support complex type
-          vFile = _prefs.getComplexValue('userFolder', Ci.nsIFile);
-          vFile.append(fileName(videoID, vInfo, gInfo));
-        }
-        catch (e) {
-          notify(_('name'), _('err7') + '\n\n' + _('err') + ': ' + e.message);
-          return;
-        }
-      }
-      else {
-        var videoPath = [];
-        switch(prefs.dFolder) {
-          case 2:
-            root = 'TmpD';
-            let folder = Math.random().toString(36).substr(2,16);
-            videoPath.push('iaextractor');
-            videoPath.push(folder);
-            break;
-          case 0:
-            root = 'DfltDwnld'
-            break;
-          case 1:
-            root = 'Home';
-            break;
-          case 3:
-            root = 'Desk';
-            break;
-        }
-        videoPath.push(fileName(videoID, vInfo, gInfo));
-        vFile = FileUtils.getFile(root, videoPath);
-      }
+
       var aFile, sFile;
       var vFile_first = true, aFile_first = true, sFile_first = true;
       onDownload(vInfo, {
@@ -1231,7 +1236,6 @@ function dFolder (forced) {
       prefs.dFolder = 5;
     }
     else {
-      console.error(prefs.dFolder, prefs.userFolder)
       if (!prefs.userFolder && prefs.dFolder === 5) {
         prefs.dFolder = 3;
       }

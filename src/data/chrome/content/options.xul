@@ -122,9 +122,6 @@
       <label value="Download and configure FFmpeg(binary) media converter:" control="proceed"/>
       <button id="proceed" label="Proceed" oncommand="emit('proceed');"></button>
     </hbox>
-    <hbox align="center">
-      <description>Make sure you can visit<label class="text-link" href="https://sourceforge.net/projects/iaextractor/">https://sourceforge.net/projects/iaextractor/</label>website before pressing the "Proceed" button</description>
-    </hbox>
     <description>The "Proceed" button can only install FFmpeg on Windows, Mac and Linux operation systems.</description>
   </vbox>
   <vbox>
