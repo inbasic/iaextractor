@@ -5,11 +5,12 @@
       <em:type>2</em:type>
       <em:bootstrap>true</em:bootstrap>
       <em:unpack>false</em:unpack>
-      <em:version>0.5.3</em:version>
+      <em:version>0.5.3.1</em:version>
       <em:name>YouTube Video and Audio Downloader</em:name>
       <em:creator>InBasic (@inbasic)</em:creator>
       <em:optionsURL>chrome://iaextractor/content/options.xul</em:optionsURL>
       <em:optionsType>1</em:optionsType>
+      <em:multiprocessCompatible>true</em:multiprocessCompatible>
 
       <em:contributor>Alejandro Rodriguez (@alopepeo), UI design and beta tester</em:contributor>
 
