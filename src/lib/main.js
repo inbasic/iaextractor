@@ -250,7 +250,6 @@ IDExtractor = (function () {
     // embedded page
     var tmp2 = /http.*:.*youtube.com\/embed\/([^\=\&]*)/.exec(url);
     id = tmp2 ? tmp2[1]: null;
-    console.error(tmp2)
     if (callback && id) {
       cache(url, id);
       return callback.apply(pointer, [id]);
@@ -1110,7 +1109,7 @@ var fileName = function (videoID, vInfo, gInfo) {
   // Add " - DASH" to DASH only files
   var pdate = '';
   if (gInfo.response && gInfo.response.text) {
-    pdate = /Published on (\w{3} \d{1,2}\, \d{1,4})/.exec(gInfo.response.text);
+    pdate = /datePublished.*content\="([^\"]+)/.exec(gInfo.response.text);
   }
   return pattern = prefs.namePattern
     .replace ('[file_name]', gInfo.title + (vInfo.dash ? ' - DASH' : ''))

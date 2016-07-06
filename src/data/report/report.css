@@ -17,7 +17,7 @@
 /* General Code */
 
 body {
-  font-family: "Open Sans";
+  font-family: "Open Sans",sans-serif,Roboto,arial;
   font-size: 15px;
   background-color: white;
   -moz-user-select: none;
@@ -314,7 +314,7 @@ label {
   background: url("download.png") 10px center no-repeat;
   margin-bottom: 4px;
   cursor: pointer;
-  font-family: Segoe UI;
+  font-family: "Segoe UI",sans-serif,Roboto,arial;
   background-color: #F79646;
   transition: background-color 180ms;
 }
