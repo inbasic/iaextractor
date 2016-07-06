@@ -181,6 +181,8 @@
   transition: bottom 200ms!important;
   background-color: #F79646!important;
   -moz-user-select: none;
+  padding: 0; /** embeded **/
+  margin: 0;
 }
 #iaextractor-downloader li {
   display: inline-block!important;

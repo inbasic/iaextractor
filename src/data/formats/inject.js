@@ -116,6 +116,9 @@ var Menu = function (doSize) {
     self.port.emit('error', 'msg16');
     return;
   }
+/*  if (rect.height > 600) {
+    rect.height = 600;
+  }*/
   var code =
     '<div id="iaextractor-menu" dir="ltr">' + //injected menu
     ' <span type="title">Download Links</span> ' +

@@ -247,6 +247,14 @@ IDExtractor = (function () {
       cache(url, id);
       return callback.apply(pointer, [id]);
     }
+    // embedded page
+    var tmp2 = /http.*:.*youtube.com\/embed\/([^\=\&]*)/.exec(url);
+    id = tmp2 ? tmp2[1]: null;
+    console.error(tmp2)
+    if (callback && id) {
+      cache(url, id);
+      return callback.apply(pointer, [id]);
+    }
     //Rest
     function fetchId (script) {
       var worker = tabs.activeTab.attach({

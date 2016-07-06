@@ -5,7 +5,7 @@
       <em:type>2</em:type>
       <em:bootstrap>true</em:bootstrap>
       <em:unpack>false</em:unpack>
-      <em:version>0.5.2b2</em:version>
+      <em:version>0.5.2</em:version>
       <em:name>YouTube Video and Audio Downloader</em:name>
       <em:creator>InBasic (@inbasic)</em:creator>
       <em:optionsURL>chrome://iaextractor/content/options.xul</em:optionsURL>
