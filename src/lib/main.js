@@ -884,6 +884,11 @@ var getVideo = (function () {
           return;
         }
         vFile = fp.file;
+        // append extension
+        if (vFile.leafName.indexOf('.' + vInfo.container) === -1) {
+          vFile.leafName += '.' + vInfo.container;
+          //vFile.moveTo(null, vFile.leafName + '.' + vInfo.container);
+        };
       }
       else if (prefs.dFolder && destination) {
         vFile = destination.clone();

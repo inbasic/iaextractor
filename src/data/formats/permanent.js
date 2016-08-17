@@ -1,5 +1,5 @@
-// Update toolbar button (HTML5 History API)
-self.port.emit('page-update');
+/* globals self */
+'use strict'
 
 function $ (id) {
   try {
@@ -33,8 +33,7 @@ function remove () {
 }
 
 function init () {
-  var parent = $('watch8-secondary-actions') || $('vo'),
-      isFeather = $('vo') != null;
+  var parent = $('watch8-secondary-actions') || $('vo');
   if (!parent) {
     return;
   }
@@ -58,62 +57,28 @@ function init () {
   var imgContainer = html('span', {
     'class': 'yt-uix-button-icon-wrapper'
   });
-  var img = html('img', {
+  html('img', {
     'class': 'yt-uix-button-icon yt-sprite',
     'src': 'resource://feca4b87-3be4-43da-a1b1-137c24220968-at-jetpack/data/formats/injected-button.png'
   }, imgContainer);
   button.appendChild(imgContainer);
   button.appendChild(title);
 }
-
 // init
-var url;
-function loader () {
-  var pagecontainer = document.getElementById('page-container');
-  if (!pagecontainer) {
-    return;
-  }
-
-  if (/^https?:\/\/www\.youtube.com\/watch\?/.test(window.location.href)) {
-    init();
-  }
-
-  var isAjax = /class[\w\s"'-=]+spf\-link/.test(pagecontainer.innerHTML);
-  var content = document.getElementById('content');
-  if (isAjax && content) { // Ajax UI
-    var mo = window.MutationObserver;
-    if (typeof mo !== 'undefined') {
-      var observer = new mo(function (mutations) {
-        if (window.location && window.location.href !== url) {
-          self.port.emit('page-update');
-          url = window.location.href;
-        }
-        mutations.forEach(function (mutation) {
-          if (mutation.addedNodes !== null) {
-            for (var i = 0; i < mutation.addedNodes.length; i++) {
-              if (mutation.addedNodes[i].id == 'watch7-main-container') {
-                init();
-                break;
-              }
-            }
-          }
-        });
-      });
-      observer.observe(content, {
-        childList: true,
-        subtree: true
-      });
-      self.port.on('detach', function () {
-        observer.disconnect();
-      });
-    }
-  }
-}
-// This listener should not be removed for HTML5 page change support
-window.addEventListener('DOMContentLoaded', loader, false);
+document.addEventListener('DOMContentLoaded', init, false);
 if (document.readyState !== 'loading') {
-  loader();
+  init();
 }
+function loader () {
+  init();
+  self.port.emit('page-update');}
+// Update toolbar button (HTML5 History API)
+self.port.emit('page-update');
+document.addEventListener('spfdone', loader);
+self.port.on('detach', function () {
+  remove();
+  document.removeEventListener('spfdone', loader);
+});
 
 // Clean up
 function resize () {
