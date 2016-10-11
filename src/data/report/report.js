@@ -252,7 +252,7 @@ self.port.on("detect", function(msg) {
 });
 self.port.on("download-start", function(id, name, msg) {
   if (id == -1) return;
-  //Finding free slot
+  //Finding a free slot
   dmUI.set(id, null);
   dmUI.get(id).close.setAttribute("dlID", id);
   try {

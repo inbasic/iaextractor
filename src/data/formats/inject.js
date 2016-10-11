@@ -272,7 +272,7 @@ var Menu = function (doSize) {
       return p || (c.itag + '' == itag ? c : null);
     }, null);
     self.port.emit(
-      ['flashget', 'tdmanager', 'downThemAll', 'downThemAll'][[downloader.children[0], downloader.children[1], downloader.children[2], downloader.children[3]].indexOf(e.originalTarget)],
+      ['flashgot', 'tdmanager', 'downThemAll', 'downThemAll'][[downloader.children[0], downloader.children[1], downloader.children[2], downloader.children[3]].indexOf(e.originalTarget)],
       format,
       vInfo,
       e.originalTarget == downloader.children[3] ? true : false

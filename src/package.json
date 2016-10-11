@@ -3,13 +3,13 @@
   "name": "iaextractor",
   "description": "",
 
-  "license": "mozilla public license 1.1",
+  "license": "MPLv2.0",
 
   "author": "InBasic (@inbasic)",
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "main": "./lib/main.js",
 
   "id": "feca4b87-3be4-43da-a1b1-137c24220968@jetpack",
@@ -248,6 +248,12 @@
   },
   {
     "name": "welcome",
+    "title": ".",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "dnotifiy",
     "title": ".",
     "type": "bool",
     "value": true

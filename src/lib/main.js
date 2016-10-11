@@ -181,8 +181,9 @@ rPanel.port.on('cmd', function (cmd) {
     windowUtils.openDialog({
       url: 'chrome://iaextractor/content/options.xul',
       name: 'iaextractor-options',
-      features: 'chrome,titlebar,toolbar,centerscreen,dialog=no'
+      features: 'chrome,titlebar,toolbar,centerscreen,dialog=no,resizable'
     }).focus();
+
 /*    windows.active.BrowserOpenAddonsMgr(
       'addons://detail/' + encodeURIComponent('feca4b87-3be4-43da-a1b1-137c24220968@jetpack')
     );*/
@@ -1034,17 +1035,30 @@ var getVideo = (function () {
           listener.onDownloadDone(dl, true);
         }
       });
-      dr(vInfo.url, obj.vFile, null, false, function (dl) {
-        listener.onDownloadStart(dl);
-      });
-      notify(
-        _('name'),
-        _('msg3').replace('%1', vInfo.quality)
-          .replace('%2', vInfo.container)
-          .replace('%3', vInfo.resolution)
-          .replace('%6', vInfo.audioEncoding || '')
-          .replace('%7', vInfo.audioBitrate || '')
-      );
+      try {
+        dr(vInfo.url, obj.vFile, null, false, function (dl) {
+          listener.onDownloadStart(dl);
+        });
+      }
+      catch (e) {
+        notify(_('name'), _('err20'));
+        let id = Math.random();
+        listener.onDownloadStart({
+          id: id,
+          displayName: e.message
+        });
+        listener.onDownloadDone({id: id}, true);
+      }
+      if (prefs.dnotifiy) {
+        notify(
+          _('name'),
+          _('msg3').replace('%1', vInfo.quality)
+            .replace('%2', vInfo.container)
+            .replace('%3', vInfo.resolution)
+            .replace('%6', vInfo.audioEncoding || '')
+            .replace('%7', vInfo.audioBitrate || '')
+        );
+      }
       onSubtitle(obj);
     }
     function onExtract (vInfo, dl, obj) {

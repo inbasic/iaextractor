@@ -16,4 +16,5 @@ label {
 }
 .text-link {
   padding: 0 4px;
+  -moz-user-focus: ignore;
 }

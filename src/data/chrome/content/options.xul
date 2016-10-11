@@ -256,6 +256,7 @@
   <preferences>
     <preference id="customUA" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.customUA" type="string"/>
     <preference id="welcome" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.welcome" type="bool"/>
+    <preference id="dnotifiy" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.dnotifiy" type="bool"/>
     <preference id="protocol" name="extensions.feca4b87-3be4-43da-a1b1-137c24220968@jetpack.protocol" type="int"/>
   </preferences>
   <vbox>
@@ -283,7 +284,10 @@
     <checkbox label="Open FAQs page on upgrade" preference="welcome"/>
     <description>To be notified about the most recent changes, it is recommended to allow the extension to open FAQs page on upgrade</description>
   </vbox>
-  <spacer flex="1"/>
+  <vbox>
+    <checkbox label="Display desktop notification upon downloading a file:" preference="dnotifiy"/>
+    <description>The extension uses desktop notification to display video information when a download is requested</description>
+  </vbox>
   <vbox>
     <hbox align="center">
       <label value="Reset all settings: " control="reset"/>
