@@ -263,7 +263,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
       }
 
       // change the current position for open windows
-      for each (var window in utils.windows()) {
+      for (let window of utils.windows()) {
         if (browserURL != window.location) return;
 
         let doc = window.document;
@@ -285,7 +285,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
           tb.setAttribute("currentset", tb.currentSet);
           doc.persist(tb.id, "currentset");
         }
-      };
+      }
     },
     get label() options.label,
     set label(value) {
@@ -313,7 +313,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
 
 function getToolbarButtons(callback, id) {
   let buttons = [];
-  for each (var window in utils.windows()) {
+  for (let window of utils.windows()) {
     if (browserURL != window.location) continue;
     let tbb = window.document.getElementById(id);
     if (tbb) buttons.push(tbb);

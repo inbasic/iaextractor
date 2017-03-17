@@ -197,17 +197,20 @@ function signatureLocal(info) {
   }
 
   var scriptURL = doMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
+  console.error(scriptURL)
   if (!scriptURL) {
     return d.reject(Error('signatureLocal: Cannot resolve signature;1'));
   }
-  scriptURL = 'https:' + scriptURL.replace(/\\/g,'');
+  scriptURL = scriptURL.replace(/\\/g, '');
+  scriptURL = (scriptURL.substr(0, 2) !== '//' ? 'https://www.youtube.com/' : 'https:') + scriptURL;
   curl(scriptURL).then (function (response) {
     try {
       response.text = response.text.replace(/\r?\n|\r/g, '');
       var sigFunName =
         doMatch(response.text, /\.set\s*\("signature"\s*,\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
         doMatch(response.text, /\.sig\s*\|\|\s*([a-zA-Z0-9_$][\w$]*)\(/) ||
-        doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/);
+        doMatch(response.text, /\.signature\s*=\s*([a-zA-Z_$][\w$]*)\([a-zA-Z_$][\w$]*\)/) ||
+        doMatch(response.text, /set\(\"signature\"\,\s([a-zA-Z0-9_$][\w$]*)\(/);
 
       if (sigFunName == null) {
         return d.reject(Error('signatureLocal: Cannot resolve signature;2'));
@@ -527,12 +530,14 @@ function decipher (s) {
 function verify (info) {
   var isEncrypted = info.formats[0].s;
       doUpdate = isEncrypted && (!prefs.player || !prefs.ccode || info.player != prefs.player);
+
   if (doUpdate) {
     return signatureLocal(info).then(
       function (info) {
         return info
       },
       function (e) {
+        console.error(e);
         info.localError = e.message;
         return updateSig(info).then(doCorrections)
       }
