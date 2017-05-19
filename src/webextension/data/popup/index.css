@@ -1,0 +1,125 @@
+:root {
+  --bg1: #FF6C09;
+  --bg2: #FFA05A;
+  --color: #FFF;
+  --spacing: 20px;
+}
+html,body {
+  height: 100%;
+}
+body {
+  font-family: sans-serif,Roboto,arial;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  color: var(--color);
+  background-color: var(--bg1);
+  overflow: hidden;
+  user-select: none;
+  width: 300px;
+  height: 200px;
+}
+body>div:first-child {
+  margin-bottom: calc(-1 * var(--spacing));
+}
+body>div>div {
+  background-color: var(--bg2);
+  box-sizing: border-box;
+  margin: var(--spacing);
+  cursor: pointer;
+}
+body>div>div:first-child {
+  margin-right: 0;
+}
+span {
+  height: 20px;
+}
+ul {
+  list-style: none;
+  padding: 0 0 0 10px;
+  margin: 0;
+}
+li {
+  text-align: left;
+  margin-bottom: 3px;
+}
+
+input[type=radio] {
+  display: none;
+}
+label {
+  background: url('unchecked.svg') left center no-repeat;
+  background-size: 16px;
+  padding-left: 20px;
+  cursor: pointer;
+}
+input:checked ~ label {
+  background-image: url('checked.svg');
+}
+img {
+  max-width: 12vw;
+}
+
+[data-cmd="quick-download"] {
+  position: relative;
+}
+#more {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  opacity: 0.5;
+  cursor: pointer;
+}
+#more:hover {
+  opacity: 1;
+}
+#settings {
+  background-color: var(--bg1);
+  border-top: 1px solid #fff;
+  position: absolute;
+  bottom: -70vh;
+  right: 0;
+  left: 0;
+  height: 70vh;
+  box-sizing: border-box;
+  transition: transform 200ms;
+}
+body[data-settings=true] #settings{
+  transform: translate(0, -70vh);
+}
+#settings>div {
+  background-color: transparent;
+}
+body[data-youtube=true] [youtube=false] {
+  display: none;
+}
+body[data-youtube=false] [youtube=true] {
+  display: none;
+}
+body[data-youtube=false] [data-cmd=display-panel],
+[data-working=true] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+[hbox] {
+  display: flex;
+  flex-direction: row;
+}
+[vbox] {
+  display: flex;
+  flex-direction: column;
+}
+[flex="1"] {
+  flex: 1;
+}
+[pack=center] {
+  justify-content: center;
+}
+[align=center] {
+  align-items: center;
+}
+[data-cmd]:active {
+  opacity: 0.7;
+}

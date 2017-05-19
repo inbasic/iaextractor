@@ -135,6 +135,7 @@
   transition: transform 300ms;
 }
 .iaextractor-item {
+  font-size: 13px;
   display: block;
   line-height: 30px;
   height: 30px;
@@ -243,4 +244,11 @@
 }
 #formats-button-small:hover{
   opacity: 1;
+}
+
+#formats-button-small-2 {
+  background: url('./injected-button.png') center center no-repeat;
+  background-size: 16px 16px;
+  width: 36px;
+  cursor: pointer;
 }

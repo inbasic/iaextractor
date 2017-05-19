@@ -1,0 +1,26 @@
+body {
+  padding: 10px;
+  font-family: "Helvetica Neue",Helvetica,sans-serif;
+  font-size: 13px;
+  min-width: 500px;
+}
+table {
+  width: 100%;
+}
+td:not(:first-child) {
+  text-align: right;
+}
+input[type=text] {
+  width: 100%;
+  box-sizing: border-box;
+}
+fieldset {
+  margin-bottom: 10px;
+}
+select {
+  margin-left: 10px;
+}
+.commands td:last-child{
+  width: 10px;
+  white-space: nowrap;
+}

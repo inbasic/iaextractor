@@ -1,0 +1,67 @@
+{
+  "name": "YouTube Video and Audio Downloader (Dev Edt.)",
+  "short_name": "iaextractor",
+  "description": "__MSG_appDesc__",
+  "author": "InBasic",
+  "version": "0.7.1",
+  "manifest_version": 2,
+  "default_locale": "en",
+  "permissions": [
+    "tabs",
+    "storage",
+    "nativeMessaging",
+    "downloads",
+    "notifications",
+    "*://www.youtube.com/*",
+    "*://*.googlevideo.com/*",
+    "https://api.github.com/repos/andy-portmen/native-client/releases/latest",
+    "https://api.github.com/repos/inbasic/ffmpeg/releases/latest"
+  ],
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "/data/locale.js",
+      "download.js",
+      "ffmpeg.js",
+      "common.js"
+    ]
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "/data/icons/16.png",
+      "32": "/data/icons/512.png",
+      "64": "/data/icons/64.png",
+      "128": "/data/icons/128.png",
+      "256": "/data/icons/256.png",
+      "512": "/data/icons/512.png"
+    },
+    "default_popup": "/data/popup/index.html"
+  },
+  "content_scripts": [{
+    "matches": [
+      "*://www.youtube.com/*"
+    ],
+    "js": [
+      "data/inject/id.js",
+      "data/inject/button.js"
+    ],
+    "css": [
+      "data/inject/styles.css"
+    ],
+    "run_at": "document_start",
+    "all_frames": false
+  }],
+  "homepage_url": "https://github.com/inbasic/iaextractor/",
+  "icons": {
+    "16": "/data/icons/16.png",
+    "32": "/data/icons/512.png",
+    "64": "/data/icons/64.png",
+    "128": "/data/icons/128.png",
+    "256": "/data/icons/256.png",
+    "512": "/data/icons/512.png"
+  },
+  "web_accessible_resources": [
+    "/data/inject/download.svg",
+    "/data/inject/panel/index.html"
+  ]
+}

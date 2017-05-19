@@ -489,9 +489,10 @@ yButton = toolbarbutton.ToolbarButton({
   }
 });
 
-exports.main = function (options, callbacks) {
+// onInstall
+(function () {
   //Install
-  if (options.loadReason == 'install' || prefs.forceVisible) {
+  if (self.loadReason == 'install' || prefs.forceVisible) {
     //If adjacent button is restartless wait for its creation
     timer.setTimeout(function () {
       yButton.moveTo(config.toolbar.move);
@@ -500,16 +501,16 @@ exports.main = function (options, callbacks) {
   // Check current page
   monitor(tabs.activeTab);
   //Welcome page
-  if (options.loadReason === 'install' || options.loadReason === 'upgrade') {
-    prefs.newVer = options.loadReason;
+  if (self.loadReason === 'install' || self.loadReason === 'upgrade') {
+    prefs.newVer = self.loadReason;
   }
-  if (options.loadReason == 'startup' || options.loadReason == 'install') {
+  if (self.loadReason == 'startup' || self.loadReason == 'install') {
     welcome();
   }
-  if (options.loadReason == 'install' && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
+  if (self.loadReason == 'install' && !prefs.ffmpegPath && !prefs.showFFmpegInstall) {
     external.checkFFmpeg();
   }
-}
+})();
 
 /** Welcome page **/
 function welcome () {
@@ -547,8 +548,7 @@ tabs.on('ready', function () {
 });
 tabs.on('activate', monitor);
 
-
-exports.onUnload = function (reason) {
+unload.when(function () {
   //Close tools window
   let wm = Cc['@mozilla.org/appshell/window-mediator;1']
     .getService(Ci.nsIWindowMediator);
@@ -559,7 +559,7 @@ exports.onUnload = function (reason) {
   }
   //Remove observer
   //http.destroy();
-}
+});
 
 /** HTTP Observer **/
 var http = (function () {
@@ -1325,4 +1325,4 @@ unload.when(function () {
       win.close();
     }
   };
-})
+});

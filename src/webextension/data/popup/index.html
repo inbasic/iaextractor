@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="index.css">
+    <script src="/data/locale.js"></script>
+  </head>
+  <body vbox data-settings=false data-youtube=false>
+    <div hbox flex=1>
+      <div flex=1 vbox align="center" data-cmd="open-youtube">
+        <img src="download.svg" flex="1">
+        <span youtube="true" data-i18n="pp_1"></span>
+        <span youtube="false" data-i18n="pp_2"></span>
+        <img youtube="true" id="more" src="more.svg" width="16" height="16" data-cmd="more">
+      </div>
+      <div flex=1 vbox align="center" data-cmd="display-panel">
+        <img src="list.svg" flex="1">
+        <span data-i18n="pp_3"></span>
+      </div>
+    </div>
+    <div hbox flex=1>
+      <div flex=1 vbox align="center" data-cmd="open-converter">
+        <img src="convert.svg" flex="1">
+        <span data-i18n="pp_4"></span>
+      </div>
+      <div flex=1 vbox align="center" data-cmd="open-options">
+        <img src="settings.svg" flex="1">
+        <span data-i18n="pp_5"></span>
+      </div>
+    </div>
+    <div id="settings" hbox>
+      <div flex=1 hbox align="center" pack="center">
+        <span data-i18n="pp_6"></span>
+        <ul>
+          <li><input type="radio" name="format" id="webm"> <label for="webm">WebM</label></li>
+          <li><input type="radio" name="format" id="mp4"> <label for="mp4">MP4</label></li>
+          <li><input type="radio" name="format" id="flv"> <label for="flv">FLV</label></li>
+          <li><input type="radio" name="format" id="3gp"> <label for="3gp">3GP</label></li>
+        </ul>
+      </div>
+      <div flex=1 hbox align="center" pack="center">
+        <span data-i18n="pp_2"></span>
+        <ul>
+          <li><input type="radio" name="quality" id="highest"> <label for="highest" data-i18n="pp_21"></label></li>
+          <li><input type="radio" name="quality" id="1080p"> <label for="1080p" data-i18n="pp_22"></label></li>
+          <li><input type="radio" name="quality" id="720p"> <label for="720p" data-i18n="pp_23"></label></li>
+          <li><input type="radio" name="quality" id="high"> <label for="high" data-i18n="pp_24"></label></li>
+          <li><input type="radio" name="quality" id="medium"> <label for="medium" data-i18n="pp_25"></label></li>
+          <li><input type="radio" name="quality" id="small"> <label for="small" data-i18n="pp_26"></label></li>
+        </ul>
+      </div>
+    </div>
+    <script src="/data/inject/youtube.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Video and Audio Downloader :: Options</title>
+   <link rel="stylesheet" href="index.css">
+   <script src="/data/locale.js"></script>
+   <meta charset="utf-8">
+</head>
+
+<body>
+  <fieldset>
+    <legend data-i18n="opt_legend_1"></legend>
+    <table>
+      <colgroup>
+        <col width="150"></col>
+        <col></col>
+      </colgroup>
+      <tr>
+        <td data-i18n="opt_l11"></td>
+        <td><input type="button" data-mtd="value" data-i18n="opt_017" data-cmd="install-native"> </td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_l12"></td>
+        <td><input type="button" data-mtd="value" data-i18n="opt_017" data-cmd="download-ffmpeg"> </td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_l13"></td>
+        <td><input type="text" id="ffmpeg"> </td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="opt_legend_2"></legend>
+    <table>
+      <colgroup>
+        <col width="300"></col>
+        <col></col>
+      </colgroup>
+      <tr>
+        <td><span data-i18n="opt_211"></span> <span data-i18n="opt_011"></span></td>
+        <td><input type="checkbox" id="doMerge"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_212"></td>
+        <td><input type="checkbox" id="pretendHD"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_213"></td>
+        <td><input type="checkbox" id="remove"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_214"></td>
+        <td><input type="checkbox" id="saveAs"></td>
+      </tr>
+      <tr>
+        <td><span data-i18n="opt_215"></span> <span data-i18n="opt_011"></span></td>
+        <td>
+          <select id="post-process">
+            <option value="nothing" data-i18n="opt_2151"></option>
+            <option value="audio" data-i18n="opt_2152"></option>
+            <option value="mp3" data-i18n="opt_2153"></option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_216"></td>
+        <td><input type="checkbox" id="opusmixing"></td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="opt_legend_3"></legend>
+    <table>
+      <colgroup>
+        <col width="150"></col>
+        <col></col>
+      </colgroup>
+      <tr>
+        <td data-i18n="opt_311"></td>
+        <td>
+          <div style="display: flex;">
+            <input type="text" id="pattern" style="flex: 1;">
+            <select data-cmd="insert">
+              <option value="[file_name]">[file_name]</option>
+              <option value="[extension]">[extension]</option>
+              <option value="[author]">[author]</option>
+              <option value="[video_id]">[video_id]</option>
+              <option value="[video_resolution]">[video_resolution]</option>
+              <option value="[audio_bitrate]">[audio_bitrate]</option>
+              <option value="[published_date]">[published_date]</option>
+            </select>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_312"></td>
+        <td colspan="2"><input type="text" id="savein"></td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="opt_legend_4"></legend>
+    <table class="commands">
+      <colgroup>
+        <col width="150"></col>
+        <col></col>
+      </colgroup>
+      <tr>
+        <td data-i18n="opt_411"></td>
+        <td><input type="text" id="toAudio"></td>
+        <td><input type="button" value="reset" data-cmd="reset" data-value="-loglevel error -i %input -acodec copy -vn %output"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_412"></td>
+        <td><input type="text" id="muxing"></td>
+        <td><input type="button" value="reset" data-cmd="reset" data-value="-loglevel error -i %audio -i %video -acodec copy -vcodec copy %output"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_413"></td>
+        <td><input type="text" id="toMP3"></td>
+        <td><input type="button" value="reset" data-cmd="reset" data-value="-loglevel error -i %input -q:a 0 %output"></td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="opt_legend_5"></legend>
+    <table>
+      <colgroup>
+        <col width="300"></col>
+        <col></col>
+      </colgroup>
+      <tr>
+        <td data-i18n="opt_511"></td>
+        <td><input type="checkbox" id="notification"></td>
+      </tr>
+      <tr>
+        <td data-i18n="opt_512"></td>
+        <td><input type="checkbox" id="faqs"></td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <br>
+  <div>
+    <button id="save" data-i18n="opt_012"></button>
+    <span id="status"></span>
+  </div>
+
+  <script src="/download.js"></script>
+  <script src="index.js"></script>
+  <script src="ffmpeg.js"></script>
+</body>
+</html>

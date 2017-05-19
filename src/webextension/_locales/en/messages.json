@@ -1,0 +1,191 @@
+{
+  "appDesc": {
+    "message": "Download YouTube videos in all available formats and extract the original audio files"
+  },
+  "title": {
+    "message": "YouTube Video and Audio Downloader"
+  },
+  "opt_legend_1": {
+    "message": "FFmpeg Integration"
+  },
+  "opt_legend_2": {
+    "message": "Download Options"
+  },
+  "opt_legend_3": {
+    "message": "Saving Options"
+  },
+  "opt_legend_4": {
+    "message": "FFmpeg Commands"
+  },
+  "opt_legend_5": {
+    "message": "Misc"
+  },
+  "opt_011": {
+    "message": "(if FFmpeg is installed)"
+  },
+  "opt_012": {
+    "message": "Save"
+  },
+  "opt_013": {
+    "message": "Options saved."
+  },
+  "opt_014": {
+    "message": "Installed"
+  },
+  "opt_017": {
+    "message": "Install"
+  },
+  "opt_018": {
+    "message": "Wait..."
+  },
+  "opt_015": {
+    "message": "Required"
+  },
+  "opt_016": {
+    "message": "Error"
+  },
+  "opt_l11": {
+    "message": "Install native client (1/2)"
+  },
+  "opt_l12": {
+    "message": "Install FFmpeg (2/2)"
+  },
+  "opt_l13": {
+    "message": "FFmpeg path"
+  },
+  "opt_211": {
+    "message": "Combine video-only and audio-only files"
+  },
+  "opt_212": {
+    "message": "Always download HD quality audio for video-only files"
+  },
+  "opt_213": {
+    "message": "Remove downloaded file(s) after successful conversion"
+  },
+  "opt_214": {
+    "message": "Always ask for download location"
+  },
+  "opt_215": {
+    "message": "Post processing"
+  },
+  "opt_2151": {
+    "message": "Do nothing"
+  },
+  "opt_2152": {
+    "message": "Extract audio"
+  },
+  "opt_2153": {
+    "message": "Convert to MP3"
+  },
+  "opt_216": {
+    "message": "Consider \"OPUS\" audio-only streams when muxing with WebM video-only stream"
+  },
+  "opt_311": {
+    "message": "File-name pattern"
+  },
+  "opt_312": {
+    "message": "Save merged files in"
+  },
+  "opt_411": {
+    "message": "Audio Extraction"
+  },
+  "opt_412": {
+    "message": "Audio and Video combining"
+  },
+  "opt_413": {
+    "message": "MP3 Conversion"
+  },
+  "opt_511": {
+    "message": "Allow extension to use desktop notifications"
+  },
+  "opt_512": {
+    "message": "Display FAQs page on updates"
+  },
+  "error_1": {
+    "message": "Your OS is not yet supported"
+  },
+  "error_2": {
+    "message": "Cannot connect to api.github.com server"
+  },
+  "error_3": {
+    "message": "Cannot find the native client. Follow the 3 steps to install the native client"
+  },
+  "error_4": {
+    "message": "No DASH audio is detected"
+  },
+  "error_5": {
+    "message": "Cannot find the downloaded file!"
+  },
+  "error_6": {
+    "message": "Batch downloading is interrupted"
+  },
+  "error_7": {
+    "message": "Cannot find any streams in this format. Select another format"
+  },
+  "error_8": {
+    "message": "Cannot detect video ID. Refresh the tab might help!"
+  },
+  "error_9": {
+    "message": "Cannot detect the parent player or the parent player is too small"
+  },
+  "error_10": {
+    "message": "something went wrong/2; Are you sure the native client is installed? If not visit options page to install it."
+  },
+  "error_11": {
+    "message": "something went wrong/3; Are you sure the native client is installed? If not visit options page to install it."
+  },
+  "error_12": {
+    "message": "something went wrong/1; Are you sure the native client is installed? If not visit options page to install it."
+  },
+  "message_1": {
+    "message": "FFmpeg is installed successfully"
+  },
+  "message_2": {
+    "message": "For merging audio- and video-only files FFmpeg is required"
+  },
+  "message_3": {
+    "message": "Media Converter integration will be available soon!"
+  },
+  "pp_1": {
+    "message": "Quick Download"
+  },
+  "pp_2": {
+    "message": "Open YouTube"
+  },
+  "pp_3": {
+    "message": "Download Panel"
+  },
+  "pp_4": {
+    "message": "Conversion Tool"
+  },
+  "pp_5": {
+    "message": "Settings"
+  },
+  "pp_6": {
+    "message": "Format:"
+  },
+  "pp_7": {
+    "message": "Please wait"
+  },
+  "pp_8": {
+    "message": "Quality:"
+  },
+  "pp_21": {
+    "message": "Highest"
+  },
+  "pp_22": {
+    "message": "HD1080p"
+  },
+  "pp_23": {
+    "message": "HD720p"
+  },
+  "pp_24": {
+    "message": "High"
+  },
+  "pp_25": {
+    "message": "Medium"
+  },
+  "pp_26": {
+    "message": "Small"
+  }
+}

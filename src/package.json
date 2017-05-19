@@ -9,10 +9,12 @@
   "contributors": ["Alejandro Rodriguez (@alopepeo), UI design and beta tester"],
 
   "url": "",
-  "version": "0.5.7",
-  "main": "./lib/main.js",
+  "version": "0.7.1",
+  "main": "./run.js",
 
   "id": "feca4b87-3be4-43da-a1b1-137c24220968@jetpack",
+
+  "hasEmbeddedWebExtension": true,
 
   "permissions": {
     "private-browsing": true,
@@ -23,7 +25,8 @@
     "name": "getConverter",
     "type": "control",
     "label": ".",
-    "title": "."
+    "title": ".",
+    "hidden": true
   },
   {
     "name": "extension",
@@ -36,7 +39,8 @@
       {"value": "1", "label": "3GP"},
       {"value": "2", "label": "MP4"},
       {"value": "3", "label": "WebM"}
-    ]
+    ],
+    "hidden": true
   },
   {
     "name": "quality",
@@ -49,20 +53,23 @@
       {"value": "2", "label": "High"},
       {"value": "3", "label": "Medium"},
       {"value": "4", "label": "Small"}
-    ]
+    ],
+    "hidden": true
   },
   {
     "name": "doExtract",
     "title": ".",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "namePattern",
     "title": ".",
     "description": "",
     "type": "string",
-    "value": "[file_name].[extension]"
+    "value": "[file_name].[extension]",
+    "hidden": true
   },
   {
     "name": "dFolder",
@@ -76,156 +83,179 @@
       {"value": "3", "label": "dsk_dir"},
       {"value": "4", "label": "slt_fdr"},
       {"value": "5", "label": "urs_fdr"}
-    ]
+    ],
+    "hidden": true
   },
   {
     "name": "userFolder",
     "type": "directory",
     "title": ".",
-    "description": ""
+    "description": "",
+    "hidden": true
   },
   {
     "name": "getFileSize",
     "title": ".",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "open",
     "title": ".",
     "type": "bool",
-    "value": false
+    "value": false,
+    "hidden": true
   },
   {
     "type": "string",
     "name": "downloadHKey",
     "title": ".",
     "description": "",
-    "value": "Accel + Shift + Q"
+    "value": "Accel + Shift + Q",
+    "hidden": true
   },
   {
     "name": "inject",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "oneClickDownload",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": false
+    "value": false,
+    "hidden": true
   },
   {
     "name": "silentOneClickDownload",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "ffmpegPath",
     "type": "file",
     "title": ".",
-    "description": ""
+    "description": "",
+    "hidden": true
   },
   {
     "name": "ffmpegPath-manual",
     "type": "string",
     "title": ".",
-    "description": ""
+    "description": "",
+    "hidden": true
   },
   {
     "name": "ffmpegInputs",
     "title": ".",
     "description": "",
     "type": "string",
-    "value": "-loglevel error -i %input -q:a 0 %output.mp3"
+    "value": "-loglevel error -i %input -q:a 0 %output.mp3",
+    "hidden": true
   },
   {
     "name": "ffmpegInputs4",
     "title": ".",
     "description": "",
     "type": "string",
-    "value": "-loglevel error -i %audio -i %video -acodec copy -vcodec copy %output"
+    "value": "-loglevel error -i %audio -i %video -acodec copy -vcodec copy %output",
+    "hidden": true
   },
   {
     "name": "doBatchMode",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "pretendHD",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "opusmixing",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": false
+    "value": false,
+    "hidden": true
   },
   {
     "name": "ffmpegInputs3",
     "title": ".",
     "description": "",
     "type": "string",
-    "value": "-loglevel error -i %input -acodec copy -vn %output"
+    "value": "-loglevel error -i %input -acodec copy -vn %output",
+    "hidden": true
   },
   {
     "name": "doRemux",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "deleteInputs",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "showNotifications",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "showWEBM",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "showMP4",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "showFLV",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "show3GP",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "protocol",
@@ -237,44 +267,64 @@
       {"value": "0", "label": "default"},
       {"value": "1", "label": "http"},
       {"value": "2", "label": "https"}
-    ]
+    ],
+    "hidden": true
   },
   {
     "name": "customUA",
     "title": ".",
     "description": "",
     "type": "string",
-    "value": ""
+    "value": "",
+    "hidden": true
   },
   {
     "name": "welcome",
     "title": ".",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "dnotifiy",
     "title": ".",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "forceVisible",
     "title": ".",
     "description": "",
     "type": "bool",
-    "value": true
+    "value": true,
+    "hidden": true
   },
   {
     "name": "installFFmpeg",
     "type": "control",
     "label": ".",
-    "title": "."
+    "title": ".",
+    "hidden": true
   },
   {
     "name": "reset",
     "type": "control",
     "label": ".",
-    "title": "."
+    "title": ".",
+    "hidden": true
+  },
+{
+    "name": "openOptions",
+    "type": "control",
+    "label": "Options",
+    "title": "Open Options Window"
+  },
+  {
+    "name": "experiment",
+    "type": "bool",
+    "label": "Switch",
+    "description": "Switch to the experimental WebExtension version (Firefox >= 53.0)",
+    "title": "Try the WebExtension version"
   }]
 }

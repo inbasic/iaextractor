@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body vbox data-loading="true">
+    <template id="template-item">
+      <a class="item" hbox align="center" href="#" data-toolbar="false" onclick="return false;">
+        <span vbox data-cmd="toggle-toolbar">
+          <img width="16" height="16" alt="" src="download.svg">
+          <img width="16" height="16" alt="" src="dot.svg">
+        </span>
+        <span flex="1"></span>
+        <span>--</span>
+      </a>
+    </template>
+    <template id="template-page">
+      <div hbox>
+        <input type="radio" name="page" id="page-1">
+        <label for="page-1" flex="1" hbox align="center" pack="center">1</label>
+      </div>
+    </template>
+
+    <div id="titlebar" hbox pack="center" align="center">
+      Download Links
+    </div>
+    <div id="content" hbox>
+      <div id="items" vbox flex="1"></div>
+    </div>
+    <div id="toolbar" hbox></div>
+    <div id="close" data-cmd="close-me"></div>
+    <div id="externals" hbox align="center">
+      Integration with external download managers is in progress!
+    </div>
+    <script src="ui.js"></script>
+    <script src="../youtube.js"></script>
+    <script src="action.js"></script>
+  </body>
+</html>

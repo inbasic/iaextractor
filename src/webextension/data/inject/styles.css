@@ -1,0 +1,32 @@
+:root {
+  --iax-background: #FF6C09;
+  --iax-color: #FFF;
+}
+
+.iaextractor-webx-button>span {
+  color: var(--iax-background);
+}
+.iaextractor-webx-button:before {
+  background-image: url('moz-extension://__MSG_@@extension_id__/data/inject/download.svg'), url('chrome-extension://__MSG_@@extension_id__/data/inject/download.svg') !important;
+  background-size: 16px 16px !important;
+  background-position: 0 !important;
+}
+.iaextractor-new-button {
+  background-image: url('moz-extension://__MSG_@@extension_id__/data/inject/download.svg'), url('chrome-extension://__MSG_@@extension_id__/data/inject/download.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  width: 36px;
+  cursor: pointer;
+}
+
+.iaextractor-webx-iframe {
+  position: relative;
+  background: transparent;
+  border: none;
+  z-index: 1999999998;
+  overflow: hidden;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+}

@@ -197,7 +197,6 @@ function signatureLocal(info) {
   }
 
   var scriptURL = doMatch(info.response.text, /\"js\":\s*\"([^\"]+)\"/);
-  console.error(scriptURL)
   if (!scriptURL) {
     return d.reject(Error('signatureLocal: Cannot resolve signature;1'));
   }
@@ -234,42 +233,29 @@ function signatureLocal(info) {
         response.text,
         /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.reverse\s*\(\s*\)\s*}/
       );
-
-      if (revFunName) revFunName = revFunName.replace('$', '\\$');
       var slcFuncName = doMatch(
         response.text,
         /([\w$]*)\s*:\s*function\s*\(\s*[\w$]*\s*,\s*[\w$]*\s*\)\s*{\s*(?:return\s*)?[\w$]*\.(?:slice|splice)\(.+\)\s*}/
       );
-      if (slcFuncName) slcFuncName = slcFuncName.replace('$', '\\$');
-      var regSlice = new RegExp(
-        '\\.(?:' + 'slice' + (slcFuncName ? '|' + slcFuncName : '') + ')\\s*\\(\\s*(?:[a-zA-Z_$][\\w$]*\\s*,)?\\s*([0-9]+)\\s*\\)'
-      );
-      var regReverse = new RegExp(
-        '\\.(?:' + 'reverse' + (revFunName ? '|' + revFunName : '') + ')\\s*\\([^\\)]*\\)'
-      );
-      var regSwap = new RegExp('[\\w$]+\\s*\\(\\s*[\\w$]+\\s*,\\s*([0-9]+)\\s*\\)');
       var regInline = new RegExp(
         '[\\w$]+\\[0\\]\\s*=\\s*[\\w$]+\\[([0-9]+)\\s*%\\s*[\\w$]+\\.length\\]'
       );
       var funcPieces = functionCode.split(/\s*\;\s*/), decodeArray = [], signatureLength = 81;
+
       for (var i = 0; i < funcPieces.length; i++) {
         funcPieces[i] = funcPieces[i].trim();
         var codeLine = funcPieces[i];
         if (codeLine.length > 0) {
-          var arrSlice = codeLine.match(regSlice);
-          var arrReverse = codeLine.match(regReverse);
-
-          if (arrSlice && arrSlice.length >= 2) { // slice
-            var slice = parseInt(arrSlice[1]);
-            if (isInteger(slice)) {
-              decodeArray.push('s', slice);
-              signatureLength += slice;
+          if (codeLine.indexOf(slcFuncName) !== -1) { // slice
+            let slice = /\d+/.exec(codeLine.split(',').pop()); // oE.s4(a,43) or oE["s4"](a,43) or oE['s4'](a,43)
+            if (slice && slice.length) {
+              decodeArray.push('s', slice[0]);
             }
             else {
               d.reject(Error('signatureLocal: Cannot resolve signature;4'));
             }
           }
-          else if (arrReverse && arrReverse.length >= 1) { // reverse
+          else if (codeLine.indexOf(revFunName) !== -1) { // reverse
             decodeArray.push('r');
           }
           else if (codeLine.indexOf('[0]') >= 0) { // inline swap
@@ -286,10 +272,9 @@ function signatureLocal(info) {
             }
           }
           else if (codeLine.indexOf(',') >= 0) { // swap
-            var swap = doMatch(codeLine, regSwap);
-            swap = parseInt(swap);
-            if (isInteger(swap)) {
-              decodeArray.push('w', swap);
+            let swap = /\d+/.exec(codeLine.split(',').pop()); // oE.s4(a,43) or oE["s4"](a,43) or oE['s4'](a,43)
+            if (swap && swap.length) {
+              decodeArray.push('w', swap[0]);
             }
             else {
               return d.reject(Error('signatureLocal: Cannot resolve signature;6'));

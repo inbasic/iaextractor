@@ -1,0 +1,129 @@
+:root {
+  --bg1: #FF6C09;
+  --bg2: #FFA05A;
+  --color: #FFF;
+}
+html,body {
+  height: 100%;
+}
+body {
+  font-family: sans-serif,Roboto,arial;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  color: var(--color);
+  background-color: var(--bg1);
+  overflow: hidden;
+  user-select: none;
+}
+body[data-loading=true] {
+  background: url('fetch.svg') center center no-repeat;
+  background-color: var(--bg1);
+}
+
+.item {
+  background-color: var(--bg2);
+  margin: 20px 28px 0 28px;
+  height: 30px;
+  padding: 0 10px;
+  text-decoration: none;
+  color: var(--color);
+  width: calc(100vw - 76px);
+}
+.item>span:nth-child(2) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 5px;
+  text-align: left;
+}
+.item>span:first-child {
+  height: 16px;
+  width: 16px;
+  overflow: hidden;
+}
+.item>span:first-child>img{
+  transition: transform 200ms;
+}
+.item[data-toolbar=true]>span:first-child>img{
+  transform: translate(0, -16px);
+}
+.item img {
+  min-width: 16px;
+  min-height: 16px;
+  pointer-events: none;
+}
+
+#titlebar {
+  min-height: 30px;
+}
+#content {
+  overflow: hidden;
+  height: 100%;
+}
+#items {
+  flex-wrap: wrap;
+  transition: transform 500ms;
+}
+#toolbar {
+  min-height: 32px;
+  padding-top: 10px;
+}
+#close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 20px;
+  width: 40px;
+  background: url('close.svg') center center no-repeat;
+  background-color: var(--bg2);
+  background-size: 16px;
+  cursor: pointer;
+}
+#toolbar input {
+  display: none;
+}
+#toolbar div {
+  flex: 1;
+}
+#toolbar label {
+  cursor: pointer;
+  border: none;
+  border-top: 2px solid transparent;
+}
+#toolbar input:checked + label {
+  border-color: #fff;
+}
+#externals {
+  position: absolute;
+  height: 32px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 10px;
+  transition: transform 300ms;
+  transform: translate(0, 32px);
+  background-color: var(--bg2);
+}
+body[data-integration=true] #externals {
+  transform: translate(0, 0);
+}
+
+[hbox] {
+  display: flex;
+  flex-direction: row;
+}
+[vbox] {
+  display: flex;
+  flex-direction: column;
+}
+[flex="1"] {
+  flex: 1;
+}
+[pack=center] {
+  justify-content: center;
+}
+[align=center] {
+  align-items: center;
+}
